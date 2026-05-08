@@ -1,0 +1,31 @@
+{
+  "metadata": {
+    "source_url": "https://www.mayoclinic.org/diseases-conditions/diabetes/diagnosis-treatment/drc-20371444",
+    "content_type": "diagnosis",
+    "disease_name": "Diabetes",
+    "filename": "diabetes_diagnosis.json"
+  },
+  "analysis": {
+    "disease_name": "Diabetes",
+    "diagnostic_tests": [
+      "Blood sugar tests",
+      "Urine ketone test",
+      "Hemoglobin A1c test"
+    ],
+    "treatment_options": [
+      "Insulin therapy",
+      "Oral medications",
+      "Lifestyle changes (diet and exercise)"
+    ],
+    "medications": [
+      "Metformin",
+      "Sulfonylureas",
+      "GLP-1 receptor agonists"
+    ],
+    "procedures": [
+      "Insulin pump insertion",
+      "Continuous glucose monitoring system placement"
+    ],
+    "summary": "Diabetes is a group of diseases that affect how the body uses blood sugar. Symptoms include increased thirst and urination, weight loss, blurred vision, and slow-healing sores."
+  }
+}

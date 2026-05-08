@@ -1,0 +1,38 @@
+{
+  "metadata": {
+    "source_url": "https://www.mayoclinic.org/diseases-conditions/diabetes/symptoms-causes/syc-20371444",
+    "content_type": "symptoms",
+    "extracted_at": "2025-10-12T03:03:42.487092",
+    "disease_name": "Diabetes"
+  },
+  "analysis": {
+    "disease_name": "Diabetes",
+    "symptoms": [
+      "Feeling more thirsty than usual.",
+      "Urinating often.",
+      "Losing weight without trying.",
+      "Presence of ketones in the urine.",
+      "Feeling tired and weak.",
+      "Feeling irritable or having other mood changes.",
+      "Having blurry vision.",
+      "Having slow-healing sores.",
+      "Getting a lot of infections, such as gum, skin and vaginal infections."
+    ],
+    "causes": [
+      "The pancreas releases insulin into the bloodstream.",
+      "Insulin circulates, letting sugar enter the cells.",
+      "Insulin lowers the amount of sugar in the bloodstream.",
+      "As the blood sugar level drops, so does the secretion of insulin from the pancreas.",
+      "Glucose comes from two major sources: food and the liver.",
+      "Sugar is absorbed into the bloodstream, where it enters cells with the help of insulin.",
+      "The liver stores and makes glucose.",
+      "When glucose levels are low, such as when you haven't eaten in a while, the liver breaks down stored glycogen into glucose."
+    ],
+    "prevention": [
+      "Steps to prevent prediabetes include losing weight, eating a healthy diet, and exercising regularly.",
+      "Gestational diabetes can be prevented by maintaining a healthy diet and lifestyle during pregnancy.",
+      "Type 2 diabetes can be prevented or delayed by making healthy lifestyle choices, such as losing weight, eating a healthy diet, and exercising regularly."
+    ],
+    "summary": "Diabetes mellitus refers to a group of diseases that affect how the body uses blood sugar (glucose). Glucose is an important source of energy for the cells that make up the muscles and tissues. It's also the brain's main source of fuel. The main cause of diabetes varies by type, but no matter what type of diabetes you have, it can lead to excess sugar in the blood."
+  }
+}

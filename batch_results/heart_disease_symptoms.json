@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "source_url": "https://www.mayoclinic.org/diseases-conditions/heart-disease/symptoms-causes/syc-20353118",
+    "content_type": "symptoms",
+    "disease_name": "Heart Disease",
+    "filename": "heart_disease_symptoms.json"
+  },
+  "analysis": {
+    "disease_name": "Heart Disease",
+    "symptoms": [
+      "Chest pain, chest tightness, chest pressure and chest discomfort (angina)",
+      "Shortness of breath",
+      "Pain in the neck, jaw, throat, upper belly or back",
+      "Pain, numbness, weakness or coldness in the legs or arms if the blood vessels in those body areas are narrowed"
+    ],
+    "causes": [
+      "Buildup of fats, cholesterol and other substances in and on the artery walls (plaque)",
+      "Atherosclerosis (ath-ur-o-skluh-ROE-sis) - a buildup of plaque in the arteries",
+      "Irregular heartbeats (arrhythmias)",
+      "Congenital heart defects",
+      "Disease of the heart muscle"
+    ],
+    "prevention": [
+      "Healthy lifestyle choices",
+      "Regular health checkups",
+      "Lifestyle changes to lower risk",
+      "Maintaining a healthy weight",
+      "Exercising regularly",
+      "Eating a balanced diet",
+      "Not smoking",
+      "Limiting alcohol consumption"
+    ],
+    "summary": "Heart disease describes a range of conditions that affect the heart, including blood vessel disease, irregular heartbeats, and heart valve disease. Symptoms depend on the type of heart disease and can include chest pain, shortness of breath, and pain in the neck or arms."
+  }
+}

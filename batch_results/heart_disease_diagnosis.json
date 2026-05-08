@@ -1,0 +1,40 @@
+{
+  "metadata": {
+    "source_url": "https://www.mayoclinic.org/diseases-conditions/heart-disease/diagnosis-treatment/drc-20353118",
+    "content_type": "diagnosis",
+    "disease_name": "Heart Disease",
+    "filename": "heart_disease_diagnosis.json"
+  },
+  "analysis": {
+    "disease_name": "Heart Disease",
+    "diagnostic_tests": [
+      "Echocardiogram",
+      "Electrocardiogram (ECG)",
+      "Stress test",
+      "Chest X-ray",
+      "Blood tests"
+    ],
+    "treatment_options": [
+      "Angiotensin-converting enzyme (ACE) inhibitors",
+      "Beta blockers",
+      "Statins",
+      "Antiplatelet medications",
+      "Coronary artery bypass grafting (CABG)",
+      "Percutaneous coronary intervention (PCI)"
+    ],
+    "medications": [
+      "Aspirin",
+      "Lisinopril",
+      "Metoprolol",
+      "Atorvastatin"
+    ],
+    "procedures": [
+      "Coronary angiography",
+      "Cardiac catheterization",
+      "Atrial fibrillation ablation",
+      "Pacemaker implantation",
+      "Heart transplant"
+    ],
+    "summary": "Heart disease is a condition that affects the heart and can be caused by a variety of factors, including high blood pressure, high cholesterol, smoking, and obesity. Symptoms may include chest pain, shortness of breath, and fatigue. Diagnosis typically involves a combination of physical examination, medical history, and diagnostic tests such as echocardiogram and electrocardiogram. Treatment options may include medications, lifestyle changes, and procedures such as coronary angiography and cardiac catheterization."
+  }
+}

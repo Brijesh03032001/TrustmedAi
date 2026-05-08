@@ -1,0 +1,137 @@
+{
+  "metadata": {
+    "content_type": "symptoms",
+    "total_diseases": 4,
+    "processed_urls": [
+      "https://www.mayoclinic.org/diseases-conditions/stroke/symptoms-causes/syc-20350113",
+      "https://www.mayoclinic.org/diseases-conditions/diabetes/symptoms-causes/syc-20371444",
+      "https://www.mayoclinic.org/diseases-conditions/heart-disease/symptoms-causes/syc-20353118",
+      "https://www.mayoclinic.org/diseases-conditions/asthma/symptoms-causes/syc-20369653"
+    ],
+    "generated_at": "2025-10-12T03:13:27.666822",
+    "description": "Consolidated symptoms analysis for multiple diseases"
+  },
+  "diseases": [
+    {
+      "source_url": "https://www.mayoclinic.org/diseases-conditions/stroke/symptoms-causes/syc-20350113",
+      "disease_name": "Stroke",
+      "analysis": {
+        "disease_name": "Stroke",
+        "symptoms": [
+          "Sudden trouble speaking and understanding what others are saying",
+          "Paralysis or numbness of the face, arm or leg on one side of the body",
+          "Problems seeing in one or both eyes",
+          "Trouble walking",
+          "Loss of balance"
+        ],
+        "causes": [
+          "Blocked artery cutting off blood to an area of the brain (ischemic stroke)",
+          "Blood vessel leaking or bursting (hemorrhagic stroke)",
+          "High blood pressure",
+          "High cholesterol",
+          "Poorly controlled diabetes",
+          "Obstructive sleep apnea",
+          "Certain forms of heart disease"
+        ],
+        "prevention": [
+          "Maintaining a healthy weight",
+          "Engaging in regular physical activity",
+          "Limiting alcohol consumption",
+          "Avoiding recreational drug use",
+          "Quitting smoking",
+          "Controlling high blood pressure and cholesterol",
+          "Managing poorly controlled diabetes",
+          "Treating obstructive sleep apnea"
+        ],
+        "summary": "A stroke occurs when a blocked artery cuts off blood to an area of the brain (ischemic stroke) or a blood vessel leaks or bursts (hemorrhagic stroke). Prompt treatment can reduce brain damage and the likelihood of death or disability. Risk factors include age, ethnicity, family history, lifestyle habits, and certain medical conditions."
+      }
+    },
+    {
+      "source_url": "https://www.mayoclinic.org/diseases-conditions/diabetes/symptoms-causes/syc-20371444",
+      "disease_name": "Diabetes",
+      "analysis": {
+        "disease_name": "Diabetes",
+        "symptoms": [
+          "Feeling more thirsty than usual.",
+          "Urinating often.",
+          "Losing weight without trying.",
+          "Presence of ketones in the urine.",
+          "Feeling tired and weak.",
+          "Feeling irritable or having other mood changes.",
+          "Having blurry vision.",
+          "Having slow-healing sores.",
+          "Getting a lot of infections, such as gum, skin and vaginal infections."
+        ],
+        "causes": [
+          "A group of diseases that affect how the body uses blood sugar (glucose).",
+          "The main cause of diabetes varies by type.",
+          "Prediabetes happens when blood sugar levels are higher than normal.",
+          "Gestational diabetes happens during pregnancy."
+        ],
+        "prevention": [
+          "Taking steps to prevent prediabetes and gestational diabetes.",
+          "Maintaining a healthy weight.",
+          "Exercising regularly.",
+          "Eating a balanced diet.",
+          "Getting regular check-ups with your healthcare provider."
+        ],
+        "summary": "Diabetes mellitus refers to a group of diseases that affect how the body uses blood sugar (glucose). It can lead to excess sugar in the blood, which can cause serious health problems if left untreated."
+      }
+    },
+    {
+      "source_url": "https://www.mayoclinic.org/diseases-conditions/heart-disease/symptoms-causes/syc-20353118",
+      "disease_name": "Heart Disease",
+      "analysis": {
+        "disease_name": "Heart Disease",
+        "symptoms": [
+          "Chest pain, chest tightness, chest pressure and chest discomfort (angina)",
+          "Shortness of breath",
+          "Pain in the neck, jaw, throat, upper belly or back",
+          "Pain, numbness, weakness or coldness in the legs or arms if the blood vessels in those body areas are narrowed"
+        ],
+        "causes": [
+          "Buildup of fats, cholesterol and other substances in and on the artery walls (plaque)",
+          "Atherosclerosis (ath-ur-o-skluh-ROE-sis) - a buildup of plaque in the arteries",
+          "Congenital heart defects",
+          "Disease of the heart muscle"
+        ],
+        "prevention": [
+          "Healthy lifestyle choices",
+          "Regular health checkups",
+          "Lifestyle changes to lower risk (e.g. exercise, diet)",
+          "Managing risk factors (e.g. high blood pressure, high cholesterol)"
+        ],
+        "summary": "Heart disease describes a range of conditions that affect the heart, including coronary artery disease, irregular heartbeats, and congenital heart defects."
+      }
+    },
+    {
+      "source_url": "https://www.mayoclinic.org/diseases-conditions/asthma/symptoms-causes/syc-20369653",
+      "disease_name": "Asthma",
+      "analysis": {
+        "disease_name": "Asthma",
+        "symptoms": [
+          "Shortness of breath",
+          "Chest tightness or pain",
+          "Wheezing when exhaling",
+          "Trouble sleeping caused by shortness of breath, coughing or wheezing",
+          "Coughing or wheezing attacks that are worsened by a respiratory virus"
+        ],
+        "causes": [
+          "Inflammation and swelling of the airways in the lungs",
+          "Excess mucus secretion in the airway linings",
+          "Exercise-induced asthma",
+          "Occupational asthma",
+          "Allergy-induced asthma"
+        ],
+        "prevention": [
+          "Avoiding triggers such as dust, mold, and pet dander",
+          "Using a peak flow meter to monitor lung function",
+          "Taking medication as prescribed by your doctor",
+          "Staying physically active and managing stress",
+          "Getting regular check-ups with your doctor"
+        ],
+        "summary": "Asthma is a condition in which the airways narrow and swell, producing extra mucus that makes breathing difficult. Symptoms can vary from person to person and may include shortness of breath, chest tightness, wheezing, and coughing. Asthma cannot be cured but its symptoms can be controlled with medication and lifestyle changes."
+      }
+    }
+  ]
+}

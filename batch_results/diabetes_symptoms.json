@@ -1,0 +1,34 @@
+{
+  "metadata": {
+    "source_url": "https://www.mayoclinic.org/diseases-conditions/diabetes/symptoms-causes/syc-20371444",
+    "content_type": "symptoms",
+    "disease_name": "Diabetes",
+    "filename": "diabetes_symptoms.json"
+  },
+  "analysis": {
+    "disease_name": "Diabetes",
+    "symptoms": [
+      "Feeling more thirsty than usual.",
+      "Urinating often.",
+      "Losing weight without trying.",
+      "Presence of ketones in the urine.",
+      "Feeling tired and weak.",
+      "Feeling irritable or having other mood changes.",
+      "Having blurry vision.",
+      "Having slow-healing sores.",
+      "Getting a lot of infections, such as gum, skin and vaginal infections."
+    ],
+    "causes": [
+      "A group of diseases that affect how the body uses blood sugar (glucose).",
+      "The main cause varies by type, but no matter what type you have, it can lead to excess sugar in the blood.",
+      "Prediabetes happens when blood sugar levels are higher than normal.",
+      "Gestational diabetes happens during pregnancy."
+    ],
+    "prevention": [
+      "Taking steps to prevent prediabetes and gestational diabetes",
+      "Maintaining a healthy weight",
+      "Eating a balanced diet"
+    ],
+    "summary": "Diabetes mellitus refers to a group of diseases that affect how the body uses blood sugar (glucose). It can lead to excess sugar in the blood, which can cause serious health problems."
+  }
+}

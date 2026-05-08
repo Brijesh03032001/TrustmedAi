@@ -1,0 +1,36 @@
+{
+  "metadata": {
+    "source_url": "https://www.mayoclinic.org/diseases-conditions/stroke/diagnosis-treatment/drc-20350113",
+    "content_type": "diagnosis",
+    "disease_name": "Stroke",
+    "filename": "stroke_diagnosis.json"
+  },
+  "analysis": {
+    "disease_name": "Stroke",
+    "diagnostic_tests": [
+      "CT scan",
+      "MRI scan",
+      "Carotid ultrasound",
+      "Physical exam"
+    ],
+    "treatment_options": [
+      "Thrombolysis",
+      "Embolectomy",
+      "Surgery",
+      "Rehabilitation"
+    ],
+    "medications": [
+      "Tissue plasminogen activator (tPA)",
+      "Anticoagulants",
+      "Antiplatelet agents",
+      "Blood pressure medications"
+    ],
+    "procedures": [
+      "Endovascular procedure",
+      "Carotid endarterectomy",
+      "Cerebral angiography",
+      "Rehabilitation therapy"
+    ],
+    "summary": "A stroke occurs when the blood supply to the brain is interrupted, either due to a blockage (ischemic stroke) or bleeding (hemorrhagic stroke). Prompt treatment can reduce brain damage and improve outcomes."
+  }
+}

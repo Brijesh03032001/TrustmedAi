@@ -1,0 +1,35 @@
+# Python virtual environments
+venv/
+TrustMed-AI/trustmed_env/
+medical_knowledge_graph/venv/
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Node
+TrustMed-AI/node_modules/
+medical_chatbot_rag/medical-frontend/node_modules/
+.next/
+TrustMed-AI/.next/
+
+# ChromaDB binary data (keep sqlite, exclude large segment files)
+TrustMed-AI/chroma_db/*/data_level0.bin
+TrustMed-AI/chroma_db/*/header.bin
+TrustMed-AI/chroma_db/*/length.bin
+TrustMed-AI/chroma_db/*/link_lists.bin
+
+# Logs
+*.log
+logs/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/

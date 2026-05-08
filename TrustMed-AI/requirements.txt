@@ -1,0 +1,3 @@
+chromadb
+google.generativeai
+sentence_transformers

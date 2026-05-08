@@ -1,0 +1,108 @@
+{
+  "metadata": {
+    "content_type": "diagnosis",
+    "total_diseases": 3,
+    "processed_urls": [
+      "https://www.mayoclinic.org/diseases-conditions/stroke/diagnosis-treatment/drc-20350113",
+      "https://www.mayoclinic.org/diseases-conditions/diabetes/diagnosis-treatment/drc-20371444",
+      "https://www.mayoclinic.org/diseases-conditions/heart-disease/diagnosis-treatment/drc-20353118"
+    ],
+    "generated_at": "2025-10-12T03:13:27.668402",
+    "description": "Consolidated diagnosis analysis for multiple diseases"
+  },
+  "diseases": [
+    {
+      "source_url": "https://www.mayoclinic.org/diseases-conditions/stroke/diagnosis-treatment/drc-20350113",
+      "disease_name": "Stroke",
+      "analysis": {
+        "disease_name": "Stroke",
+        "diagnostic_tests": [
+          "CT scan",
+          "MRI scan",
+          "Carotid ultrasound",
+          "Physical exam"
+        ],
+        "treatment_options": [
+          "Thrombolysis (clot-busting medication)",
+          "Embolization (removing blood clot)",
+          "Surgery to repair damaged artery"
+        ],
+        "medications": [
+          "Tissue plasminogen activator (tPA)",
+          "Anticoagulants",
+          "Blood thinners"
+        ],
+        "procedures": [
+          "Angioplasty",
+          "Stenting",
+          "Endovascular coiling"
+        ],
+        "summary": "A stroke occurs when blood supply to the brain is interrupted, either due to a blockage (ischemic stroke) or bleeding (hemorrhagic stroke). Prompt treatment can reduce brain damage and improve outcomes."
+      }
+    },
+    {
+      "source_url": "https://www.mayoclinic.org/diseases-conditions/diabetes/diagnosis-treatment/drc-20371444",
+      "disease_name": "Diabetes",
+      "analysis": {
+        "disease_name": "Diabetes",
+        "diagnostic_tests": [
+          "Blood sugar tests",
+          "Urine ketone test",
+          "Glucose tolerance test"
+        ],
+        "treatment_options": [
+          "Insulin therapy",
+          "Oral medications (e.g. metformin)",
+          "Lifestyle changes (e.g. diet, exercise)"
+        ],
+        "medications": [
+          "Metformin",
+          "Sulfonylureas",
+          "Meglitinides"
+        ],
+        "procedures": [
+          "Insulin pump insertion",
+          "Continuous glucose monitoring system (CGMS) implantation",
+          "Bariatric surgery"
+        ],
+        "summary": "Diabetes is a group of diseases that affect how the body uses blood sugar. Symptoms include increased thirst and urination, weight loss, blurred vision, and slow-healing sores."
+      }
+    },
+    {
+      "source_url": "https://www.mayoclinic.org/diseases-conditions/heart-disease/diagnosis-treatment/drc-20353118",
+      "disease_name": "Heart Disease",
+      "analysis": {
+        "disease_name": "Heart Disease",
+        "diagnostic_tests": [
+          "Echocardiogram",
+          "Electrocardiogram (ECG)",
+          "Stress test",
+          "Chest X-ray",
+          "Blood tests"
+        ],
+        "treatment_options": [
+          "Medications to lower cholesterol and blood pressure",
+          "Angiotensin-converting enzyme (ACE) inhibitors",
+          "Beta blockers",
+          "Lifestyle changes such as exercise and diet",
+          "Surgery to bypass blocked arteries"
+        ],
+        "medications": [
+          "Aspirin",
+          "Statins",
+          "Beta blockers",
+          "ACE inhibitors",
+          "Blood thinners"
+        ],
+        "procedures": [
+          "Angioplasty",
+          "Stenting",
+          "Coronary artery bypass grafting (CABG)",
+          "Cardiac catheterization",
+          "Pacemaker implantation"
+        ],
+        "summary": "Heart disease is a condition that affects the heart and can be caused by a variety of factors, including high blood pressure, high cholesterol, smoking, and obesity. Symptoms may include chest pain, shortness of breath, and fatigue. Diagnosis typically involves a combination of physical examination, medical history, and diagnostic tests such as echocardiogram and electrocardiogram. Treatment options may include medications to lower cholesterol and blood pressure, lifestyle changes, and surgery to bypass blocked arteries."
+      }
+    }
+  ]
+}

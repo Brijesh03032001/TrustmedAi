@@ -1,0 +1,33 @@
+{
+  "metadata": {
+    "source_url": "https://www.mayoclinic.org/diseases-conditions/asthma/symptoms-causes/syc-20369653",
+    "content_type": "symptoms",
+    "disease_name": "Asthma",
+    "filename": "asthma_symptoms.json"
+  },
+  "analysis": {
+    "disease_name": "Asthma",
+    "symptoms": [
+      "Shortness of breath",
+      "Chest tightness or pain",
+      "Wheezing when exhaling",
+      "Trouble sleeping caused by shortness of breath, coughing or wheezing",
+      "Coughing or wheezing attacks that are worsened by a respiratory virus"
+    ],
+    "causes": [
+      "Inflammation and swelling of the airways in the lungs",
+      "Excess mucus secretion in the airway linings",
+      "Exercise-induced asthma",
+      "Occupational asthma",
+      "Allergy-induced asthma"
+    ],
+    "prevention": [
+      "Avoiding triggers such as dust, mold, and pet dander",
+      "Using a peak flow meter to monitor lung function",
+      "Taking medication as prescribed by your doctor",
+      "Staying active and exercising regularly",
+      "Maintaining good hygiene and avoiding secondhand smoke"
+    ],
+    "summary": "Asthma is a condition in which the airways narrow and swell, producing extra mucus that makes breathing difficult. Symptoms can vary from person to person and may include shortness of breath, chest tightness, wheezing, and coughing. Asthma cannot be cured, but its symptoms can be controlled with medication and lifestyle changes."
+  }
+}

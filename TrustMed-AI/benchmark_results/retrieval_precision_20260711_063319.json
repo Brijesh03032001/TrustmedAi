@@ -1,0 +1,335 @@
+{
+  "generated_at": "20260711_063319",
+  "dataset": "evaluation_dataset_100.json",
+  "query_count": 3,
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "chroma_db_dir": "./chroma_db",
+  "k_values": [
+    1,
+    3,
+    5,
+    10
+  ],
+  "metrics": {
+    "avg_p@1": 1.0,
+    "avg_p@3": 1.0,
+    "avg_p@5": 1.0,
+    "avg_p@10": 1.0
+  },
+  "collection_hit_rates": {
+    "hit_rate@1": 1.0,
+    "hit_rate@3": 1.0,
+    "hit_rate@5": 1.0,
+    "hit_rate@10": 1.0
+  },
+  "mean_reciprocal_rank": 1.0,
+  "by_domain": {
+    "endocrine_metabolic": {
+      "avg_p@1": 1.0,
+      "avg_p@3": 1.0,
+      "avg_p@5": 1.0,
+      "avg_p@10": 1.0,
+      "mean_reciprocal_rank": 1.0
+    }
+  },
+  "results": [
+    {
+      "query": "What are the common symptoms of type 1 diabetes?",
+      "topic": "type_1_diabetes",
+      "domain": "endocrine_metabolic",
+      "difficulty": "easy",
+      "expected_collections": [
+        "symptoms",
+        "diseases"
+      ],
+      "precision_at_k": {
+        "p@1": 1.0,
+        "p@3": 1.0,
+        "p@5": 1.0,
+        "p@10": 1.0
+      },
+      "collection_hit_at_k": {
+        "hit@1": true,
+        "hit@3": true,
+        "hit@5": true,
+        "hit@10": true
+      },
+      "reciprocal_rank": 1.0,
+      "avg_similarity_top_k": {
+        "sim@1": 0.7405,
+        "sim@3": 0.704,
+        "sim@5": 0.6846,
+        "sim@10": 0.6363
+      },
+      "retrieved": [
+        {
+          "rank": 1,
+          "collection": "symptoms",
+          "doc_id": "symptoms_1096_chunk_1",
+          "similarity": 0.740467,
+          "title": "Type 1 Diabetes",
+          "section": "",
+          "relevant": true,
+          "relevance_reasons": [
+            "expected_collection",
+            "topic_overlap",
+            "keyword_overlap:thirst,urination,weight,fatigue"
+          ]
+        },
+        {
+          "rank": 2,
+          "collection": "symptoms",
+          "doc_id": "symptoms_1096_chunk_0",
+          "similarity": 0.692751,
+          "title": "Type 1 Diabetes",
+          "section": "",
+          "relevant": true,
+          "relevance_reasons": [
+            "expected_collection",
+            "topic_overlap"
+          ]
+        },
+        {
+          "rank": 3,
+          "collection": "diseases",
+          "doc_id": "diseases_439_chunk_1",
+          "similarity": 0.678783,
+          "title": "Type 1 Diabetes",
+          "section": "",
+          "relevant": true,
+          "relevance_reasons": [
+            "expected_collection",
+            "topic_overlap"
+          ]
+        },
+        {
+          "rank": 4,
+          "collection": "symptoms",
+          "doc_id": "symptoms_1096_chunk_3",
+          "similarity": 0.663878,
+          "title": "Type 1 Diabetes",
+          "section": "",
+          "relevant": true,
+          "relevance_reasons": [
+            "expected_collection",
+            "topic_overlap",
+            "keyword_overlap:thirst,weight"
+          ]
+        },
+        {
+          "rank": 5,
+          "collection": "diseases",
+          "doc_id": "diseases_439_chunk_0",
+          "similarity": 0.646973,
+          "title": "Type 1 Diabetes",
+          "section": "",
+          "relevant": true,
+          "relevance_reasons": [
+            "expected_collection",
+            "topic_overlap",
+            "keyword_overlap:thirst,urination,weight,fatigue"
+          ]
+        }
+      ]
+    },
+    {
+      "query": "How is type 2 diabetes diagnosed?",
+      "topic": "type_2_diabetes",
+      "domain": "endocrine_metabolic",
+      "difficulty": "medium",
+      "expected_collections": [
+        "diseases",
+        "symptoms"
+      ],
+      "precision_at_k": {
+        "p@1": 1.0,
+        "p@3": 1.0,
+        "p@5": 1.0,
+        "p@10": 1.0
+      },
+      "collection_hit_at_k": {
+        "hit@1": true,
+        "hit@3": true,
+        "hit@5": true,
+        "hit@10": true
+      },
+      "reciprocal_rank": 1.0,
+      "avg_similarity_top_k": {
+        "sim@1": 0.6537,
+        "sim@3": 0.6227,
+        "sim@5": 0.6048,
+        "sim@10": 0.5808
+      },
+      "retrieved": [
+        {
+          "rank": 1,
+          "collection": "diseases",
+          "doc_id": "diseases_439_chunk_0",
+          "similarity": 0.653673,
+          "title": "Type 1 Diabetes",
+          "section": "",
+          "relevant": true,
+          "relevance_reasons": [
+            "expected_collection",
+            "topic_overlap",
+            "keyword_overlap:glucose,blood"
+          ]
+        },
+        {
+          "rank": 2,
+          "collection": "symptoms",
+          "doc_id": "symptoms_1098_chunk_0",
+          "similarity": 0.629289,
+          "title": "Type 2 Diabetes",
+          "section": "",
+          "relevant": true,
+          "relevance_reasons": [
+            "expected_collection",
+            "topic_overlap",
+            "keyword_overlap:blood"
+          ]
+        },
+        {
+          "rank": 3,
+          "collection": "diseases",
+          "doc_id": "diseases_108_chunk_0",
+          "similarity": 0.585012,
+          "title": "Diabetes in Kids - Signs and Causes",
+          "section": "",
+          "relevant": true,
+          "relevance_reasons": [
+            "expected_collection",
+            "topic_overlap",
+            "keyword_overlap:glucose,blood"
+          ]
+        },
+        {
+          "rank": 4,
+          "collection": "diseases",
+          "doc_id": "diseases_347_chunk_0",
+          "similarity": 0.579826,
+          "title": "Prediabetes",
+          "section": "",
+          "relevant": true,
+          "relevance_reasons": [
+            "expected_collection",
+            "topic_overlap",
+            "keyword_overlap:glucose,blood,test"
+          ]
+        },
+        {
+          "rank": 5,
+          "collection": "symptoms",
+          "doc_id": "symptoms_1099_chunk_0",
+          "similarity": 0.576354,
+          "title": "Type 2 Diabetes In Children",
+          "section": "",
+          "relevant": true,
+          "relevance_reasons": [
+            "expected_collection",
+            "topic_overlap",
+            "keyword_overlap:glucose,blood"
+          ]
+        }
+      ]
+    },
+    {
+      "query": "What medicines are commonly used for diabetes?",
+      "topic": "diabetes_medications",
+      "domain": "endocrine_metabolic",
+      "difficulty": "medium",
+      "expected_collections": [
+        "medicines",
+        "diseases"
+      ],
+      "precision_at_k": {
+        "p@1": 1.0,
+        "p@3": 1.0,
+        "p@5": 1.0,
+        "p@10": 1.0
+      },
+      "collection_hit_at_k": {
+        "hit@1": true,
+        "hit@3": true,
+        "hit@5": true,
+        "hit@10": true
+      },
+      "reciprocal_rank": 1.0,
+      "avg_similarity_top_k": {
+        "sim@1": 0.6445,
+        "sim@3": 0.6426,
+        "sim@5": 0.6246,
+        "sim@10": 0.6047
+      },
+      "retrieved": [
+        {
+          "rank": 1,
+          "collection": "medicines",
+          "doc_id": "medicines_34_chunk_5",
+          "similarity": 0.644526,
+          "title": "Insulin",
+          "section": "",
+          "relevant": true,
+          "relevance_reasons": [
+            "expected_collection",
+            "topic_overlap",
+            "keyword_overlap:insulin"
+          ]
+        },
+        {
+          "rank": 2,
+          "collection": "medicines",
+          "doc_id": "medicines_628_chunk_4",
+          "similarity": 0.643167,
+          "title": "Saxagliptin for diabetes",
+          "section": "",
+          "relevant": true,
+          "relevance_reasons": [
+            "expected_collection",
+            "topic_overlap"
+          ]
+        },
+        {
+          "rank": 3,
+          "collection": "medicines",
+          "doc_id": "medicines_490_chunk_4",
+          "similarity": 0.640099,
+          "title": "Repaglinide for diabetes",
+          "section": "",
+          "relevant": true,
+          "relevance_reasons": [
+            "expected_collection",
+            "topic_overlap"
+          ]
+        },
+        {
+          "rank": 4,
+          "collection": "medicines",
+          "doc_id": "medicines_571_chunk_0",
+          "similarity": 0.600671,
+          "title": "Glipizide",
+          "section": "",
+          "relevant": true,
+          "relevance_reasons": [
+            "expected_collection",
+            "topic_overlap",
+            "keyword_overlap:insulin,glipizide,sulfonylurea"
+          ]
+        },
+        {
+          "rank": 5,
+          "collection": "medicines",
+          "doc_id": "medicines_122_chunk_4",
+          "similarity": 0.594497,
+          "title": "Alogliptin tablets for diabetes",
+          "section": "",
+          "relevant": true,
+          "relevance_reasons": [
+            "expected_collection",
+            "topic_overlap"
+          ]
+        }
+      ]
+    }
+  ]
+}

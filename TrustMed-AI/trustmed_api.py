@@ -7,11 +7,12 @@ Advanced Medical Information API with AI-powered responses using anti_test.py or
 import os
 import time
 from datetime import datetime
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
 from pydantic import BaseModel, Field
 
 # Import our enhanced medical AI system
@@ -22,6 +23,8 @@ from anti_test import (
     ChatSession,
 )
 import chromadb
+from react_router import plan_medical_retrieval
+from voice_service import VoiceServiceError, speech_to_text, text_to_speech
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -78,6 +81,7 @@ class MedicalResponse(BaseModel):
     response_time_ms: int = Field(..., description="Response time in ms")
     sources_count: int = Field(..., description="Documents analyzed")
     timestamp: str = Field(..., description="Response timestamp")
+    react_trace: List[Dict[str, str]] = Field(default_factory=list, description="ReAct-style routing trace")
 
 
 class DiseaseInfo(BaseModel):
@@ -99,6 +103,15 @@ class HealthCheck(BaseModel):
     version: str
     ai_provider: str
     chroma_collections: List[str]
+
+
+class TextToSpeechRequest(BaseModel):
+    text: str = Field(..., description="Text to convert into speech", min_length=1, max_length=5000)
+    voice_id: Optional[str] = Field(None, description="Optional ElevenLabs voice id override")
+
+
+class SpeechToTextResponse(BaseModel):
+    transcript: str = Field(..., description="Transcribed text from uploaded audio")
 
 
 # Utility Functions
@@ -594,13 +607,16 @@ async def process_medical_query(query_data: MedicalQuery):
             print(f"[Context] Failed to contextualize query: {e}")
             contextualized_query = original_query
 
+        react_plan = plan_medical_retrieval(contextualized_query)
+        print(f"[ReAct] intent={react_plan.intent} collections={react_plan.collections}")
+
         # Process query with anti_test.py orchestration
         result = orchestrate(
             query_text=contextualized_query,
             client=chroma_client,
             embedder=embedder,
             llm=llm_provider,
-            collections_filter=None,
+            collections_filter=react_plan.collections,
             max_workers=4,
         )
         print(f"Orchestration result: {result}")
@@ -687,12 +703,46 @@ async def process_medical_query(query_data: MedicalQuery):
             response_time_ms=response_time_ms,
             sources_count=total_docs,
             timestamp=datetime.now().isoformat(),
+            react_trace=react_plan.to_trace(),
         )
 
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error processing medical query: {str(e)}"
         )
+
+
+@app.post("/voice/text-to-speech")
+async def generate_voice_audio(payload: TextToSpeechRequest):
+    """Convert assistant text into ElevenLabs MP3 audio."""
+    try:
+        audio = await text_to_speech(payload.text, payload.voice_id)
+        return Response(
+            content=audio,
+            media_type="audio/mpeg",
+            headers={"Content-Disposition": 'inline; filename="trustmed-response.mp3"'},
+        )
+    except VoiceServiceError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Text-to-speech failed: {str(e)}")
+
+
+@app.post("/voice/speech-to-text", response_model=SpeechToTextResponse)
+async def transcribe_voice_audio(file: UploadFile = File(...)):
+    """Transcribe uploaded microphone audio using ElevenLabs Scribe."""
+    try:
+        audio = await file.read()
+        transcript = await speech_to_text(
+            audio_bytes=audio,
+            filename=file.filename or "recording.webm",
+            content_type=file.content_type or "audio/webm",
+        )
+        return SpeechToTextResponse(transcript=transcript)
+    except VoiceServiceError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Speech-to-text failed: {str(e)}")
 
 
 @app.on_event("startup")

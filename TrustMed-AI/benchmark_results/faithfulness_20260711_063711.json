@@ -1,0 +1,99 @@
+{
+  "generated_at": "20260711_063711",
+  "dataset": "evaluation_dataset_100.json",
+  "query_count": 3,
+  "successful": 3,
+  "failed": 0,
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "llm_mode": "LocalHeuristicLLM",
+  "max_workers": 4,
+  "metrics": {
+    "avg_grounded_score": 0.9,
+    "citation_rate": 1.0,
+    "link_rate": 1.0,
+    "avg_docs_used": 7.33,
+    "avg_expected_keyword_coverage": 0.6,
+    "risky_phrase_rate": 0.0,
+    "safety_language_rate": 1.0
+  },
+  "by_domain": {
+    "endocrine_metabolic": {
+      "avg_grounded_score": 0.9,
+      "citation_rate": 1.0,
+      "avg_keyword_coverage": 0.6
+    }
+  },
+  "results": [
+    {
+      "query": "What are the common symptoms of type 1 diabetes?",
+      "topic": "type_1_diabetes",
+      "domain": "endocrine_metabolic",
+      "difficulty": "easy",
+      "grounded_score": 1.0,
+      "citation_present": true,
+      "links_present": true,
+      "docs_used": 2,
+      "expected_keyword_coverage": 1.0,
+      "found_keywords": [
+        "thirst",
+        "urination",
+        "weight",
+        "fatigue",
+        "hunger"
+      ],
+      "risky_phrase_count": 0,
+      "safety_language_present": true,
+      "collections_considered": [
+        "symptoms"
+      ],
+      "answer_preview": "## symptoms Type 1 Diabetes: glucose cant enter the cells, resulting in an excess of blood sugar floating in the bloodstream. This can cause life-threatening complications. And this condition is called diabetic ketoacidosis. Although we dont know what causes it, we do know certain factors can contribute to the onset of type 1 diabetes. Family history. Anyone with a parent or sibling with type 1 diabetes has a slightly increased risk of developing it. Genetics. The presence of certain genes can a",
+      "error": null
+    },
+    {
+      "query": "How is type 2 diabetes diagnosed?",
+      "topic": "type_2_diabetes",
+      "domain": "endocrine_metabolic",
+      "difficulty": "medium",
+      "grounded_score": 0.85,
+      "citation_present": true,
+      "links_present": true,
+      "docs_used": 3,
+      "expected_keyword_coverage": 0.4,
+      "found_keywords": [
+        "glucose",
+        "blood"
+      ],
+      "risky_phrase_count": 0,
+      "safety_language_present": true,
+      "collections_considered": [
+        "symptoms",
+        "medicines",
+        "diseases"
+      ],
+      "answer_preview": "## diseases Type 1 Diabetes: Diabetes is a disease that occurs when your body doesn\u2019t make or use insulin properly. Insulin is a hormone. It causes too much blood glucose (sugar) to build up in the blood. There are two main types of diabetes. Symptoms: (see: https://familydoctor.org/condition/diabetes-type1/) [A1] ## symptoms Type 2 Diabetes: Table: symptoms URL: https://www.mayoclinic.org/diseases-conditions/type-2-diabetes/symptoms-causes/syc-20351193 (see: https://www.mayoclinic.org/diseases-",
+      "error": null
+    },
+    {
+      "query": "What medicines are commonly used for diabetes?",
+      "topic": "diabetes_medications",
+      "domain": "endocrine_metabolic",
+      "difficulty": "medium",
+      "grounded_score": 0.85,
+      "citation_present": true,
+      "links_present": true,
+      "docs_used": 17,
+      "expected_keyword_coverage": 0.4,
+      "found_keywords": [
+        "insulin",
+        "metformin"
+      ],
+      "risky_phrase_count": 0,
+      "safety_language_present": true,
+      "collections_considered": [
+        "medicines"
+      ],
+      "answer_preview": "## medicines Saxagliptin for diabetes: reach and sight of children. - Store in a cool, dry place, away from direct heat and light. ## Important information about all medicines Primary topic: Diabetes medicines (see: https://patient.info/medicine/saxagliptin-for-diabetes-onglyza) [A1] Repaglinide for diabetes: e, away from direct heat and light. ## Important information about all medicines Primary topic: Diabetes medicines (see: https://patient.info/medicine/repaglinide-for-diabetes-enyglid) [A2]",
+      "error": null
+    }
+  ]
+}

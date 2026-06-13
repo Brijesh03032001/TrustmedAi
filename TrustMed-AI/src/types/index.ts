@@ -23,6 +23,13 @@ export interface TrustMedQueryResponse {
   response_time_ms: number;
   sources_count: number;
   timestamp: string;
+  react_trace?: ReActStep[];
+}
+
+export interface ReActStep {
+  thought: string;
+  action: string;
+  observation: string;
 }
 
 export interface MedicalLink {

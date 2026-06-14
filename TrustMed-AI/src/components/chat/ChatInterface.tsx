@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Box,
   Paper,
@@ -10,35 +10,28 @@ import {
   Avatar,
   Chip,
   CircularProgress,
-  Alert,
-  Card,
-  CardContent,
   Fade,
   Tooltip,
-  useTheme,
-  alpha,
-  Container,
-  Stack,
-  Grow,
-  Slide,
   Link,
+  Button,
 } from '@mui/material';
 import {
   Send as SendIcon,
   SmartToy as AIIcon,
   Person as PersonIcon,
   ContentCopy as CopyIcon,
-  AutoAwesome as SparkleIcon,
-  WarningAmber as WarningIcon,
-  FavoriteRounded as HeartIcon,
   Clear as ClearIcon,
-  AccessTime as TimeIcon,
-  TrendingUp as ConfidenceIcon,
-  Source as SourceIcon,
+  WarningAmber as WarningIcon,
+  CheckCircle as CheckIcon,
+  AddComment as NewChatIcon,
+  Mic as MicIcon,
+  Stop as StopIcon,
+  VolumeUp as VolumeIcon,
 } from '@mui/icons-material';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiService } from '../../lib/api';
-import { ChatMessage, TrustMedQueryResponse, MedicalLink } from '@/types';
+import { MedicalLink, ReActStep, TrustMedQueryResponse } from '@/types';
+import { RobotAnimationMode, RobotAvatar3D } from './RobotAvatar3D';
 
 interface Message {
   id: string;
@@ -51,1050 +44,932 @@ interface Message {
   intent?: string;
   responseTime?: number;
   sourcesCount?: number;
+  reactTrace?: ReActStep[];
 }
 
 interface ChatInterfaceProps {
   initialMessage?: string;
 }
 
-const sampleQuestions = [
-  "What are the symptoms of diabetes?",
-  "How is hypertension diagnosed?",
-  "What causes chronic fatigue syndrome?", 
-  "Tell me about migraine treatments",
-  "What are the risk factors for heart disease?",
-  "How to prevent cardiovascular disease?",
-  "What are the side effects of blood pressure medications?",
-  "Signs of early stage kidney disease",
+const suggestionChips = [
+  { emoji: '🩺', text: 'Symptoms of diabetes' },
+  { emoji: '💊', text: 'Hypertension treatment' },
+  { emoji: '🧠', text: 'Migraine causes' },
+  { emoji: '❤️', text: 'Heart disease risks' },
+  { emoji: '🫁', text: 'Asthma management' },
+  { emoji: '🦴', text: 'Arthritis types' },
 ];
 
-const TypingIndicator = () => {
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : 'Unknown error';
+}
+
+function TypingDots() {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, py: 2 }}>
-      <Box sx={{ display: 'flex', gap: 0.5 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 0.5 }}>
+      <Box sx={{ display: 'flex', gap: 0.75 }}>
         {[0, 1, 2].map((i) => (
           <Box
             key={i}
             sx={{
-              width: 10,
-              height: 10,
+              width: 8,
+              height: 8,
               borderRadius: '50%',
-              background: 'linear-gradient(45deg, #00d4ff, #ff006e)',
-              boxShadow: `0 0 20px ${i === 1 ? 'rgba(0, 212, 255, 0.8)' : 'rgba(255, 0, 110, 0.6)'}`,
-              animation: 'cyberpunkTyping 1.6s ease-in-out infinite',
-              animationDelay: `${i * 0.3}s`,
-              '@keyframes cyberpunkTyping': {
-                '0%, 60%, 100%': {
-                  transform: 'translateY(0) scale(1)',
-                  opacity: 0.6,
-                  boxShadow: '0 0 10px rgba(0, 212, 255, 0.4)',
-                },
-                '30%': {
-                  transform: 'translateY(-12px) scale(1.2)',
-                  opacity: 1,
-                  boxShadow: '0 0 30px rgba(255, 0, 110, 0.8)',
-                },
+              bgcolor: '#2563eb',
+              opacity: 0.5,
+              animation: 'typingBounce 1.4s ease-in-out infinite',
+              animationDelay: `${i * 0.2}s`,
+              '@keyframes typingBounce': {
+                '0%,60%,100%': { transform: 'translateY(0)', opacity: 0.3 },
+                '30%': { transform: 'translateY(-7px)', opacity: 1 },
               },
             }}
           />
         ))}
       </Box>
-      <Typography 
-        variant="body2" 
-        sx={{ 
-          ml: 1,
-          color: 'rgba(0, 212, 255, 0.9)',
-          textShadow: '0 0 15px rgba(0, 212, 255, 0.5)',
-          fontStyle: 'italic',
-          fontWeight: 500,
-        }}
-      >
-        TrustMed-AI neural processing active...
+      <Typography sx={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.9rem' }}>
+        TrustMed AI is thinking...
       </Typography>
     </Box>
   );
-};
+}
+
+function formatMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/###\s(.*?)$/gm, '<h4 style="margin:14px 0 6px;color:#1d4ed8;font-size:1rem;font-weight:700">$1</h4>')
+    .replace(/##\s(.*?)$/gm, '<h3 style="margin:16px 0 8px;color:#1d4ed8;font-weight:700;font-size:1.05rem">$1</h3>')
+    .replace(/^-\s(.+)$/gm, '<li style="margin:4px 0;padding-left:4px;color:#334155">$1</li>')
+    .replace(/(<li.*<\/li>\n?)+/g, '<ul style="margin:10px 0;padding-left:22px">$&</ul>')
+    .replace(/\n\n/g, '<br/><br/>')
+    .replace(/\n/g, '<br/>');
+}
+
+function MessageBubble({
+  message,
+  onSpeak,
+  isSpeaking,
+}: {
+  message: Message;
+  onSpeak: (message: Message) => void;
+  isSpeaking: boolean;
+}) {
+  const isUser = message.type === 'user';
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(message.content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <Fade in timeout={250}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: isUser ? 'flex-end' : 'flex-start',
+          mb: 3,
+          alignItems: 'flex-start',
+          gap: 1.5,
+          px: 2,
+        }}
+      >
+        {!isUser && (
+          <Avatar
+            sx={{
+              width: 40,
+              height: 40,
+              mt: 0.25,
+              flexShrink: 0,
+              bgcolor: '#2563eb',
+              boxShadow: '0 2px 10px rgba(37,99,235,0.3)',
+            }}
+          >
+            <AIIcon sx={{ fontSize: 20 }} />
+          </Avatar>
+        )}
+
+        <Box sx={{ maxWidth: '76%', minWidth: 0 }}>
+          <Paper
+            elevation={0}
+            sx={{
+              p: isUser ? 2 : 2.5,
+              bgcolor: isUser ? '#2563eb' : '#ffffff',
+              borderRadius: isUser ? '20px 20px 6px 20px' : '20px 20px 20px 6px',
+              border: isUser ? 'none' : '1px solid #e2e8f0',
+              boxShadow: isUser
+                ? '0 4px 16px rgba(37,99,235,0.28)'
+                : '0 2px 8px rgba(0,0,0,0.06)',
+            }}
+          >
+            {message.isTyping ? (
+              <TypingDots />
+            ) : (
+              <>
+                <Typography
+                  component="div"
+                  sx={{
+                    color: isUser ? '#ffffff' : '#1e293b',
+                    lineHeight: 1.7,
+                    fontSize: '1rem',
+                    wordBreak: 'break-word',
+                    '& strong': { fontWeight: 700 },
+                    '& h3, & h4': { fontWeight: 700 },
+                    '& ul': { listStyle: 'disc' },
+                  }}
+                  dangerouslySetInnerHTML={{ __html: formatMarkdown(message.content) }}
+                />
+
+                {/* Sources */}
+                {message.sources && message.sources.length > 0 && (
+                  <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid #f1f5f9' }}>
+                    <Typography
+                      sx={{
+                        color: '#94a3b8',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.06em',
+                        mb: 1,
+                        display: 'block',
+                      }}
+                    >
+                      Sources
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
+                      {message.sources.map((link, idx) => (
+                        <Link
+                          key={idx}
+                          href={link.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          sx={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 0.75,
+                            px: 1.25,
+                            py: 0.5,
+                            borderRadius: '20px',
+                            textDecoration: 'none',
+                            fontSize: '0.875rem',
+                            fontWeight: 600,
+                            bgcolor: '#f8fafc',
+                            border: '1px solid #e2e8f0',
+                            color: '#475569',
+                            transition: 'all 0.15s',
+                            '&:hover': { bgcolor: '#eff6ff', borderColor: '#bfdbfe', color: '#2563eb' },
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              width: 8,
+                              height: 8,
+                              borderRadius: '50%',
+                              bgcolor:
+                                link.source_type === 'medicine' ? '#d97706'
+                                : link.source_type === 'diseases' ? '#16a34a'
+                                : link.source_type === 'symptoms' ? '#dc2626'
+                                : '#2563eb',
+                              flexShrink: 0,
+                            }}
+                          />
+                          [{idx + 1}] {link.title?.slice(0, 30) || link.source_type}
+                        </Link>
+                      ))}
+                    </Box>
+                  </Box>
+                )}
+
+                {/* Metadata chips */}
+                {!isUser && (
+                  <Box sx={{ mt: 1.75, display: 'flex', flexWrap: 'wrap', gap: 0.75, alignItems: 'center' }}>
+                    {message.reactTrace && message.reactTrace.length > 0 && (
+                      <Tooltip
+                        title={message.reactTrace.map((step) => `${step.thought} ${step.observation}`).join(' ')}
+                        placement="top"
+                      >
+                        <Chip
+                          label={`ReAct ${message.reactTrace.map((step) => step.action).join(' -> ')}`}
+                          size="small"
+                          sx={{
+                            height: 28,
+                            maxWidth: 280,
+                            fontSize: '0.8125rem',
+                            fontWeight: 600,
+                            bgcolor: '#ecfeff',
+                            color: '#0e7490',
+                            border: '1px solid #a5f3fc',
+                            '& .MuiChip-label': { px: 1, overflow: 'hidden', textOverflow: 'ellipsis' },
+                          }}
+                        />
+                      </Tooltip>
+                    )}
+                    {message.confidence !== undefined && (
+                      <Chip
+                        label={`${(message.confidence * 100).toFixed(0)}% confidence`}
+                        size="small"
+                        sx={{
+                          height: 28,
+                          fontSize: '0.8125rem',
+                          fontWeight: 600,
+                          bgcolor: message.confidence > 0.7 ? '#f0fdf4' : message.confidence > 0.4 ? '#fffbeb' : '#fef2f2',
+                          color: message.confidence > 0.7 ? '#16a34a' : message.confidence > 0.4 ? '#d97706' : '#dc2626',
+                          border: `1px solid ${message.confidence > 0.7 ? '#bbf7d0' : message.confidence > 0.4 ? '#fde68a' : '#fecaca'}`,
+                          '& .MuiChip-label': { px: 1 },
+                        }}
+                      />
+                    )}
+                    {message.intent && (
+                      <Chip
+                        label={message.intent}
+                        size="small"
+                        sx={{
+                          height: 28,
+                          fontSize: '0.8125rem',
+                          fontWeight: 600,
+                          bgcolor: '#f5f3ff',
+                          color: '#7c3aed',
+                          border: '1px solid #ddd6fe',
+                          '& .MuiChip-label': { px: 1 },
+                        }}
+                      />
+                    )}
+                    {message.sourcesCount !== undefined && message.sourcesCount > 0 && (
+                      <Chip
+                        label={`${message.sourcesCount} sources`}
+                        size="small"
+                        sx={{
+                          height: 28,
+                          fontSize: '0.8125rem',
+                          fontWeight: 600,
+                          bgcolor: '#eff6ff',
+                          color: '#2563eb',
+                          border: '1px solid #bfdbfe',
+                          '& .MuiChip-label': { px: 1 },
+                        }}
+                      />
+                    )}
+                    {message.responseTime !== undefined && (
+                      <Chip
+                        label={`${(message.responseTime / 1000).toFixed(1)}s`}
+                        size="small"
+                        sx={{
+                          height: 28,
+                          fontSize: '0.8125rem',
+                          bgcolor: '#f8fafc',
+                          color: '#94a3b8',
+                          border: '1px solid #e2e8f0',
+                          '& .MuiChip-label': { px: 1 },
+                        }}
+                      />
+                    )}
+                    <Tooltip title={isSpeaking ? 'Playing audio...' : 'Listen to response'} placement="top">
+                      <IconButton
+                        size="small"
+                        onClick={() => onSpeak(message)}
+                        disabled={isSpeaking}
+                        sx={{
+                          width: 28,
+                          height: 28,
+                          color: isSpeaking ? '#2563eb' : '#cbd5e1',
+                          '&:hover': { color: '#2563eb', bgcolor: '#eff6ff' },
+                          '&.Mui-disabled': { color: '#93c5fd' },
+                        }}
+                      >
+                        {isSpeaking ? (
+                          <CircularProgress size={14} sx={{ color: '#2563eb' }} />
+                        ) : (
+                          <VolumeIcon sx={{ fontSize: 15 }} />
+                        )}
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title={copied ? 'Copied!' : 'Copy response'} placement="top">
+                      <IconButton
+                        size="small"
+                        onClick={handleCopy}
+                        sx={{
+                          width: 28,
+                          height: 28,
+                          ml: 'auto',
+                          color: copied ? '#16a34a' : '#cbd5e1',
+                          '&:hover': { color: '#64748b', bgcolor: '#f1f5f9' },
+                        }}
+                      >
+                        {copied ? <CheckIcon sx={{ fontSize: 15 }} /> : <CopyIcon sx={{ fontSize: 15 }} />}
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                )}
+              </>
+            )}
+          </Paper>
+
+          <Typography
+            sx={{
+              display: 'block',
+              mt: 0.5,
+              textAlign: isUser ? 'right' : 'left',
+              color: '#cbd5e1',
+              fontSize: '0.8rem',
+              px: 0.75,
+            }}
+          >
+            {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </Typography>
+        </Box>
+
+        {isUser && (
+          <Avatar
+            sx={{
+              width: 40,
+              height: 40,
+              mt: 0.25,
+              flexShrink: 0,
+              bgcolor: '#475569',
+              color: '#ffffff',
+            }}
+          >
+            <PersonIcon sx={{ fontSize: 20 }} />
+          </Avatar>
+        )}
+      </Box>
+    </Fade>
+  );
+}
 
 export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
-  const theme = useTheme();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState(initialMessage || '');
+  const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const initialSentRef = useRef(false);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const activeAudioRef = useRef<HTMLAudioElement | null>(null);
 
-
-
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
 
-  // Health check query
+  useEffect(() => {
+    return () => {
+      activeAudioRef.current?.pause();
+      const recorder = mediaRecorderRef.current;
+      if (recorder && recorder.state !== 'inactive') {
+        recorder.stop();
+      }
+    };
+  }, []);
+
   const { data: healthStatus, isError: healthError } = useQuery({
     queryKey: ['health'],
     queryFn: apiService.healthCheck,
-    refetchInterval: 30000, // Check every 30 seconds
+    refetchInterval: 30000,
+    retry: 1,
   });
 
   const chatMutation = useMutation({
     mutationFn: (query: string) => apiService.medicalQuery(query),
     onSuccess: (response: TrustMedQueryResponse) => {
-      setMessages(prev => prev.map(msg => 
-        msg.isTyping 
-          ? {
-              ...msg,
-              content: response.answer,
-              sources: response.links,
-              confidence: response.confidence_score,
-              intent: response.query_intent,
-              responseTime: response.response_time_ms,
-              sourcesCount: response.sources_count,
-              isTyping: false,
-            }
-          : msg
-      ));
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.isTyping
+            ? {
+                ...msg,
+                content: response.answer,
+                sources: response.links,
+                confidence: response.confidence_score,
+                intent: response.query_intent,
+                responseTime: response.response_time_ms,
+                sourcesCount: response.sources_count,
+                reactTrace: response.react_trace,
+                isTyping: false,
+              }
+            : msg
+        )
+      );
     },
-    onError: (error: any) => {
-      setMessages(prev => prev.map(msg => 
-        msg.isTyping 
-          ? {
-              ...msg,
-              content: `Neural interface encountered an error: ${error.message}. Please try reinitializing your query.`,
-              isTyping: false,
-            }
-          : msg
-      ));
+    onError: (error: unknown) => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.isTyping
+            ? {
+                ...msg,
+                content: `Sorry, I encountered an error: ${getErrorMessage(error)}. Please check that the backend server is running and try again.`,
+                isTyping: false,
+              }
+            : msg
+        )
+      );
     },
   });
 
-  const handleSendMessage = () => {
-    if (!inputValue.trim()) return;
+  const sendMessage = useCallback(
+    (text: string) => {
+      if (!text.trim()) return;
+      const userMsg: Message = {
+        id: `user-${Date.now()}`,
+        type: 'user',
+        content: text.trim(),
+        timestamp: new Date(),
+      };
+      const typingMsg: Message = {
+        id: `ai-${Date.now()}`,
+        type: 'assistant',
+        content: '',
+        timestamp: new Date(),
+        isTyping: true,
+      };
+      setMessages((prev) => [...prev, userMsg, typingMsg]);
+      chatMutation.mutate(text.trim());
+      setInputValue('');
+    },
+    [chatMutation]
+  );
 
-    const userMessage: Message = {
-      id: `user-${Date.now()}`,
-      type: 'user',
-      content: inputValue,
-      timestamp: new Date(),
-    };
+  useEffect(() => {
+    if (initialMessage && !initialSentRef.current) {
+      initialSentRef.current = true;
+      sendMessage(initialMessage);
+    }
+  }, [initialMessage, sendMessage]);
 
-    const typingMessage: Message = {
-      id: `assistant-${Date.now()}`,
-      type: 'assistant',
-      content: '',
-      timestamp: new Date(),
-      isTyping: true,
-    };
-
-    setMessages(prev => [...prev, userMessage, typingMessage]);
-    chatMutation.mutate(inputValue);
-    setInputValue('');
-  };
-
-  const handleKeyPress = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      handleSendMessage();
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage(inputValue);
     }
   };
 
-  const handleSampleQuestion = (question: string) => {
-    setInputValue(question);
+  const handleNewChat = () => {
+    setMessages([]);
+    setInputValue('');
     inputRef.current?.focus();
   };
 
-  const copyToClipboard = (content: string) => {
-    navigator.clipboard.writeText(content);
-  };
+  const showAssistantNotice = useCallback((content: string) => {
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: `notice-${Date.now()}`,
+        type: 'assistant',
+        content,
+        timestamp: new Date(),
+      },
+    ]);
+  }, []);
 
+  const stopRecording = useCallback(() => {
+    const recorder = mediaRecorderRef.current;
+    if (recorder && recorder.state !== 'inactive') {
+      recorder.stop();
+    }
+  }, []);
 
+  const startRecording = useCallback(async () => {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      showAssistantNotice('Voice input is not supported in this browser.');
+      return;
+    }
 
-  const formatMarkdown = (text: string) => {
-    // Basic markdown to HTML conversion for display
-    return text
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/###\s(.*?)$/gm, '<h3>$1</h3>')
-      .replace(/##\s(.*?)$/gm, '<h2>$1</h2>')
-      .replace(/\n/g, '<br />');
-  };
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+      mediaRecorderRef.current = recorder;
 
-  const renderMessage = (message: Message) => {
-    const isUser = message.type === 'user';
-    
-    return (
-      <Fade in key={message.id} timeout={300}>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: isUser ? 'flex-end' : 'flex-start',
-            mb: 3,
-            alignItems: 'flex-start',
-            gap: 2,
-          }}
-        >
-          {!isUser && (
-            <Avatar
-              sx={{
-                background: 'linear-gradient(45deg, #ff006e 0%, #7c3aed 100%)',
-                width: 36,
-                height: 36,
-                mt: 0.5,
-                border: '1px solid rgba(255, 0, 110, 0.4)',
-                boxShadow: '0 0 20px rgba(255, 0, 110, 0.4)',
-              }}
-            >
-              <AIIcon sx={{ fontSize: 20, color: 'white' }} />
-            </Avatar>
-          )}
-          
-          <Box sx={{ maxWidth: '75%' }}>
-            <Paper
-              elevation={0}
-              sx={{
-                p: 2.5,
-                background: isUser 
-                  ? 'linear-gradient(135deg, rgba(0, 212, 255, 0.12) 0%, rgba(124, 58, 237, 0.08) 100%)'
-                  : 'linear-gradient(135deg, rgba(17, 25, 40, 0.95) 0%, rgba(26, 26, 46, 0.9) 100%)',
-                color: '#ffffff',
-                borderRadius: isUser ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
-                border: isUser 
-                  ? '1px solid rgba(0, 212, 255, 0.25)'
-                  : '1px solid rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(20px)',
-                position: 'relative',
-                boxShadow: isUser
-                  ? '0 8px 32px rgba(0, 212, 255, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1)'
-                  : '0 8px 32px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.2)',
-                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                '&:hover': {
-                  transform: 'translateY(-1px)',
-                  boxShadow: isUser
-                    ? '0 12px 40px rgba(0, 212, 255, 0.2), 0 4px 12px rgba(0, 0, 0, 0.15)'
-                    : '0 12px 40px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.25)',
-                },
-                '&::before': isUser ? {} : {
-                  content: '""',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  borderRadius: '20px 20px 20px 4px',
-                  background: 'linear-gradient(45deg, rgba(255, 0, 110, 0.03), rgba(124, 58, 237, 0.03))',
-                  zIndex: -1,
-                },
-              }}
-            >
-              {message.isTyping ? (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 0.5 }}>
-                  <Box sx={{ display: 'flex', gap: 0.4 }}>
-                    {[0, 1, 2].map((i) => (
-                      <Box
-                        key={i}
-                        sx={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: '50%',
-                          background: 'linear-gradient(45deg, #00d4ff, #ff006e)',
-                          boxShadow: '0 0 12px rgba(0, 212, 255, 0.6)',
-                          animation: 'modernTyping 1.4s ease-in-out infinite',
-                          animationDelay: `${i * 0.2}s`,
-                          '@keyframes modernTyping': {
-                            '0%, 60%, 100%': {
-                              transform: 'translateY(0) scale(0.8)',
-                              opacity: 0.5,
-                            },
-                            '30%': {
-                              transform: 'translateY(-8px) scale(1)',
-                              opacity: 1,
-                            },
-                          },
-                        }}
-                      />
-                    ))}
-                  </Box>
-                  <Typography 
-                    variant="body2" 
-                    sx={{ 
-                      color: 'rgba(255, 255, 255, 0.7)',
-                      fontSize: '0.85rem',
-                      fontStyle: 'italic',
-                      fontWeight: 500,
-                    }}
-                  >
-                    TrustMed-AI is analyzing...
-                  </Typography>
-                </Box>
-              ) : (
-                <>
-                  <Typography
-                    variant="body1"
-                    sx={{
-                      whiteSpace: 'pre-wrap',
-                      wordBreak: 'break-word',
-                      lineHeight: 1.6,
-                    }}
-                    dangerouslySetInnerHTML={{ __html: formatMarkdown(message.content) }}
-                  />
-                  
-                  {/* Perplexity-style Source Links */}
-                  {message.sources && message.sources.length > 0 && (
-                    <Box sx={{ mt: 2 }}>
-                      <Typography 
-                        variant="caption" 
-                        sx={{ 
-                          mb: 1, 
-                          color: 'rgba(255, 255, 255, 0.7)', 
-                          fontWeight: 600,
-                          fontSize: '0.75rem',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.5px'
-                        }}
-                      >
-                        Sources
-                      </Typography>
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8, mt: 1 }}>
-                        {message.sources.map((link, index) => (
-                          <Link
-                            key={index}
-                            href={link.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            sx={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: 0.5,
-                              px: 1.2,
-                              py: 0.6,
-                              borderRadius: '8px',
-                              textDecoration: 'none',
-                              fontSize: '0.8rem',
-                              fontWeight: 500,
-                              background: 'rgba(255, 255, 255, 0.08)',
-                              border: '1px solid rgba(255, 255, 255, 0.15)',
-                              color: '#ffffff',
-                              backdropFilter: 'blur(10px)',
-                              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                              '&:hover': {
-                                background: 'rgba(255, 255, 255, 0.15)',
-                                borderColor: 'rgba(0, 212, 255, 0.5)',
-                                transform: 'translateY(-1px)',
-                                boxShadow: '0 4px 12px rgba(0, 212, 255, 0.2)',
-                              },
-                            }}
-                          >
-                            <Box
-                              sx={{
-                                width: 6,
-                                height: 6,
-                                borderRadius: '50%',
-                                background: link.source_type === 'medicine' ? '#ff9800' :
-                                          link.source_type === 'diseases' ? '#4caf50' :
-                                          link.source_type === 'symptoms' ? '#f44336' :
-                                          '#2196f3',
-                                flexShrink: 0,
-                              }}
-                            />
-                            <Typography variant="inherit">
-                              {index + 1}
-                            </Typography>
-                          </Link>
-                        ))}
-                      </Box>
-                      
-                      {/* Source Details on Hover/Expand */}
-                      <Box sx={{ mt: 1, display: 'none' /* Will be shown on expand */ }}>
-                        {message.sources.map((link, index) => (
-                          <Box
-                            key={index}
-                            sx={{
-                              p: 1.5,
-                              mb: 1,
-                              borderRadius: '8px',
-                              background: 'rgba(255, 255, 255, 0.05)',
-                              border: '1px solid rgba(255, 255, 255, 0.1)',
-                            }}
-                          >
-                            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.6)' }}>
-                              [{index + 1}] {link.source_type}
-                            </Typography>
-                            <Typography variant="body2" sx={{ mt: 0.5, fontWeight: 500 }}>
-                              {link.title}
-                            </Typography>
-                          </Box>
-                        ))}
-                      </Box>
-                    </Box>
-                  )}
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
 
-                  {/* Enhanced TrustMed-AI Metadata */}
-                  {!isUser && !message.isTyping && (
-                    <Box sx={{ mt: 2, display: 'flex', flexWrap: 'wrap', gap: 0.8, alignItems: 'center' }}>
-                      {message.intent && (
-                        <Chip
-                          label={message.intent}
-                          size="small"
-                          sx={{
-                            height: 20,
-                            fontSize: '0.7rem',
-                            fontWeight: 600,
-                            background: 'rgba(124, 58, 237, 0.15)',
-                            color: '#a855f7',
-                            border: '1px solid rgba(124, 58, 237, 0.3)',
-                            borderRadius: '10px',
-                            '& .MuiChip-label': {
-                              px: 1,
-                            },
-                          }}
-                        />
-                      )}
-                      {message.confidence !== undefined && (
-                        <Chip
-                          label={`${(message.confidence * 100).toFixed(0)}% confident`}
-                          size="small"
-                          sx={{
-                            height: 20,
-                            fontSize: '0.7rem',
-                            fontWeight: 600,
-                            background: message.confidence > 0.7 ? 'rgba(76, 175, 80, 0.15)' : 
-                                       message.confidence > 0.4 ? 'rgba(255, 152, 0, 0.15)' : 
-                                       'rgba(244, 67, 54, 0.15)',
-                            color: message.confidence > 0.7 ? '#4caf50' : 
-                                  message.confidence > 0.4 ? '#ff9800' : 
-                                  '#f44336',
-                            border: `1px solid ${message.confidence > 0.7 ? 'rgba(76, 175, 80, 0.3)' : 
-                                                  message.confidence > 0.4 ? 'rgba(255, 152, 0, 0.3)' : 
-                                                  'rgba(244, 67, 54, 0.3)'}`,
-                            borderRadius: '10px',
-                            '& .MuiChip-label': {
-                              px: 1,
-                            },
-                          }}
-                        />
-                      )}
-                      {message.sourcesCount !== undefined && (
-                        <Chip
-                          label={`${message.sourcesCount} sources`}
-                          size="small"
-                          sx={{
-                            height: 20,
-                            fontSize: '0.7rem',
-                            fontWeight: 600,
-                            background: 'rgba(0, 212, 255, 0.15)',
-                            color: '#00d4ff',
-                            border: '1px solid rgba(0, 212, 255, 0.3)',
-                            borderRadius: '10px',
-                            '& .MuiChip-label': {
-                              px: 1,
-                            },
-                          }}
-                        />
-                      )}
-                      {message.responseTime !== undefined && (
-                        <Chip
-                          label={`${(message.responseTime / 1000).toFixed(1)}s`}
-                          size="small"
-                          sx={{
-                            height: 20,
-                            fontSize: '0.7rem',
-                            fontWeight: 600,
-                            background: 'rgba(255, 255, 255, 0.08)',
-                            color: 'rgba(255, 255, 255, 0.7)',
-                            border: '1px solid rgba(255, 255, 255, 0.15)',
-                            borderRadius: '10px',
-                            '& .MuiChip-label': {
-                              px: 1,
-                            },
-                          }}
-                        />
-                      )}
-                    </Box>
-                  )}
-                  
-                  {!isUser && (
-                    <Box sx={{ mt: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <Tooltip title="Copy response" arrow placement="top">
-                        <IconButton
-                          size="small"
-                          onClick={() => copyToClipboard(message.content)}
-                          sx={{ 
-                            opacity: 0.6,
-                            color: 'rgba(255, 255, 255, 0.6)',
-                            background: 'rgba(255, 255, 255, 0.05)',
-                            backdropFilter: 'blur(10px)',
-                            borderRadius: '8px',
-                            width: 28,
-                            height: 28,
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            transition: 'all 0.2s',
-                            '&:hover': { 
-                              opacity: 1,
-                              background: 'rgba(255, 255, 255, 0.1)',
-                              transform: 'scale(1.05)',
-                            } 
-                          }}
-                        >
-                          <CopyIcon sx={{ fontSize: 14 }} />
-                        </IconButton>
-                      </Tooltip>
-                    </Box>
-                  )}
-                </>
-              )}
-            </Paper>
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((track) => track.stop());
+        setIsRecording(false);
+        setIsTranscribing(true);
 
-            {/* Timestamp */}
-            <Typography
-              variant="caption"
-              sx={{
-                display: 'block',
-                mt: 1,
-                textAlign: isUser ? 'right' : 'left',
-                color: 'rgba(255, 255, 255, 0.5)',
-                fontSize: '0.7rem',
-                fontWeight: 500,
-              }}
-            >
-              {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </Typography>
-          </Box>
+        try {
+          const audioBlob = new Blob(audioChunksRef.current, { type: recorder.mimeType || 'audio/webm' });
+          const result = await apiService.speechToText(audioBlob);
+          setInputValue(result.transcript);
+          inputRef.current?.focus();
+        } catch (error: unknown) {
+          showAssistantNotice(`Voice transcription failed: ${getErrorMessage(error)}`);
+        } finally {
+          setIsTranscribing(false);
+          mediaRecorderRef.current = null;
+        }
+      };
 
-          {isUser && (
-            <Avatar
-              sx={{
-                background: 'linear-gradient(45deg, #00d4ff 0%, #7c3aed 100%)',
-                width: 36,
-                height: 36,
-                mt: 0.5,
-                border: '1px solid rgba(0, 212, 255, 0.4)',
-                boxShadow: '0 0 20px rgba(0, 212, 255, 0.4)',
-              }}
-            >
-              <PersonIcon sx={{ fontSize: 20, color: 'white' }} />
-            </Avatar>
-          )}
-        </Box>
-      </Fade>
-    );
-  };
+      recorder.start();
+      setIsRecording(true);
+    } catch (error: unknown) {
+      showAssistantNotice(`Microphone access failed: ${getErrorMessage(error)}`);
+      setIsRecording(false);
+    }
+  }, [showAssistantNotice]);
+
+  const handleVoiceInput = useCallback(() => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  }, [isRecording, startRecording, stopRecording]);
+
+  const handleSpeak = useCallback(async (message: Message) => {
+    if (!message.content || message.isTyping) return;
+
+    try {
+      activeAudioRef.current?.pause();
+      setSpeakingMessageId(message.id);
+      const audioBlob = await apiService.textToSpeech(message.content);
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      activeAudioRef.current = audio;
+
+      audio.onended = () => {
+        URL.revokeObjectURL(audioUrl);
+        setSpeakingMessageId(null);
+        activeAudioRef.current = null;
+      };
+      audio.onerror = () => {
+        URL.revokeObjectURL(audioUrl);
+        setSpeakingMessageId(null);
+        activeAudioRef.current = null;
+        showAssistantNotice('Audio playback failed.');
+      };
+
+      await audio.play();
+    } catch (error: unknown) {
+      setSpeakingMessageId(null);
+      showAssistantNotice(`Text-to-speech failed: ${getErrorMessage(error)}`);
+    }
+  }, [showAssistantNotice]);
+
+  const isOnline = !healthError && healthStatus?.status === 'healthy';
+  const robotMode: RobotAnimationMode = speakingMessageId
+    ? 'speaking'
+    : isRecording || isTranscribing
+      ? 'recording'
+      : chatMutation.isPending
+        ? 'thinking'
+        : 'idle';
 
   return (
-    <Container maxWidth="lg" sx={{ height: '100%', py: 0 }}>
+    <Box
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        bgcolor: '#ffffff',
+        borderRadius: '20px',
+        border: '1px solid #e2e8f0',
+        overflow: 'hidden',
+        boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
+      }}
+    >
+      {/* Header */}
       <Box
         sx={{
-          height: '100%',
+          px: 3,
+          py: 2.5,
           display: 'flex',
-          flexDirection: 'column',
-          borderRadius: '24px',
-          overflow: 'hidden',
-          background: `
-            radial-gradient(ellipse at top, rgba(0, 212, 255, 0.08) 0%, transparent 70%),
-            radial-gradient(ellipse at bottom, rgba(255, 0, 110, 0.06) 0%, transparent 70%),
-            linear-gradient(135deg, rgba(17, 25, 40, 0.95) 0%, rgba(26, 26, 46, 0.9) 100%)
-          `,
-          backdropFilter: 'blur(20px)',
-          boxShadow: `
-            0 0 60px rgba(0, 212, 255, 0.3),
-            0 0 120px rgba(255, 0, 110, 0.2),
-            0px 20px 60px rgba(0,0,0,0.4)
-          `,
-          border: '1px solid rgba(0, 212, 255, 0.2)',
-          position: 'relative',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            borderRadius: '24px',
-            background: 'linear-gradient(45deg, rgba(0, 212, 255, 0.1), rgba(124, 58, 237, 0.1), rgba(255, 0, 110, 0.1))',
-            opacity: 0.3,
-            animation: 'borderPulse 3s ease-in-out infinite',
-            zIndex: -1,
-          },
-          '@keyframes borderPulse': {
-            '0%, 100%': { opacity: 0.3 },
-            '50%': { opacity: 0.6 },
-          },
+          alignItems: 'center',
+          gap: 2,
+          borderBottom: '1px solid #f1f5f9',
+          bgcolor: '#ffffff',
+          flexShrink: 0,
+          minHeight: 72,
         }}
       >
-        {/* Cyberpunk Chat Header */}
-        <Box
-          sx={{
-            background: `
-              linear-gradient(135deg, rgba(0, 212, 255, 0.8) 0%, rgba(124, 58, 237, 0.8) 50%, rgba(255, 0, 110, 0.8) 100%),
-              linear-gradient(45deg, rgba(17, 25, 40, 0.9) 0%, rgba(26, 26, 46, 0.9) 100%)
-            `,
-            backgroundBlendMode: 'overlay',
-            p: 3,
-            color: 'white',
-            position: 'relative',
-            '&::before': {
-              content: '""',
+        <Box sx={{ position: 'relative' }}>
+          <RobotAvatar3D size={48} compact mode={robotMode} />
+          <Box
+            sx={{
               position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '2px',
-              background: 'linear-gradient(90deg, #00d4ff 0%, #7c3aed 50%, #ff006e 100%)',
-              animation: 'headerGlow 2s ease-in-out infinite alternate',
-            },
-            '@keyframes headerGlow': {
-              '0%': { boxShadow: '0 0 20px rgba(0, 212, 255, 0.5)' },
-              '100%': { boxShadow: '0 0 40px rgba(255, 0, 110, 0.5)' },
-            },
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 2 }}>
-            <Box
-              component="img"
-              src="/ChatBotIcon.png"
-              alt="TrustMed-AI ChatBot"
-              sx={{
-                width: 64,
-                height: 64,
-                borderRadius: '50%',
-                filter: `
-                  drop-shadow(0 0 20px rgba(0, 212, 255, 0.6))
-                  drop-shadow(0 0 30px rgba(0, 212, 255, 0.4))
-                  brightness(1.2)
-                  contrast(1.1)
-                `,
-                border: '2px solid rgba(0, 212, 255, 0.4)',
-                boxShadow: '0 0 30px rgba(0, 212, 255, 0.5)',
-                position: 'relative',
-                animation: 'avatarGlow 3s ease-in-out infinite',
-                '@keyframes avatarGlow': {
-                  '0%, 100%': { 
-                    boxShadow: '0 0 30px rgba(0, 212, 255, 0.5), 0 0 60px rgba(0, 212, 255, 0.3)' 
-                  },
-                  '50%': { 
-                    boxShadow: '0 0 40px rgba(0, 212, 255, 0.7), 0 0 80px rgba(0, 212, 255, 0.4)' 
-                  },
-                },
-              }}
-            />
-            <Box sx={{ flex: 1 }}>
-              <Typography 
-                variant="h4" 
-                fontWeight="black" 
-                sx={{ 
-                  mb: 0.5,
-                  background: 'linear-gradient(45deg, #00d4ff 0%, #ffffff 50%, #ff006e 100%)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  textShadow: '0 0 30px rgba(0, 212, 255, 0.5)',
-                  fontFamily: '"Inter", "Roboto", sans-serif',
-                }}
-              >
-                TrustMed-AI
-              </Typography>
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  color: 'rgba(255, 255, 255, 0.9)', 
-                  fontSize: '1.1rem',
-                  textShadow: '0 0 20px rgba(0, 212, 255, 0.3)',
-                  fontWeight: 500,
-                }}
-              >
-                Advanced Neural Medical Intelligence
-              </Typography>
-            </Box>
-            
-            {/* Health Status & Session Controls */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 1 }}>
-              {healthStatus && (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Box
-                    sx={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: '50%',
-                      background: healthStatus.status === 'healthy' ? '#4caf50' : '#f44336',
-                      boxShadow: `0 0 10px ${healthStatus.status === 'healthy' ? '#4caf50' : '#f44336'}`,
-                      animation: healthStatus.status === 'healthy' ? 'healthyPulse 2s ease-in-out infinite' : 'none',
-                      '@keyframes healthyPulse': {
-                        '0%, 100%': { opacity: 0.8 },
-                        '50%': { opacity: 1 },
-                      },
-                    }}
-                  />
-                  <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
-                     {healthStatus.active_sessions} Active
-                  </Typography>
-                </Box>
-              )}
-              {healthError && (
-                <Typography variant="caption" sx={{ color: '#f44336' }}>
-                  Neural Core Offline
-                </Typography>
-              )}
-            </Box>
-          </Box>
-          
-          {/* Description */}
-          <Typography 
-            variant="body1" 
-            sx={{ 
-              mb: 4,
-              color: 'rgba(255, 255, 255, 0.9)', 
-              textAlign: 'center',
-              fontSize: '1.1rem',
-              textShadow: '0 0 20px rgba(0, 212, 255, 0.3)',
-              fontWeight: 400,
+              bottom: 1,
+              right: 1,
+              width: 12,
+              height: 12,
+              borderRadius: '50%',
+              bgcolor: isOnline ? '#16a34a' : '#dc2626',
+              border: '2px solid #ffffff',
             }}
-          >
-            Powered by advanced neural architecture for precise medical insights and comprehensive health information analysis.
+          />
+        </Box>
+
+        <Box sx={{ flex: 1 }}>
+          <Typography sx={{ fontWeight: 700, color: '#0f172a', lineHeight: 1.2, fontSize: '1.1rem' }}>
+            TrustMed-AI Assistant
+          </Typography>
+          <Typography sx={{ color: '#94a3b8', fontSize: '0.875rem', mt: 0.25 }}>
+            {isOnline ? 'RAG-powered medical AI · Online' : 'Offline · Check backend connection'}
           </Typography>
         </Box>
 
-      {/* Messages Container */}
-      <Box
-        sx={{
-          flex: 1,
-          overflow: 'auto',
-          px: 2,
-          py: 3,
-          minHeight: 0,
-        }}
-      >
+        {/* Powered by badge */}
+        <Box
+          sx={{
+            display: { xs: 'none', md: 'flex' },
+            alignItems: 'center',
+            gap: 0.75,
+            px: 1.5,
+            py: 0.625,
+            borderRadius: '20px',
+            bgcolor: '#fef2f2',
+            border: '1px solid #fecaca',
+          }}
+        >
+          <Box
+            component="img"
+            src="/LOGO_doctor.png"
+            alt="Mayo Clinic"
+            sx={{ width: 18, height: 18, borderRadius: '50%' }}
+          />
+          <Typography sx={{ fontSize: '0.8125rem', fontWeight: 600, color: '#dc2626' }}>
+            Powered by Mayo Clinic
+          </Typography>
+        </Box>
+
+        {/* New Chat button */}
+        <Tooltip title="New conversation">
+          <Button
+            size="small"
+            startIcon={<NewChatIcon sx={{ fontSize: 16 }} />}
+            onClick={handleNewChat}
+            sx={{
+              borderRadius: '10px',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              color: '#475569',
+              border: '1px solid #e2e8f0',
+              px: 1.5,
+              py: 0.75,
+              textTransform: 'none',
+              '&:hover': { bgcolor: '#f8fafc', borderColor: '#cbd5e1' },
+            }}
+          >
+            New Chat
+          </Button>
+        </Tooltip>
+
+        {messages.length > 0 && (
+          <Tooltip title="Clear chat">
+            <IconButton
+              size="small"
+              onClick={handleNewChat}
+              sx={{ color: '#cbd5e1', width: 36, height: 36, '&:hover': { color: '#dc2626', bgcolor: '#fef2f2' } }}
+            >
+              <ClearIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        )}
+      </Box>
+
+      {/* Messages area */}
+      <Box sx={{ flex: 1, overflowY: 'auto', py: 3, minHeight: 0, bgcolor: '#f8fafc' }}>
         {messages.length === 0 ? (
-          /* Cyberpunk Welcome Screen */
-          <Box sx={{ textAlign: 'center', mt: 4, position: 'relative' }}>
+          <Box
+            sx={{
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              px: 3,
+              py: 4,
+              textAlign: 'center',
+            }}
+          >
             <Box
               sx={{
-                position: 'relative',
-                display: 'inline-block',
-                mb: 4,
-                '&::before': {
-                  content: '""',
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  width: '150px',
-                  height: '150px',
-                  background: 'radial-gradient(circle, rgba(0, 212, 255, 0.3) 0%, transparent 70%)',
-                  borderRadius: '50%',
-                  animation: 'welcomePulse 2s ease-in-out infinite',
-                  zIndex: -1,
-                },
-                '@keyframes welcomePulse': {
-                  '0%, 100%': { transform: 'translate(-50%, -50%) scale(1)' },
-                  '50%': { transform: 'translate(-50%, -50%) scale(1.2)' },
+                mb: 3,
+                animation: 'float 3s ease-in-out infinite',
+                '@keyframes float': {
+                  '0%,100%': { transform: 'translateY(0)' },
+                  '50%': { transform: 'translateY(-10px)' },
                 },
               }}
             >
-              <Box
-                component="img"
-                src="/ChatBotIcon.png"
-                alt="TrustMed-AI ChatBot"
-                sx={{
-                  width: 100,
-                  height: 100,
-                  mx: 'auto',
-                  borderRadius: '50%',
-                  filter: `
-                    drop-shadow(0 0 20px rgba(0, 212, 255, 0.6))
-                    drop-shadow(0 0 30px rgba(0, 212, 255, 0.4))
-                    brightness(1.2)
-                    contrast(1.1)
-                  `,
-                  border: '2px solid rgba(0, 212, 255, 0.4)',
-                  boxShadow: '0 0 50px rgba(0, 212, 255, 0.6)',
-                }}
-              />
+              <RobotAvatar3D size={112} mode={robotMode} />
             </Box>
-            
-            <Typography 
-              variant="h3" 
-              fontWeight="black" 
-              sx={{
-                mb: 2,
-                background: 'linear-gradient(45deg, #00d4ff 0%, #ffffff 30%, #ff006e 60%, #7c3aed 100%)',
-                backgroundSize: '300% 300%',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                animation: 'textShimmer 3s ease-in-out infinite',
-                textShadow: '0 0 40px rgba(0, 212, 255, 0.5)',
-                '@keyframes textShimmer': {
-                  '0%, 100%': { backgroundPosition: '0% 50%' },
-                  '50%': { backgroundPosition: '100% 50%' },
-                },
-              }}
-            >
-              TrustMed-AI Chat
-            </Typography>
-            
-            <Typography 
-              variant="h6" 
-              sx={{ 
-                mb: 4, 
-                maxWidth: 600, 
-                mx: 'auto',
-                color: 'rgba(255, 255, 255, 0.8)',
-                textShadow: '0 0 20px rgba(0, 212, 255, 0.3)',
-                fontWeight: 400,
-              }}
-            >
-              Advanced AI-powered medical intelligence system ready to assist with healthcare queries and medical insights.
+
+            <Typography variant="h4" sx={{ color: '#0f172a', fontWeight: 700, mb: 1.25, fontSize: '1.5rem' }}>
+              How can I help you today?
             </Typography>
 
-            {/* Cyberpunk Medical Disclaimer */}
-            <Paper
+            <Typography
+              variant="body1"
+              sx={{ color: '#64748b', mb: 4, maxWidth: 420, lineHeight: 1.7, fontSize: '1rem' }}
+            >
+              Ask me about symptoms, conditions, or treatments. I&apos;ll provide AI-powered answers
+              with verified sources from Mayo Clinic.
+            </Typography>
+
+            {/* 2-column suggestion grid */}
+            <Box
               sx={{
-                mb: 4,
-                maxWidth: 700,
-                mx: 'auto',
-                p: 3,
-                background: 'rgba(255, 0, 110, 0.1)',
-                border: '1px solid rgba(255, 0, 110, 0.3)',
-                borderRadius: '16px',
-                backdropFilter: 'blur(15px)',
-                position: 'relative',
-                '&::before': {
-                  content: '""',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  borderRadius: '16px',
-                  background: 'linear-gradient(45deg, rgba(255, 0, 110, 0.05), rgba(124, 58, 237, 0.05))',
-                  zIndex: -1,
-                },
+                display: 'grid',
+                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
+                gap: 1.25,
+                width: '100%',
+                maxWidth: 560,
               }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                <WarningIcon sx={{ color: '#ff006e', fontSize: 28 }} />
-                <Typography 
-                  variant="h6" 
-                  fontWeight="bold" 
-                  sx={{ 
-                    color: '#ff006e',
-                    textShadow: '0 0 15px rgba(255, 0, 110, 0.4)',
+              {suggestionChips.map((chip) => (
+                <Box
+                  key={chip.text}
+                  onClick={() => sendMessage(chip.text)}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.25,
+                    px: 2.5,
+                    py: 1.5,
+                    borderRadius: '14px',
+                    bgcolor: '#ffffff',
+                    border: '1.5px solid #e2e8f0',
+                    cursor: 'pointer',
+                    transition: 'all 0.18s ease',
+                    textAlign: 'left',
+                    '&:hover': {
+                      bgcolor: '#eff6ff',
+                      borderColor: '#bfdbfe',
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 4px 12px rgba(37,99,235,0.12)',
+                    },
                   }}
                 >
-                  TrustMed-AI Health Advisory
-                </Typography>
-              </Box>
-              <Typography 
-                variant="body1" 
-                sx={{ 
-                  color: 'rgba(255, 255, 255, 0.9)',
-                  lineHeight: 1.6,
-                  textShadow: '0 0 10px rgba(255, 0, 110, 0.2)',
-                }}
-              >
-                TrustMed-AI Chat provides educational medical information based on comprehensive AI analysis from verified medical sources. 
-                Always consult certified healthcare professionals for medical diagnosis, treatment, and professional medical advice.
-              </Typography>
-            </Paper>
-
-            {/* Neon Sample Questions */}
-            <Typography 
-              variant="h5" 
-              fontWeight="bold" 
-              sx={{ 
-                mb: 3,
-                color: '#00d4ff',
-                textShadow: '0 0 30px rgba(0, 212, 255, 0.6)',
-              }}
-            >
-              Initialize Query Protocol:
-            </Typography>
-            
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, justifyContent: 'center', maxWidth: 900, mx: 'auto' }}>
-              {sampleQuestions.map((question, index) => (
-                <Chip
-                  key={index}
-                  label={question}
-                  onClick={() => handleSampleQuestion(question)}
-                  sx={{
-                    cursor: 'pointer',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
-                    color: 'rgba(255, 255, 255, 0.9)',
-                    backdropFilter: 'blur(15px)',
-                    fontWeight: 500,
-                    fontSize: '0.85rem',
-                    padding: '12px 16px',
-                    height: 'auto',
-                    borderRadius: '12px',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    '&:hover': { 
-                      background: 'rgba(255, 255, 255, 0.1)',
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 8px 25px rgba(0, 212, 255, 0.2)',
-                      borderColor: 'rgba(0, 212, 255, 0.4)',
-                    },
-                    '&:active': {
-                      transform: 'translateY(0)',
-                    },
-                  }}
-                />
+                  <Typography sx={{ fontSize: '1.25rem', lineHeight: 1, flexShrink: 0 }}>
+                    {chip.emoji}
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.9375rem', fontWeight: 500, color: '#334155', lineHeight: 1.4 }}>
+                    {chip.text}
+                  </Typography>
+                </Box>
               ))}
             </Box>
           </Box>
         ) : (
-          /* Messages */
-          messages.map(renderMessage)
+          <>
+            {messages.map((msg) => (
+              <MessageBubble
+                key={msg.id}
+                message={msg}
+                onSpeak={handleSpeak}
+                isSpeaking={speakingMessageId === msg.id}
+              />
+            ))}
+            <div ref={messagesEndRef} />
+          </>
         )}
-        
-        <div ref={messagesEndRef} />
       </Box>
 
-      {/* Modern Input Area */}
-      <Paper
-        elevation={0}
+      {/* Disclaimer bar */}
+      <Box
         sx={{
-          p: 2.5,
-          background: 'linear-gradient(135deg, rgba(17, 25, 40, 0.98) 0%, rgba(26, 26, 46, 0.95) 100%)',
-          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-          backdropFilter: 'blur(30px)',
-          position: 'relative',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '1px',
-            background: 'linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.5), rgba(255, 0, 110, 0.5), transparent)',
-            animation: 'inputShimmer 3s ease-in-out infinite',
-            '@keyframes inputShimmer': {
-              '0%, 100%': { opacity: 0.3 },
-              '50%': { opacity: 1 },
-            },
-          },
+          px: 3,
+          py: 1,
+          bgcolor: '#fffbeb',
+          borderTop: '1px solid #fde68a',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          flexShrink: 0,
         }}
       >
+        <WarningIcon sx={{ fontSize: 14, color: '#d97706', flexShrink: 0 }} />
+        <Typography sx={{ color: '#92400e', fontSize: '0.8125rem', lineHeight: 1.4 }}>
+          For informational purposes only. Not a substitute for professional medical advice. In emergencies, call 911.
+        </Typography>
+      </Box>
+
+      {/* Input area */}
+      <Box sx={{ px: 2.5, py: 2, borderTop: '1px solid #f1f5f9', bgcolor: '#ffffff', flexShrink: 0 }}>
         <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-end' }}>
-          <TextField
-            ref={inputRef}
-            multiline
-            maxRows={4}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Ask TrustMed-AI anything about health and medicine..."
-            variant="outlined"
-            fullWidth
-            disabled={chatMutation.isPending}
+          <Box
             sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '16px',
-                background: 'rgba(255, 255, 255, 0.05)',
-                backdropFilter: 'blur(15px)',
-                color: '#ffffff',
-                fontSize: '0.95rem',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                '& fieldset': {
-                  borderColor: 'rgba(255, 255, 255, 0.15)',
-                  borderWidth: '1px',
-                },
-                '&:hover fieldset': {
-                  borderColor: 'rgba(0, 212, 255, 0.4)',
-                },
-                '&.Mui-focused': {
-                  background: 'rgba(255, 255, 255, 0.08)',
-                  '& fieldset': {
-                    borderColor: 'rgba(0, 212, 255, 0.6)',
-                    borderWidth: '1px',
-                    boxShadow: '0 0 20px rgba(0, 212, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1)',
-                  },
-                },
-              },
-              '& .MuiInputBase-input': {
-                color: '#ffffff',
-                '&::placeholder': {
-                  color: 'rgba(255, 255, 255, 0.5)',
-                  fontStyle: 'normal',
-                },
-              },
-            }}
-          />
-          
-          <IconButton
-            onClick={handleSendMessage}
-            disabled={!inputValue.trim() || chatMutation.isPending}
-            sx={{
-              p: 1.5,
-              borderRadius: '14px',
-              background: chatMutation.isPending 
-                ? 'rgba(60, 60, 80, 0.5)'
-                : 'linear-gradient(135deg, #00d4ff 0%, #7c3aed 50%, #ff006e 100%)',
-              color: 'white',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
               position: 'relative',
-              overflow: 'hidden',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              '&::before': {
-                content: '""',
+              flex: 1,
+              minWidth: 0,
+            }}
+          >
+            <Box
+              sx={{
                 position: 'absolute',
-                top: 0,
-                left: '-100%',
-                width: '100%',
-                height: '100%',
-                background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
-                transition: 'left 0.6s',
-              },
-              '&:hover:not(:disabled)': {
-                boxShadow: '0 8px 25px rgba(0, 212, 255, 0.4), 0 0 20px rgba(255, 0, 110, 0.2)',
-                transform: 'translateY(-2px) scale(1.02)',
-                '&::before': {
-                  left: '100%',
+                left: 10,
+                bottom: 8,
+                zIndex: 2,
+                pointerEvents: 'none',
+              }}
+            >
+              <RobotAvatar3D size={38} compact mode={robotMode} />
+            </Box>
+            <TextField
+              inputRef={inputRef}
+              fullWidth
+              multiline
+              maxRows={5}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={isRecording ? 'Listening...' : isTranscribing ? 'Transcribing voice...' : 'Ask a medical question...'}
+              variant="outlined"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '16px',
+                  bgcolor: '#f8fafc',
+                  fontSize: '1rem',
+                  py: 0.5,
+                  pl: '56px',
+                  minHeight: 48,
+                  alignItems: 'center',
+                  '& fieldset': { borderColor: '#e2e8f0' },
+                  '&:hover fieldset': { borderColor: '#94a3b8' },
+                  '&.Mui-focused fieldset': { borderColor: '#2563eb', borderWidth: '2px' },
                 },
+                '& .MuiInputBase-input': {
+                  color: '#0f172a',
+                  fontSize: '1rem',
+                  '&::placeholder': { color: '#94a3b8' },
+                },
+                '& textarea': {
+                  lineHeight: 1.5,
+                  py: 0.5,
+                },
+              }}
+            />
+          </Box>
+          <Tooltip title={isRecording ? 'Stop recording' : 'Ask by voice'}>
+            <IconButton
+              onClick={handleVoiceInput}
+              disabled={isTranscribing || chatMutation.isPending}
+              sx={{
+                width: 48,
+                height: 48,
+                flexShrink: 0,
+                bgcolor: isRecording ? '#dc2626' : '#f8fafc',
+                color: isRecording ? '#ffffff' : '#475569',
+                border: '1px solid #e2e8f0',
+                borderRadius: '14px',
+                transition: 'all 0.15s ease',
+                '&:hover': {
+                  bgcolor: isRecording ? '#b91c1c' : '#eff6ff',
+                  color: isRecording ? '#ffffff' : '#2563eb',
+                  borderColor: isRecording ? '#b91c1c' : '#bfdbfe',
+                },
+                '&.Mui-disabled': { bgcolor: '#f1f5f9', color: '#cbd5e1' },
+              }}
+            >
+              {isTranscribing ? (
+                <CircularProgress size={18} sx={{ color: '#94a3b8' }} />
+              ) : isRecording ? (
+                <StopIcon sx={{ fontSize: 20 }} />
+              ) : (
+                <MicIcon sx={{ fontSize: 20 }} />
+              )}
+            </IconButton>
+          </Tooltip>
+          <IconButton
+            onClick={() => sendMessage(inputValue)}
+            disabled={!inputValue.trim() || chatMutation.isPending || isRecording || isTranscribing}
+            sx={{
+              width: 48,
+              height: 48,
+              flexShrink: 0,
+              bgcolor: inputValue.trim() && !chatMutation.isPending ? '#2563eb' : '#f1f5f9',
+              color: inputValue.trim() && !chatMutation.isPending ? '#ffffff' : '#cbd5e1',
+              borderRadius: '14px',
+              transition: 'all 0.15s ease',
+              '&:hover': {
+                bgcolor: inputValue.trim() ? '#1d4ed8' : '#f1f5f9',
+                transform: inputValue.trim() ? 'scale(1.05)' : 'none',
               },
-              '&:active:not(:disabled)': {
-                transform: 'translateY(0) scale(0.98)',
-              },
-              '&:disabled': {
-                background: 'rgba(60, 60, 80, 0.3)',
-                color: 'rgba(255, 255, 255, 0.3)',
-                border: '1px solid rgba(60, 60, 80, 0.3)',
-                cursor: 'not-allowed',
-              },
+              '&.Mui-disabled': { bgcolor: '#f1f5f9', color: '#cbd5e1' },
             }}
           >
             {chatMutation.isPending ? (
-              <CircularProgress 
-                size={20} 
-                sx={{ 
-                  color: 'rgba(255, 255, 255, 0.6)',
-                  '& circle': {
-                    strokeLinecap: 'round',
-                  },
-                }} 
-              />
+              <CircularProgress size={18} sx={{ color: '#94a3b8' }} />
             ) : (
               <SendIcon sx={{ fontSize: 20 }} />
             )}
           </IconButton>
         </Box>
-        
-        <Typography
-          variant="body2"
-          sx={{ 
-            display: 'block', 
-            mt: 1.5, 
-            textAlign: 'center',
-            color: 'rgba(255, 255, 255, 0.4)',
-            fontSize: '0.75rem',
-            fontWeight: 500,
-          }}
-        >
-          Press Enter to send • Shift + Enter for new line • AI responses powered by TrustMed neural architecture
+        <Typography sx={{ color: '#cbd5e1', fontSize: '0.8rem', mt: 0.75, display: 'block', textAlign: 'center' }}>
+          Enter to send · Shift+Enter for new line · Mic to ask by voice
         </Typography>
-      </Paper>
+      </Box>
     </Box>
-  </Container>
   );
 }

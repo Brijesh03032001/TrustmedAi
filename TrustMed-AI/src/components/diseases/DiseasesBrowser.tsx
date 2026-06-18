@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Box,
@@ -11,24 +11,43 @@ import {
   TextField,
   InputAdornment,
   Alert,
-  CircularProgress,
   Skeleton,
   Chip,
   Pagination,
-  Paper,
-  alpha,
-  Container,
+  IconButton,
+  Fade,
 } from '@mui/material';
 import {
   Search as SearchIcon,
   LocalHospital as HospitalIcon,
   Visibility as VisibilityIcon,
   Chat as ChatIcon,
-  FilterList as FilterIcon,
+  Close as CloseIcon,
+  WarningAmber as WarningIcon,
 } from '@mui/icons-material';
 import { apiService } from '../../lib/api';
 
 const ITEMS_PER_PAGE = 12;
+
+const categoryStyles: Record<string, { text: string; bg: string; border: string }> = {
+  cardiovascular:  { text: '#dc2626', bg: '#fef2f2', border: '#fecaca' },
+  endocrine:       { text: '#2563eb', bg: '#eff6ff', border: '#bfdbfe' },
+  oncology:        { text: '#7c3aed', bg: '#f5f3ff', border: '#ddd6fe' },
+  respiratory:     { text: '#0891b2', bg: '#ecfeff', border: '#a5f3fc' },
+  neurological:    { text: '#d97706', bg: '#fffbeb', border: '#fde68a' },
+  mental_health:   { text: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0' },
+  infectious:      { text: '#ea580c', bg: '#fff7ed', border: '#fed7aa' },
+  gynecological:   { text: '#db2777', bg: '#fdf2f8', border: '#fbcfe8' },
+  urological:      { text: '#6d28d9', bg: '#f5f3ff', border: '#ddd6fe' },
+  dermatological:  { text: '#0e7490', bg: '#ecfeff', border: '#a5f3fc' },
+  musculoskeletal: { text: '#be123c', bg: '#fff1f2', border: '#fecdd3' },
+  ophthalmological:{ text: '#4338ca', bg: '#eef2ff', border: '#c7d2fe' },
+  general:         { text: '#475569', bg: '#f8fafc', border: '#e2e8f0' },
+};
+
+function getCategoryStyle(category: string) {
+  return categoryStyles[category] || categoryStyles.general;
+}
 
 export function DiseasesBrowser() {
   const [searchFilter, setSearchFilter] = useState('');
@@ -38,26 +57,20 @@ export function DiseasesBrowser() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
   const router = useRouter();
 
-  // Load diseases and categories
-  React.useEffect(() => {
+  useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
       try {
         const [diseasesData, categoriesData] = await Promise.all([
-          apiService.searchDiseases('', 500), // Load more diseases
-          apiService.getDiseaseCategories()
+          apiService.searchDiseases('', 500),
+          apiService.getDiseaseCategories(),
         ]);
         setAllDiseases(diseasesData.diseases || []);
         setCategories(categoriesData.categories || []);
         setIsError(false);
-        setError(null);
-      } catch (error) {
-        console.error('Failed to load data:', error);
-        setIsError(true);
-        setError(error instanceof Error ? error : new Error('Failed to load data'));
+      } catch {
         setIsError(true);
       } finally {
         setIsLoading(false);
@@ -66,658 +79,408 @@ export function DiseasesBrowser() {
     loadData();
   }, []);
 
-  const getCategoryColor = (category: string) => {
-    const colors: { [key: string]: string } = {
-      cardiovascular: '#e74c3c',
-      endocrine: '#3498db', 
-      oncology: '#9b59b6',
-      respiratory: '#1abc9c',
-      neurological: '#f39c12',
-      mental_health: '#2ecc71',
-      infectious: '#e67e22',
-      gynecological: '#e91e63',
-      urological: '#8e44ad',
-      dermatological: '#16a085',
-      musculoskeletal: '#d35400',
-      ophthalmological: '#7f8c8d',
-      general: '#95a5a6'
-    };
-    return colors[category] || '#bdc3c7';
-  };
-
-  // Filter diseases based on search and category
   const filteredDiseases = allDiseases.filter((disease) => {
-    const searchTerm = searchFilter.trim().toLowerCase();
-    const matchesSearch = !searchTerm || 
-      disease.name.toLowerCase().includes(searchTerm) ||
-      (disease.description && disease.description.toLowerCase().includes(searchTerm)) ||
-      (disease.category && disease.category.toLowerCase().includes(searchTerm));
+    const term = searchFilter.trim().toLowerCase();
+    const matchesSearch =
+      !term ||
+      disease.name.toLowerCase().includes(term) ||
+      (disease.description && disease.description.toLowerCase().includes(term)) ||
+      (disease.category && disease.category.toLowerCase().includes(term));
     const matchesCategory = !selectedCategory || disease.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  // Paginate results
   const totalPages = Math.ceil(filteredDiseases.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedDiseases = filteredDiseases.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchFilter(event.target.value);
-    setCurrentPage(1); // Reset to first page when searching
+  const handleCategorySelect = (cat: string) => {
+    setSelectedCategory(cat);
+    setCurrentPage(1);
   };
 
-  const handlePageChange = (_event: React.ChangeEvent<unknown>, page: number) => {
-    setCurrentPage(page);
-  };
-
-  const handleViewDisease = (id: number) => {
-    router.push(`/diseases/${id}`);
-  };
-
-  const handleChatAbout = (name: string) => {
+  const handleChatAbout = (name: string) =>
     router.push(`/chat?q=${encodeURIComponent(`Tell me about ${name}`)}`);
-  };
 
   if (isError) {
     return (
-      <Alert severity="error" sx={{ mb: 3 }}>
-        Failed to load diseases: {error?.message || 'Unknown error'}
+      <Alert severity="error" sx={{ borderRadius: '12px' }}>
+        Failed to load diseases. Please check that the backend server is running.
       </Alert>
     );
   }
 
   return (
-    <Container maxWidth="lg" sx={{ height: '100%', py: 0 }}>
+    <Box
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        bgcolor: '#ffffff',
+        borderRadius: '16px',
+        border: '1px solid #e2e8f0',
+        overflow: 'hidden',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+      }}
+    >
+      {/* Header */}
       <Box
         sx={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          borderRadius: '24px',
-          overflow: 'hidden',
-          background: `
-            radial-gradient(ellipse 80% 80% at 50% -20%, rgba(120, 119, 198, 0.4) 0%, transparent 60%),
-            radial-gradient(ellipse 80% 80% at 80% 20%, rgba(255, 0, 110, 0.3) 0%, transparent 50%),
-            radial-gradient(ellipse 80% 80% at 40% 40%, rgba(0, 212, 255, 0.25) 0%, transparent 50%),
-            linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 30%, #16213e 70%, #0f1419 100%)
-          `,
-          position: 'relative',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: `
-              repeating-linear-gradient(
-                45deg,
-                transparent,
-                transparent 120px,
-                rgba(0, 212, 255, 0.03) 120px,
-                rgba(0, 212, 255, 0.03) 122px
-              ),
-              repeating-linear-gradient(
-                -45deg,
-                transparent,
-                transparent 180px,
-                rgba(255, 0, 110, 0.02) 180px,
-                rgba(255, 0, 110, 0.02) 182px
-              )
-            `,
-            pointerEvents: 'none',
-          },
-          '&::after': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: `
-              radial-gradient(circle at 20% 20%, rgba(0, 212, 255, 0.05) 0%, transparent 50%),
-              radial-gradient(circle at 80% 80%, rgba(255, 0, 110, 0.03) 0%, transparent 50%)
-            `,
-            opacity: 0.6,
-            pointerEvents: 'none',
-          },
+          flexShrink: 0,
+          px: 3,
+          pt: 3,
+          pb: 2.5,
+          borderBottom: '1px solid #f1f5f9',
+          bgcolor: '#ffffff',
         }}
       >
-        {/* Scrollable Content */}
-        <Box
-          sx={{
-            flex: 1,
-            overflowY: 'auto',
-            py: 4,
-            px: { xs: 2, md: 3 },
-          }}
-        >
-          {/* Premium Glass Container */}
-          <Box
-            sx={{
-              maxWidth: 1400,
-          mx: 'auto',
-          background: 'rgba(17, 25, 40, 0.85)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(0, 212, 255, 0.15)',
-          borderRadius: '32px',
-          p: { xs: 3, md: 5 },
-          position: 'relative',
-          overflow: 'hidden',
-          zIndex: 1,
-          boxShadow: `
-            0 32px 80px rgba(0, 0, 0, 0.6),
-            0 0 80px rgba(0, 212, 255, 0.1),
-            inset 0 1px 0 rgba(255, 255, 255, 0.1)
-          `,
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '1px',
-            background: 'linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.5), transparent)',
-          },
-          '&::after': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'linear-gradient(135deg, rgba(0, 212, 255, 0.03) 0%, transparent 50%, rgba(255, 0, 110, 0.02) 100%)',
-            pointerEvents: 'none',
-          },
-        }}
-      >
-    <Box>
-      {/* Header Section with Chat Interface Style */}
-      <Box
-        sx={{
-          background: `
-            linear-gradient(135deg, rgba(0, 212, 255, 0.8) 0%, rgba(124, 58, 237, 0.8) 50%, rgba(255, 0, 110, 0.8) 100%),
-            linear-gradient(45deg, rgba(17, 25, 40, 0.9) 0%, rgba(26, 26, 46, 0.9) 100%)
-          `,
-          backgroundBlendMode: 'overlay',
-          p: 3,
-          color: 'white',
-          position: 'relative',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '2px',
-            background: 'linear-gradient(90deg, #00d4ff 0%, #7c3aed 50%, #ff006e 100%)',
-            animation: 'headerGlow 2s ease-in-out infinite alternate',
-          },
-          '@keyframes headerGlow': {
-            '0%': { boxShadow: '0 0 20px rgba(0, 212, 255, 0.5)' },
-            '100%': { boxShadow: '0 0 40px rgba(255, 0, 110, 0.5)' },
-          },
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5 }}>
           <Box
             component="img"
             src="/DatabaseIcon.png"
-            alt="TrustMed-AI Database"
-            sx={{
-              width: 64,
-              height: 64,
-              borderRadius: '50%',
-              filter: `
-                drop-shadow(0 0 20px rgba(0, 212, 255, 0.6))
-                drop-shadow(0 0 30px rgba(0, 212, 255, 0.4))
-                brightness(1.2)
-                contrast(1.1)
-              `,
-              border: '2px solid rgba(0, 212, 255, 0.4)',
-              boxShadow: '0 0 30px rgba(0, 212, 255, 0.5)',
-              position: 'relative',
-              animation: 'avatarGlow 3s ease-in-out infinite',
-              '@keyframes avatarGlow': {
-                '0%, 100%': { 
-                  boxShadow: '0 0 30px rgba(0, 212, 255, 0.5), 0 0 60px rgba(0, 212, 255, 0.3)' 
-                },
-                '50%': { 
-                  boxShadow: '0 0 40px rgba(0, 212, 255, 0.7), 0 0 80px rgba(0, 212, 255, 0.4)' 
-                },
-              },
-            }}
+            alt="Database"
+            sx={{ width: 34, height: 34, borderRadius: '10px', border: '1px solid #e2e8f0' }}
           />
           <Box sx={{ flex: 1 }}>
-            <Typography 
-              variant="h4" 
-              fontWeight="black" 
-              sx={{ 
-                mb: 0.5,
-                background: 'linear-gradient(45deg, #00d4ff 0%, #ffffff 50%, #ff006e 100%)',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                textShadow: '0 0 30px rgba(0, 212, 255, 0.5)',
-                fontFamily: '"Inter", "Roboto", sans-serif',
-              }}
-            >
-              TrustMed-AI
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#0f172a', lineHeight: 1.2 }}>
+              Disease Database
             </Typography>
-            <Typography 
-              variant="body1" 
-              sx={{ 
-                color: 'rgba(255, 255, 255, 0.9)', 
-                fontSize: '1.1rem',
-                textShadow: '0 0 20px rgba(0, 212, 255, 0.3)',
-                fontWeight: 500,
-              }}
-            >
-              Medical Database Explorer
+            <Typography variant="caption" sx={{ color: '#94a3b8', fontSize: '0.7rem' }}>
+              {isLoading ? 'Loading...' : `${allDiseases.length} conditions indexed`}
             </Typography>
           </Box>
+          {!isLoading && (
+            <Chip
+              label={`${filteredDiseases.length} results`}
+              size="small"
+              sx={{
+                height: 22,
+                fontSize: '0.7rem',
+                bgcolor: '#fef2f2',
+                border: '1px solid #fecaca',
+                color: '#dc2626',
+                '& .MuiChip-label': { px: 1 },
+              }}
+            />
+          )}
         </Box>
-      </Box>
 
-        {/* Category Filter Buttons */}
-        {categories.length > 0 && (
-          <Box sx={{ mb: 3 }}>
-            <Typography 
-              variant="h6" 
-              sx={{ 
-                mb: 2,
-                color: '#7c3aed',
-                textShadow: '0 0 25px rgba(124, 58, 237, 0.6)',
-                fontWeight: 700,
-              }}
-            >
-              Filter by Category:
-            </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-              <Chip
-                label="All Categories"
-                onClick={() => {
-                  setSelectedCategory('');
-                  setCurrentPage(1);
-                }}
-                sx={{
-                  cursor: 'pointer',
-                  background: !selectedCategory ? 'rgba(0, 212, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)',
-                  border: `1px solid ${!selectedCategory ? '#00d4ff' : 'rgba(255, 255, 255, 0.15)'}`,
-                  color: !selectedCategory ? '#00d4ff' : 'rgba(255, 255, 255, 0.9)',
-                  fontWeight: !selectedCategory ? 700 : 500,
-                  '&:hover': {
-                    background: 'rgba(0, 212, 255, 0.15)',
-                    borderColor: '#00d4ff',
-                  },
-                }}
-              />
-              {categories.map((category) => (
-                <Chip
-                  key={category.name}
-                  label={`${category.display_name} (${category.count})`}
-                  onClick={() => {
-                    setSelectedCategory(category.name);
-                    setCurrentPage(1);
-                  }}
-                  sx={{
-                    cursor: 'pointer',
-                    background: selectedCategory === category.name 
-                      ? `linear-gradient(45deg, ${getCategoryColor(category.name)}40, ${getCategoryColor(category.name)}20)`
-                      : 'rgba(255, 255, 255, 0.05)',
-                    border: `1px solid ${selectedCategory === category.name ? getCategoryColor(category.name) : 'rgba(255, 255, 255, 0.15)'}`,
-                    color: selectedCategory === category.name ? getCategoryColor(category.name) : 'rgba(255, 255, 255, 0.9)',
-                    fontWeight: selectedCategory === category.name ? 700 : 500,
-                    fontSize: '0.8rem',
-                    '&:hover': {
-                      background: `linear-gradient(45deg, ${getCategoryColor(category.name)}30, ${getCategoryColor(category.name)}15)`,
-                      borderColor: getCategoryColor(category.name),
-                    },
-                  }}
-                />
-              ))}
-            </Box>
-          </Box>
-        )}
-
-        {/* Database Search Filter */}
+        {/* Search */}
         <TextField
           fullWidth
           value={searchFilter}
-          onChange={handleSearchChange}
-          placeholder="Search conditions by name, description, or category..."
+          onChange={(e) => { setSearchFilter(e.target.value); setCurrentPage(1); }}
+          placeholder="Search by name, description, or category..."
           variant="outlined"
+          size="small"
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon
-                  sx={{
-                    color: '#00d4ff',
-                    filter: 'drop-shadow(0 0 8px rgba(0, 212, 255, 0.6))',
-                    animation: 'inputIconGlow 2s ease-in-out infinite',
-                    '@keyframes inputIconGlow': {
-                      '0%, 100%': { filter: 'drop-shadow(0 0 8px rgba(0, 212, 255, 0.6))' },
-                      '50%': { filter: 'drop-shadow(0 0 12px rgba(0, 212, 255, 0.8))' },
-                    },
-                  }}
-                />
+                <SearchIcon sx={{ fontSize: 16, color: '#94a3b8' }} />
               </InputAdornment>
             ),
+            endAdornment: searchFilter ? (
+              <InputAdornment position="end">
+                <IconButton
+                  size="small"
+                  onClick={() => { setSearchFilter(''); setCurrentPage(1); }}
+                  sx={{ color: '#94a3b8' }}
+                >
+                  <CloseIcon sx={{ fontSize: 14 }} />
+                </IconButton>
+              </InputAdornment>
+            ) : null,
           }}
           sx={{
-            maxWidth: 500,
+            mb: 2,
             '& .MuiOutlinedInput-root': {
-              borderRadius: '16px',
-              background: 'rgba(17, 25, 40, 0.8)',
-              backdropFilter: 'blur(15px)',
-              fontSize: '1.1rem',
-              '& fieldset': {
-                borderColor: 'rgba(0, 212, 255, 0.3)',
-              },
-              '&:hover fieldset': {
-                borderColor: '#00d4ff',
-                boxShadow: '0 0 25px rgba(0, 212, 255, 0.4)',
-              },
-              '&.Mui-focused fieldset': {
-                borderColor: '#00d4ff',
-                borderWidth: '2px',
-                boxShadow: '0 0 35px rgba(0, 212, 255, 0.5)',
-              },
+              borderRadius: '10px',
+              bgcolor: '#f8fafc',
+              fontSize: '0.88rem',
+              '& fieldset': { borderColor: '#e2e8f0' },
+              '&:hover fieldset': { borderColor: '#94a3b8' },
+              '&.Mui-focused fieldset': { borderColor: '#dc2626', borderWidth: '2px' },
             },
             '& .MuiInputBase-input': {
-              color: '#ffffff',
-              '&::placeholder': {
-                color: 'rgba(255, 255, 255, 0.6)',
-                fontSize: '1rem',
-              },
+              color: '#0f172a',
+              '&::placeholder': { color: '#94a3b8' },
             },
           }}
         />
-      </Box>
 
-      {/* Stats */}
-      <Box sx={{ mb: 4, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-        <Chip
-          icon={<HospitalIcon />}
-          label={`${allDiseases.length} Total Conditions`}
-          variant="outlined"
-          sx={{
-            background: 'rgba(0, 212, 255, 0.1)',
-            border: '1px solid rgba(0, 212, 255, 0.4)',
-            color: '#00d4ff',
-            fontWeight: 600,
-          }}
-        />
-        <Chip
-          icon={<FilterIcon />}
-          label={`${filteredDiseases.length} Results Found`}
-          variant="outlined"
-          sx={{
-            background: 'rgba(124, 58, 237, 0.1)',
-            border: '1px solid rgba(124, 58, 237, 0.4)',
-            color: '#7c3aed',
-            fontWeight: 600,
-          }}
-        />
-        {selectedCategory && (
-          <Chip
-            label={`Category: ${categories.find(c => c.name === selectedCategory)?.display_name}`}
-            variant="outlined"
-            sx={{
-              background: `linear-gradient(45deg, ${getCategoryColor(selectedCategory)}40, ${getCategoryColor(selectedCategory)}20)`,
-              border: `1px solid ${getCategoryColor(selectedCategory)}60`,
-              color: getCategoryColor(selectedCategory),
-              fontWeight: 600,
-            }}
-          />
+        {/* Category filters */}
+        {categories.length > 0 && (
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
+            <Chip
+              label="All"
+              size="small"
+              onClick={() => handleCategorySelect('')}
+              sx={{
+                height: 24,
+                fontSize: '0.7rem',
+                fontWeight: !selectedCategory ? 700 : 500,
+                bgcolor: !selectedCategory ? '#0f172a' : '#f8fafc',
+                border: `1px solid ${!selectedCategory ? '#0f172a' : '#e2e8f0'}`,
+                color: !selectedCategory ? '#ffffff' : '#475569',
+                cursor: 'pointer',
+                '& .MuiChip-label': { px: 0.875 },
+                '&:hover': { bgcolor: !selectedCategory ? '#1e293b' : '#f1f5f9' },
+              }}
+            />
+            {categories.map((cat) => {
+              const style = getCategoryStyle(cat.name);
+              const isSelected = selectedCategory === cat.name;
+              return (
+                <Chip
+                  key={cat.name}
+                  label={`${cat.display_name} (${cat.count})`}
+                  size="small"
+                  onClick={() => handleCategorySelect(cat.name)}
+                  sx={{
+                    height: 24,
+                    fontSize: '0.68rem',
+                    fontWeight: isSelected ? 700 : 500,
+                    bgcolor: isSelected ? style.bg : '#f8fafc',
+                    border: `1px solid ${isSelected ? style.border : '#e2e8f0'}`,
+                    color: isSelected ? style.text : '#475569',
+                    cursor: 'pointer',
+                    '& .MuiChip-label': { px: 0.875 },
+                    '&:hover': { bgcolor: style.bg, borderColor: style.border, color: style.text },
+                  }}
+                />
+              );
+            })}
+          </Box>
         )}
       </Box>
 
-      {/* Loading State */}
-      {isLoading && (
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 3 }}>
-          {[...Array(12)].map((_, index) => (
-            <Card key={index}>
-              <CardContent>
-                <Skeleton variant="text" width="80%" height={28} />
-                <Skeleton variant="text" width="40%" height={20} sx={{ mt: 1 }} />
-                <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-                  <Skeleton variant="rectangular" width={100} height={32} />
-                  <Skeleton variant="rectangular" width={80} height={32} />
+      {/* Content */}
+      <Box sx={{ flex: 1, overflowY: 'auto', p: 3, minHeight: 0, bgcolor: '#f8fafc' }}>
+        {/* Loading */}
+        {isLoading && (
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 2 }}>
+            {Array.from({ length: 12 }).map((_, i) => (
+              <Box
+                key={i}
+                sx={{ p: 2.5, borderRadius: '14px', bgcolor: '#ffffff', border: '1px solid #e2e8f0' }}
+              >
+                <Skeleton variant="text" width="75%" height={20} sx={{ mb: 1 }} />
+                <Skeleton variant="rectangular" width={80} height={18} sx={{ borderRadius: '6px', mb: 1.5 }} />
+                <Skeleton variant="text" width="90%" height={14} />
+                <Skeleton variant="text" width="60%" height={14} sx={{ mb: 2 }} />
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Skeleton variant="rectangular" width="50%" height={28} sx={{ borderRadius: '8px' }} />
+                  <Skeleton variant="rectangular" width="50%" height={28} sx={{ borderRadius: '8px' }} />
                 </Box>
-              </CardContent>
-            </Card>
-          ))}
-        </Box>
-      )}
+              </Box>
+            ))}
+          </Box>
+        )}
 
-      {/* Diseases Grid */}
-      {!isLoading && paginatedDiseases.length > 0 && (
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 3, mb: 4 }}>
-          {paginatedDiseases.map((disease, index) => (
-            <Card
-              key={`${disease.name}-${index}`}
-              sx={{
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                background: 'rgba(17, 25, 40, 0.9)',
-                backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(0, 212, 255, 0.15)',
-                borderRadius: '24px',
-                position: 'relative',
-                overflow: 'hidden',
-                cursor: 'pointer',
-                transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
-                boxShadow: `
-                  0 8px 32px rgba(0, 0, 0, 0.4),
-                  0 0 0 1px rgba(255, 255, 255, 0.05),
-                  inset 0 1px 0 rgba(255, 255, 255, 0.1)
-                `,
-                '&::before': {
-                  content: '""',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: '2px',
-                  background: `linear-gradient(90deg, transparent, ${getCategoryColor(disease.category)}60, transparent)`,
-                  opacity: 0,
-                  transition: 'opacity 0.4s ease',
-                },
-                '&::after': {
-                  content: '""',
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  borderRadius: '24px',
-                  background: `linear-gradient(135deg, ${getCategoryColor(disease.category)}08, transparent 50%, rgba(255, 0, 110, 0.05))`,
-                  opacity: 0,
-                  transition: 'opacity 0.4s ease',
-                  zIndex: 0,
-                },
-                '&:hover': {
-                  transform: 'translateY(-12px) scale(1.03)',
-                  borderColor: getCategoryColor(disease.category),
-                  boxShadow: [
-                    '0 24px 80px rgba(0, 0, 0, 0.6)',
-                    `0 0 60px ${getCategoryColor(disease.category)}40`,
-                    '0 0 120px rgba(0, 212, 255, 0.2)',
-                    'inset 0 1px 0 rgba(255, 255, 255, 0.2)'
-                  ].join(', '),
-                  '&::before': {
-                    opacity: 1,
-                  },
-                  '&::after': {
-                    opacity: 1,
-                  },
-                },
-              }}
-              onClick={() => handleChatAbout(disease.name)}
+        {/* Grid */}
+        {!isLoading && paginatedDiseases.length > 0 && (
+          <Fade in timeout={250}>
+            <Box>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+                  gap: 2,
+                  mb: 3,
+                }}
+              >
+                {paginatedDiseases.map((disease, idx) => {
+                  const style = getCategoryStyle(disease.category);
+                  return (
+                    <Card
+                      key={`${disease.name}-${idx}`}
+                      sx={{
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        bgcolor: '#ffffff',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '14px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                        '&:hover': {
+                          borderColor: style.border,
+                          transform: 'translateY(-3px)',
+                          boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+                        },
+                      }}
+                      onClick={() => handleChatAbout(disease.name)}
+                    >
+                      <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: 2.25 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 1.25 }}>
+                          <HospitalIcon sx={{ fontSize: 14, color: style.text, mt: 0.3, flexShrink: 0 }} />
+                          <Typography
+                            variant="subtitle2"
+                            sx={{
+                              color: '#0f172a',
+                              fontWeight: 700,
+                              lineHeight: 1.3,
+                              fontSize: '0.86rem',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                            }}
+                          >
+                            {disease.name}
+                          </Typography>
+                        </Box>
+
+                        <Chip
+                          label={(disease.category || 'general').replace('_', ' ').toUpperCase()}
+                          size="small"
+                          sx={{
+                            alignSelf: 'flex-start',
+                            mb: 1.25,
+                            height: 18,
+                            fontSize: '0.6rem',
+                            fontWeight: 700,
+                            bgcolor: style.bg,
+                            border: `1px solid ${style.border}`,
+                            color: style.text,
+                            '& .MuiChip-label': { px: 0.75 },
+                          }}
+                        />
+
+                        {disease.description && (
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: '#64748b',
+                              lineHeight: 1.5,
+                              flex: 1,
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                              overflow: 'hidden',
+                              fontSize: '0.75rem',
+                            }}
+                          >
+                            {disease.description}
+                          </Typography>
+                        )}
+
+                        <Box sx={{ display: 'flex', gap: 0.875, mt: 1.75 }}>
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            startIcon={<VisibilityIcon sx={{ fontSize: '12px !important' }} />}
+                            onClick={(e) => { e.stopPropagation(); handleChatAbout(disease.name); }}
+                            sx={{
+                              flex: 1,
+                              borderRadius: '8px',
+                              border: '1px solid #e2e8f0',
+                              color: '#475569',
+                              fontSize: '0.68rem',
+                              fontWeight: 600,
+                              py: 0.5,
+                              '&:hover': { bgcolor: '#f8fafc', borderColor: '#94a3b8' },
+                            }}
+                          >
+                            Learn
+                          </Button>
+                          <Button
+                            size="small"
+                            variant="contained"
+                            startIcon={<ChatIcon sx={{ fontSize: '12px !important' }} />}
+                            onClick={(e) => { e.stopPropagation(); handleChatAbout(disease.name); }}
+                            sx={{
+                              flex: 1,
+                              borderRadius: '8px',
+                              bgcolor: '#2563eb',
+                              fontSize: '0.68rem',
+                              fontWeight: 700,
+                              py: 0.5,
+                              boxShadow: 'none',
+                              '&:hover': { bgcolor: '#1d4ed8', boxShadow: '0 2px 8px rgba(37,99,235,0.25)' },
+                            }}
+                          >
+                            Ask AI
+                          </Button>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </Box>
+
+              {totalPages > 1 && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                  <Pagination
+                    count={totalPages}
+                    page={currentPage}
+                    onChange={(_, page) => setCurrentPage(page)}
+                    size="small"
+                    sx={{
+                      '& .MuiPaginationItem-root': {
+                        color: '#475569',
+                        borderColor: '#e2e8f0',
+                        borderRadius: '8px',
+                        '&:hover': { bgcolor: '#fef2f2', color: '#dc2626' },
+                        '&.Mui-selected': {
+                          bgcolor: '#dc2626',
+                          color: '#ffffff',
+                          borderColor: '#dc2626',
+                          fontWeight: 700,
+                          '&:hover': { bgcolor: '#b91c1c' },
+                        },
+                      },
+                    }}
+                  />
+                </Box>
+              )}
+            </Box>
+          </Fade>
+        )}
+
+        {/* No results */}
+        {!isLoading && filteredDiseases.length === 0 && (
+          <Box sx={{ textAlign: 'center', py: 8 }}>
+            <SearchIcon sx={{ fontSize: 48, color: '#e2e8f0', mb: 2 }} />
+            <Typography variant="h6" sx={{ color: '#475569', mb: 1, fontWeight: 600 }}>
+              No conditions found
+            </Typography>
+            {searchFilter && (
+              <Typography variant="body2" sx={{ color: '#94a3b8', mb: 3 }}>
+                No results for "{searchFilter}". Try different keywords.
+              </Typography>
+            )}
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={() => { setSearchFilter(''); setSelectedCategory(''); setCurrentPage(1); }}
+              sx={{ borderRadius: '8px', border: '1px solid #e2e8f0', color: '#475569' }}
             >
-              <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', position: 'relative', zIndex: 1 }}>
-                {/* Disease Name */}
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 2 }}>
-                  <HospitalIcon 
-                    sx={{ 
-                      mt: 0.5, 
-                      fontSize: 20,
-                      color: '#00d4ff',
-                      filter: 'drop-shadow(0 0 8px rgba(0, 212, 255, 0.6))',
-                    }} 
-                  />
-                  <Typography
-                    variant="h6"
-                    fontWeight="bold"
-                    component="div"
-                    sx={{
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      lineHeight: 1.3,
-                      color: '#ffffff',
-                      textShadow: '0 0 20px rgba(0, 212, 255, 0.3)',
-                    }}
-                  >
-                    {disease.name}
-                  </Typography>
-                </Box>
-
-                {/* Category Badge */}
-                <Box sx={{ mb: 2 }}>
-                  <Chip
-                    label={disease.category?.replace('_', ' ').toUpperCase() || 'GENERAL'}
-                    size="small"
-                    sx={{
-                      background: `linear-gradient(45deg, ${getCategoryColor(disease.category)}40, ${getCategoryColor(disease.category)}20)`,
-                      border: `1px solid ${getCategoryColor(disease.category)}60`,
-                      color: getCategoryColor(disease.category),
-                      fontWeight: 700,
-                      fontSize: '0.7rem',
-                      backdropFilter: 'blur(10px)',
-                      boxShadow: `0 0 15px ${getCategoryColor(disease.category)}30`,
-                    }}
-                  />
-                </Box>
-
-                {/* Description */}
-                {disease.description && (
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: 'rgba(255, 255, 255, 0.7)',
-                      lineHeight: 1.4,
-                      mb: 2,
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                      fontSize: '0.85rem',
-                    }}
-                  >
-                    {disease.description}
-                  </Typography>
-                )}
-
-                {/* Action Buttons */}
-                <Box sx={{ display: 'flex', gap: 1, mt: 'auto', pt: 2 }}>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    startIcon={<VisibilityIcon />}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleChatAbout(disease.name);
-                    }}
-                    sx={{ 
-                      flex: 1,
-                      borderRadius: '12px',
-                      border: '1px solid rgba(0, 212, 255, 0.4)',
-                      color: '#00d4ff',
-                      background: 'rgba(0, 212, 255, 0.05)',
-                      backdropFilter: 'blur(10px)',
-                      fontWeight: 600,
-                      fontSize: '0.75rem',
-                      '&:hover': {
-                        background: 'rgba(0, 212, 255, 0.15)',
-                        borderColor: '#00d4ff',
-                        boxShadow: '0 0 20px rgba(0, 212, 255, 0.4)',
-                        transform: 'translateY(-2px)',
-                      },
-                    }}
-                  >
-                    LEARN
-                  </Button>
-                  <Button
-                    size="small"
-                    variant="contained"
-                    startIcon={<ChatIcon />}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleChatAbout(disease.name);
-                    }}
-                    sx={{ 
-                      flex: 1,
-                      borderRadius: '12px',
-                      background: 'linear-gradient(45deg, #ff006e 0%, #7c3aed 100%)',
-                      border: '1px solid rgba(255, 0, 110, 0.4)',
-                      fontWeight: 700,
-                      fontSize: '0.75rem',
-                      '&:hover': {
-                        boxShadow: '0 0 25px rgba(255, 0, 110, 0.5)',
-                        transform: 'translateY(-2px)',
-                      },
-                    }}
-                  >
-                    ASK AI
-                  </Button>
-                </Box>
-              </CardContent>
-            </Card>
-          ))}
-        </Box>
-      )}
-
-      {/* No Results */}
-      {!isLoading && filteredDiseases.length === 0 && searchFilter && (
-        <Paper sx={{ p: 4, textAlign: 'center' }}>
-          <SearchIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
-          <Typography variant="h6" gutterBottom>
-            No Conditions Found
-          </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-            No conditions match your search for "{searchFilter}". Try different keywords.
-          </Typography>
-          <Button
-            variant="outlined"
-            onClick={() => setSearchFilter('')}
-          >
-            Clear Filter
-          </Button>
-        </Paper>
-      )}
-
-      {/* Pagination */}
-      {!isLoading && totalPages > 1 && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-          <Pagination
-            count={totalPages}
-            page={currentPage}
-            onChange={handlePageChange}
-            color="primary"
-            size="large"
-            showFirstButton
-            showLastButton
-          />
-        </Box>
-      )}
-        </Box>
+              Clear filters
+            </Button>
+          </Box>
+        )}
       </Box>
+
+      {/* Disclaimer */}
+      <Box
+        sx={{
+          px: 3,
+          py: 1,
+          borderTop: '1px solid #fde68a',
+          bgcolor: '#fffbeb',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 0.75,
+          flexShrink: 0,
+        }}
+      >
+        <WarningIcon sx={{ fontSize: 12, color: '#d97706', flexShrink: 0 }} />
+        <Typography variant="caption" sx={{ color: '#92400e', fontSize: '0.67rem' }}>
+          For informational purposes only. Consult a healthcare professional for medical advice.
+        </Typography>
       </Box>
-    </Container>
+    </Box>
   );
 }

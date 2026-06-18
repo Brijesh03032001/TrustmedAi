@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Drawer,
@@ -8,29 +8,21 @@ import {
   Toolbar,
   List,
   Typography,
-  Divider,
   IconButton,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Badge,
   Chip,
-  Alert,
-  Collapse,
-  Avatar,
-  Paper,
-  Fab,
+  Divider,
 } from '@mui/material';
 import {
   Menu as MenuIcon,
   Chat as ChatIcon,
   Search as SearchIcon,
   LocalHospital as HospitalIcon,
-  HealthAndSafety as HealthIcon,
-  Warning as WarningIcon,
-  Phone as PhoneIcon,
-  Close as CloseIcon,
+  WarningAmber as WarningIcon,
+  Lightbulb as TipIcon,
 } from '@mui/icons-material';
 import { usePathname, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
@@ -48,20 +40,34 @@ const navigationItems = [
     path: '/chat',
     icon: ChatIcon,
     description: 'Ask medical questions',
+    color: '#2563eb',
+    bg: '#eff6ff',
+    border: '#bfdbfe',
   },
   {
     title: 'Quick Search',
     path: '/search',
     icon: SearchIcon,
     description: 'Find conditions fast',
+    color: '#7c3aed',
+    bg: '#f5f3ff',
+    border: '#ddd6fe',
   },
   {
     title: 'Disease Database',
     path: '/diseases',
     icon: HospitalIcon,
     description: 'Browse all conditions',
+    color: '#dc2626',
+    bg: '#fef2f2',
+    border: '#fecaca',
   },
 ];
+
+const healthTip = {
+  text: 'Staying hydrated supports kidney function and helps maintain healthy blood pressure.',
+  label: "Today's Tip",
+};
 
 export function AppLayout({ children }: AppLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -72,11 +78,10 @@ export function AppLayout({ children }: AppLayoutProps) {
     queryKey: ['health'],
     queryFn: () => apiService.healthCheck(),
     refetchInterval: 30000,
+    retry: 1,
   });
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
+  const isOnline = !healthError && healthData?.status === 'healthy';
 
   const handleNavigation = (path: string) => {
     router.push(path);
@@ -84,364 +89,233 @@ export function AppLayout({ children }: AppLayoutProps) {
   };
 
   const drawer = (
-    <Box sx={{ 
-      height: '100%', 
-      display: 'flex', 
-      flexDirection: 'column',
-      background: `
-        radial-gradient(ellipse at top left, rgba(0, 212, 255, 0.08) 0%, transparent 70%),
-        radial-gradient(ellipse at bottom right, rgba(255, 0, 110, 0.06) 0%, transparent 70%),
-        linear-gradient(135deg, rgba(10, 10, 15, 0.98) 0%, rgba(17, 25, 40, 0.95) 100%)
-      `,
-      backdropFilter: 'blur(20px)',
-      borderRight: '1px solid rgba(0, 212, 255, 0.2)',
-    }}>
-      {/* Cyberpunk Logo Section */}
-      <Box sx={{ 
-        p: 4, 
-        borderBottom: '1px solid rgba(0, 212, 255, 0.2)',
-        position: 'relative',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: '1px',
-          background: 'linear-gradient(90deg, transparent, #00d4ff, #ff006e, transparent)',
-          animation: 'logoGlow 3s ease-in-out infinite',
-        },
-        '@keyframes logoGlow': {
-          '0%, 100%': { opacity: 0.5 },
-          '50%': { opacity: 1 },
-        },
-      }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#ffffff' }}>
+      {/* Logo area */}
+      <Box
+        sx={{
+          px: 3,
+          pt: 3,
+          pb: 2.5,
+          cursor: 'pointer',
+          background: 'linear-gradient(135deg, #eff6ff 0%, #f5f3ff 100%)',
+          borderBottom: '1px solid #e2e8f0',
+        }}
+        onClick={() => handleNavigation('/')}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1.5 }}>
           <Box
             component="img"
             src="/LOGO_doctor.png"
-            alt="TrustMed-AI Logo"
+            alt="TrustMed-AI"
             sx={{
-              width: 56,
-              height: 56,
+              width: 48,
+              height: 48,
               borderRadius: '50%',
-              filter: `
-                drop-shadow(0 0 20px rgba(0, 212, 255, 0.6))
-                drop-shadow(0 0 30px rgba(0, 212, 255, 0.4))
-                brightness(1.2)
-                contrast(1.1)
-              `,
-              border: '2px solid rgba(0, 212, 255, 0.3)',
-              boxShadow: '0 0 30px rgba(0, 212, 255, 0.5)',
-              position: 'relative',
-              animation: 'logoFloat 4s ease-in-out infinite',
-              '@keyframes logoFloat': {
-                '0%, 100%': { transform: 'translateY(0px) scale(1)' },
-                '25%': { transform: 'translateY(-3px) scale(1.02)' },
-                '50%': { transform: 'translateY(0px) scale(1.05)' },
-                '75%': { transform: 'translateY(3px) scale(1.02)' },
-              },
+              border: '2.5px solid #bfdbfe',
+              boxShadow: '0 4px 12px rgba(37,99,235,0.2)',
             }}
           />
           <Box>
-            <Typography 
-              variant="h6" 
-              component="div" 
-              sx={{
-                fontWeight: 900,
-                background: 'linear-gradient(45deg, #00d4ff 0%, #ffffff 50%, #ff006e 100%)',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                textShadow: '0 0 30px rgba(0, 212, 255, 0.5)',
-                fontFamily: '"Inter", "Roboto", sans-serif',
-              }}
-            >
+            <Typography sx={{ fontWeight: 800, color: '#0f172a', lineHeight: 1.2, fontSize: '1.125rem' }}>
               TrustMed-AI
             </Typography>
-            <Typography 
-              variant="caption" 
-              sx={{ 
-                color: 'rgba(0, 212, 255, 0.8)',
-                fontWeight: 600,
-                textShadow: '0 0 15px rgba(0, 212, 255, 0.4)',
-                fontSize: '0.85rem',
-              }}
-            >
-              Neural Medical Core
+            <Typography sx={{ color: '#64748b', fontSize: '0.8125rem', fontWeight: 500 }}>
+              Medical Intelligence
             </Typography>
           </Box>
         </Box>
-      </Box>
 
-      {/* Neural Core Status Section */}
-      <Box sx={{
-        p: 3,
-        borderBottom: '1px solid rgba(0, 212, 255, 0.2)',
-        background: 'rgba(0, 212, 255, 0.02)',
-        position: 'relative',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'linear-gradient(45deg, transparent, rgba(0, 212, 255, 0.05), transparent)',
-          animation: 'statusPulse 3s ease-in-out infinite',
-        },
-        '@keyframes statusPulse': {
-          '0%, 100%': { opacity: 0.3 },
-          '50%': { opacity: 0.7 },
-        },
-      }}>
-        <Typography 
-          variant="caption" 
-          sx={{ 
-            color: 'rgba(0, 212, 255, 0.9)',
-            fontWeight: 700,
-            fontSize: '0.75rem',
-            letterSpacing: '0.5px',
-            textTransform: 'uppercase',
-            mb: 2,
-            display: 'block',
-            textShadow: '0 0 10px rgba(0, 212, 255, 0.3)',
+        {/* Status badge */}
+        <Box
+          sx={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 0.75,
+            px: 1.5,
+            py: 0.5,
+            borderRadius: '20px',
+            bgcolor: isOnline ? '#f0fdf4' : '#fef2f2',
+            border: `1px solid ${isOnline ? '#bbf7d0' : '#fecaca'}`,
           }}
         >
-          Neural Core Status
-        </Typography>
-        
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-          {/* Medical Conditions Count */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Typography sx={{ fontSize: '1rem' }}>🧬</Typography>
-            <Typography 
-              variant="caption" 
-              sx={{ 
-                color: 'rgba(255, 255, 255, 0.85)',
-                fontWeight: 500,
-                fontSize: '0.8rem',
-              }}
-            >
-              460 medical conditions indexed
-            </Typography>
-          </Box>
-          
-          {/* Neural Engine */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Typography sx={{ fontSize: '1rem' }}>⚡</Typography>
-            <Typography 
-              variant="caption" 
-              sx={{ 
-                color: 'rgba(255, 255, 255, 0.85)',
-                fontWeight: 500,
-                fontSize: '0.8rem',
-              }}
-            >
-              ChromaDB + Advanced Neural Engine
-            </Typography>
-          </Box>
-          
-          {/* Active Status */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 1 }}>
-            <Box
+          <Box
+            sx={{
+              width: 7,
+              height: 7,
+              borderRadius: '50%',
+              bgcolor: isOnline ? '#16a34a' : '#dc2626',
+              boxShadow: `0 0 6px ${isOnline ? '#16a34a80' : '#dc262680'}`,
+            }}
+          />
+          <Typography sx={{ color: isOnline ? '#15803d' : '#b91c1c', fontWeight: 700, fontSize: '0.8125rem' }}>
+            {isOnline ? 'System Online' : 'System Offline'}
+          </Typography>
+          {isOnline && healthData?.active_sessions !== undefined && (
+            <Chip
+              label={`${healthData.active_sessions} active`}
+              size="small"
               sx={{
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                backgroundColor: healthError ? '#ff006e' : healthData?.status === 'healthy' ? '#00d4ff' : '#ffa500',
-                boxShadow: healthError 
-                  ? '0 0 12px #ff006e' 
-                  : healthData?.status === 'healthy' 
-                    ? '0 0 12px #00d4ff' 
-                    : '0 0 12px #ffa500',
-                animation: 'statusBlink 2s ease-in-out infinite',
-                '@keyframes statusBlink': {
-                  '0%, 100%': { opacity: 1 },
-                  '50%': { opacity: 0.4 },
-                },
+                height: 20,
+                fontSize: '0.75rem',
+                bgcolor: '#dcfce7',
+                color: '#15803d',
+                border: '1px solid #bbf7d0',
+                '& .MuiChip-label': { px: 0.75 },
               }}
             />
-            <Typography 
-              variant="caption" 
-              sx={{ 
-                color: healthError ? '#ff006e' : healthData?.status === 'healthy' ? '#00d4ff' : '#ffa500',
-                fontWeight: 700,
-                fontSize: '0.8rem',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px',
-                textShadow: healthError 
-                  ? '0 0 8px #ff006e' 
-                  : healthData?.status === 'healthy' 
-                    ? '0 0 8px #00d4ff' 
-                    : '0 0 8px #ffa500',
-              }}
-            >
-              {healthError ? 'NEURAL CORE OFFLINE' : healthData?.status === 'healthy' ? 'NEURAL CORE ACTIVE' : 'NEURAL CORE SYNCING'}
+          )}
+        </Box>
+      </Box>
+
+      {/* Navigation */}
+      <Box sx={{ px: 2.5, pt: 2.5, pb: 1 }}>
+        <Typography
+          sx={{
+            px: 1,
+            mb: 1.5,
+            display: 'block',
+            color: '#94a3b8',
+            fontSize: '0.75rem',
+            fontWeight: 700,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+          }}
+        >
+          Navigation
+        </Typography>
+        <List disablePadding sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+          {navigationItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = pathname === item.path || pathname?.startsWith(item.path + '/');
+
+            return (
+              <ListItem key={item.path} disablePadding>
+                <ListItemButton
+                  onClick={() => handleNavigation(item.path)}
+                  sx={{
+                    borderRadius: '12px',
+                    py: 1.5,
+                    px: 1.75,
+                    bgcolor: isActive ? item.bg : 'transparent',
+                    border: `1px solid ${isActive ? item.border : 'transparent'}`,
+                    borderLeft: isActive ? `3px solid ${item.color}` : '3px solid transparent',
+                    '&:hover': {
+                      bgcolor: item.bg,
+                      borderColor: item.border,
+                      borderLeftColor: item.color,
+                    },
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: 48 }}>
+                    <Box
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: '10px',
+                        bgcolor: isActive ? item.color : '#f1f5f9',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.15s ease',
+                        boxShadow: isActive ? `0 2px 8px ${item.color}40` : 'none',
+                      }}
+                    >
+                      <Icon sx={{ fontSize: 20, color: isActive ? '#ffffff' : '#64748b' }} />
+                    </Box>
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={
+                      <Typography
+                        sx={{
+                          fontWeight: isActive ? 700 : 500,
+                          fontSize: '1rem',
+                          color: isActive ? item.color : '#334155',
+                          lineHeight: 1.3,
+                        }}
+                      >
+                        {item.title}
+                      </Typography>
+                    }
+                    secondary={
+                      <Typography sx={{ fontSize: '0.8125rem', color: '#94a3b8', lineHeight: 1.4, mt: 0.25 }}>
+                        {item.description}
+                      </Typography>
+                    }
+                  />
+                </ListItemButton>
+              </ListItem>
+            );
+          })}
+        </List>
+      </Box>
+
+      <Divider sx={{ mx: 2.5, my: 1.5, borderColor: '#f1f5f9' }} />
+
+      {/* Today's Tip */}
+      <Box sx={{ px: 2.5, pb: 1.5 }}>
+        <Box sx={{ p: 2, borderRadius: '12px', bgcolor: '#f0fdf4', border: '1px solid #bbf7d0' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+            <TipIcon sx={{ fontSize: 16, color: '#16a34a' }} />
+            <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#15803d', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              {healthTip.label}
             </Typography>
+          </Box>
+          <Typography sx={{ fontSize: '0.8125rem', color: '#166534', lineHeight: 1.6 }}>
+            {healthTip.text}
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* Medical Disclaimer */}
+      <Box sx={{ px: 2.5, pb: 1.5 }}>
+        <Box sx={{ p: 2, borderRadius: '12px', bgcolor: '#fffbeb', border: '1px solid #fde68a' }}>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
+            <WarningIcon sx={{ fontSize: 16, color: '#d97706', mt: 0.1, flexShrink: 0 }} />
+            <Box>
+              <Typography sx={{ fontSize: '0.8125rem', fontWeight: 700, color: '#92400e', mb: 0.5 }}>
+                Medical Disclaimer
+              </Typography>
+              <Typography sx={{ color: '#92400e', fontSize: '0.8rem', lineHeight: 1.55 }}>
+                For informational purposes only. Not a substitute for professional medical advice. Emergency: Call 911.
+              </Typography>
+            </Box>
           </Box>
         </Box>
       </Box>
 
-      {/* Modern Navigation */}
-      <List sx={{ flex: 1, px: 3, py: 3 }}>
-        {navigationItems.map((item, index) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.path;
-          
-          return (
-            <ListItem key={item.path} disablePadding sx={{ mb: 2 }}>
-              <ListItemButton
-                onClick={() => handleNavigation(item.path)}
-                sx={{
-                  borderRadius: '16px',
-                  p: 2.5,
-                  background: isActive 
-                    ? 'linear-gradient(135deg, rgba(0, 212, 255, 0.15) 0%, rgba(255, 0, 110, 0.1) 100%)'
-                    : 'transparent',
-                  border: isActive 
-                    ? '1px solid rgba(0, 212, 255, 0.3)' 
-                    : '1px solid transparent',
-                  backdropFilter: isActive ? 'blur(10px)' : 'none',
-                  position: 'relative',
-                  '&:hover': {
-                    background: isActive 
-                      ? 'linear-gradient(135deg, rgba(0, 212, 255, 0.2) 0%, rgba(255, 0, 110, 0.15) 100%)'
-                      : 'rgba(0, 212, 255, 0.08)',
-                    transform: 'translateY(-2px) translateX(4px)',
-                    boxShadow: '0 8px 25px rgba(0, 212, 255, 0.2)',
-                    borderColor: 'rgba(0, 212, 255, 0.4)',
-                  },
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                }}
-              >
-                <ListItemIcon sx={{ minWidth: 48 }}>
-                  <Avatar
-                    sx={{
-                      width: 40,
-                      height: 40,
-                      background: isActive 
-                        ? 'linear-gradient(45deg, #00d4ff 0%, #7c3aed 100%)'
-                        : 'rgba(0, 212, 255, 0.1)',
-                      color: isActive ? 'white' : '#00d4ff',
-                      border: isActive 
-                        ? '1px solid rgba(0, 212, 255, 0.4)'
-                        : '1px solid rgba(0, 212, 255, 0.2)',
-                      boxShadow: isActive 
-                        ? '0 0 20px rgba(0, 212, 255, 0.4)'
-                        : 'none',
-                    }}
-                  >
-                    <Icon fontSize="small" />
-                  </Avatar>
-                </ListItemIcon>
-                <ListItemText
-                  primary={
-                    <Typography
-                      variant="body2"
-                      fontWeight={isActive ? 700 : 600}
-                      sx={{ 
-                        fontSize: '1rem',
-                        color: isActive ? '#00d4ff' : 'rgba(255, 255, 255, 0.9)',
-                        textShadow: isActive 
-                          ? '0 0 15px rgba(0, 212, 255, 0.5)' 
-                          : '0 0 10px rgba(0, 212, 255, 0.2)',
-                      }}
-                    >
-                      {item.title}
-                    </Typography>
-                  }
-                  secondary={
-                    <Typography 
-                      variant="caption" 
-                      sx={{ 
-                        fontSize: '0.8rem', 
-                        mt: 0.5,
-                        color: 'rgba(255, 255, 255, 0.7)',
-                      }}
-                    >
-                      {item.description}
-                    </Typography>
-                  }
-                />
-              </ListItemButton>
-            </ListItem>
-          );
-        })}
-      </List>
-
-      {/* Cyberpunk Footer */}
-      <Box sx={{ 
-        p: 3, 
-        textAlign: 'center', 
-        borderTop: '1px solid rgba(0, 212, 255, 0.2)',
-        position: 'relative',
-        background: 'linear-gradient(45deg, rgba(0, 212, 255, 0.03), rgba(255, 0, 110, 0.03))',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '1px',
-          background: 'linear-gradient(90deg, transparent, #00d4ff, #ff006e, transparent)',
-          animation: 'footerLineGlow 2s ease-in-out infinite',
-        },
-        '@keyframes footerLineGlow': {
-          '0%, 100%': { opacity: 0.4 },
-          '50%': { opacity: 0.8 },
-        },
-      }}>
-        <Typography 
-          variant="caption" 
-          display="block" 
-          sx={{ 
-            mb: 1,
-            color: 'rgba(255, 255, 255, 0.7)',
-            fontWeight: 500,
-          }}
-        >
-          Medical data sourced from
-        </Typography>
-        <Typography 
-          variant="caption" 
-          fontWeight="bold" 
-          sx={{
-            background: 'linear-gradient(45deg, #00d4ff 0%, #7c3aed 50%, #ff006e 100%)',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            textShadow: '0 0 20px rgba(0, 212, 255, 0.4)',
-            fontSize: '0.8rem',
-          }}
-        >
-          MAYO CLINIC NEURAL DATABASE
+      {/* Footer */}
+      <Box sx={{ mt: 'auto', px: 3, py: 2.5, borderTop: '1px solid #f1f5f9', textAlign: 'center' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1, mb: 0.5 }}>
+          <Box
+            component="img"
+            src="/LOGO_doctor.png"
+            alt="Mayo Clinic"
+            sx={{ width: 20, height: 20, borderRadius: '50%', opacity: 0.6 }}
+          />
+          <Typography sx={{ color: '#94a3b8', fontSize: '0.8125rem', fontWeight: 600 }}>
+            Powered by Mayo Clinic data
+          </Typography>
+        </Box>
+        <Typography sx={{ color: '#cbd5e1', fontSize: '0.75rem' }}>
+          © 2025 TrustMed-AI
         </Typography>
       </Box>
     </Box>
   );
 
   return (
-    <Box sx={{ 
-      display: 'flex', 
-      height: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    }}>
-
-
-      {/* Drawer */}
-      <Box
-        component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-      >
+    <Box sx={{ display: 'flex', height: '100vh', bgcolor: '#f8fafc' }}>
+      {/* Sidebar */}
+      <Box component="nav" sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}>
         <Drawer
           variant="temporary"
           open={mobileOpen}
-          onClose={handleDrawerToggle}
+          onClose={() => setMobileOpen(false)}
           ModalProps={{ keepMounted: true }}
           sx={{
             display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            '& .MuiDrawer-paper': { width: drawerWidth, border: 'none', boxShadow: '4px 0 24px rgba(0,0,0,0.1)' },
           }}
         >
           {drawer}
@@ -450,7 +324,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           variant="permanent"
           sx={{
             display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            '& .MuiDrawer-paper': { width: drawerWidth, border: 'none', borderRight: '1px solid #e2e8f0' },
           }}
           open
         >
@@ -458,61 +332,44 @@ export function AppLayout({ children }: AppLayoutProps) {
         </Drawer>
       </Box>
 
-      {/* Main Content */}
+      {/* Main content */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           height: '100vh',
-          overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          pt: '80px', // Account for the header height with padding
+          overflow: 'hidden',
+          bgcolor: '#f8fafc',
         }}
       >
-        {/* Page Content */}
-        <Box 
-          sx={{ 
-            flex: 1, 
-            overflow: 'auto', 
-            pt: 1,
-            px: 3,
-            pb: 3,
-            background: `
-              radial-gradient(ellipse at top left, rgba(0, 212, 255, 0.02) 0%, transparent 60%),
-              radial-gradient(ellipse at bottom right, rgba(255, 0, 110, 0.02) 0%, transparent 60%),
-              transparent
-            `,
-            minHeight: '100%',
-          }}
-        >
+        {/* Mobile top bar */}
+        <AppBar position="static" elevation={0} sx={{ display: { xs: 'flex', sm: 'none' }, bgcolor: '#ffffff' }}>
+          <Toolbar sx={{ minHeight: '64px !important', px: 2 }}>
+            <IconButton edge="start" onClick={() => setMobileOpen(true)} sx={{ mr: 2, color: '#334155', width: 40, height: 40 }}>
+              <MenuIcon />
+            </IconButton>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Box
+                component="img"
+                src="/LOGO_doctor.png"
+                alt="TrustMed-AI"
+                sx={{ width: 32, height: 32, borderRadius: '50%', border: '1.5px solid #bfdbfe' }}
+              />
+              <Typography sx={{ fontWeight: 700, color: '#0f172a', fontSize: '1.0625rem' }}>
+                TrustMed-AI
+              </Typography>
+            </Box>
+          </Toolbar>
+        </AppBar>
+
+        {/* Page content */}
+        <Box sx={{ flex: 1, overflow: 'auto', p: { xs: 2, sm: 3 } }}>
           {children}
         </Box>
       </Box>
-
-      {/* Mobile Navigation FAB */}
-      <Fab
-        color="primary"
-        aria-label="open navigation"
-        onClick={handleDrawerToggle}
-        sx={{
-          position: 'fixed',
-          bottom: 24,
-          right: 24,
-          display: { xs: 'flex', sm: 'none' },
-          background: 'linear-gradient(45deg, #00d4ff 0%, #7c3aed 50%, #ff006e 100%)',
-          color: 'white',
-          boxShadow: '0 8px 32px rgba(0, 212, 255, 0.3)',
-          '&:hover': {
-            background: 'linear-gradient(45deg, #00a8cc 0%, #6f32d1 50%, #d6005c 100%)',
-            transform: 'scale(1.05)',
-          },
-          zIndex: 1200,
-        }}
-      >
-        <MenuIcon />
-      </Fab>
     </Box>
   );
 }

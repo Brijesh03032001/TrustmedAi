@@ -510,5 +510,108 @@
       "https://www.mayoclinic.org/diseases-conditions/type-1-diabetes/symptoms-causes/syc-20353011",
       "https://www.mayoclinic.org/diseases-conditions/prediabetes/symptoms-causes/syc-20355278"
     ]
+  },
+  {
+    "role": "user",
+    "content": "Tell me about Abdominal Aortic Aneurysm (AAA)"
+  },
+  {
+    "role": "assistant",
+    "content": "An abdominal aortic aneurysm (AAA) is a serious medical condition involving the weakening and bulging of a section of the abdominal aorta, the body's main artery. Key points to understand about AAA include:\n\n- It often remains asymptomatic, meaning many individuals may not show noticeable symptoms until a rupture occurs.\n- When symptoms do appear, they can include deep abdominal pain, back pain, and a throbbing sensation near the belly button.\n- The risk of AAA is significant, as a rupture can lead to severe pain and internal bleeding, necessitating immediate medical attention. \n\nUnderstanding these aspects is crucial for early detection and management of this potentially life-threatening condition.",
+    "links": [
+      "https://familydoctor.org/condition/abdominal-aortic-aneurysm/",
+      "https://www.mayoclinic.org/diseases-conditions/abdominal-aortic-aneurysm/symptoms-causes/syc-20350688"
+    ]
+  },
+  {
+    "role": "user",
+    "content": "Tell me about Abdominal Aortic Aneurysm (AAA)"
+  },
+  {
+    "role": "assistant",
+    "content": "An Abdominal Aortic Aneurysm (AAA) is a serious medical condition involving the bulging of a weakened area in the abdominal aorta, the body's largest artery. Key points to understand include:\n\n- The risk of rupture increases as the aneurysm grows, which can lead to severe pain and life-threatening internal bleeding.\n- Symptoms are often absent until a rupture occurs, making early detection difficult. When symptoms do appear, they may include deep, constant abdominal pain, back pain, and a throbbing sensation near the belly button.\n- Major risk factors for developing AAA include smoking, advanced age, and a family history of the condition. \n\nPrompt medical evaluation is crucial for anyone at risk or experiencing symptoms.",
+    "links": [
+      "https://familydoctor.org/condition/abdominal-aortic-aneurysm/",
+      "https://www.mayoclinic.org/diseases-conditions/abdominal-aortic-aneurysm/symptoms-causes/syc-20350688"
+    ]
+  },
+  {
+    "role": "user",
+    "content": "Symptoms of diabetes"
+  },
+  {
+    "role": "assistant",
+    "content": "The symptoms of diabetes can differ based on the type. For type 1 diabetes, you may notice the following symptoms:\n\n- Increased thirst and frequent urination\n- Bed-wetting in children\n- Extreme hunger and unintended weight loss\n- Fatigue and irritability\n- Blurred vision\n\nIf you or your child are experiencing any of these symptoms, it is important to consult a doctor for further evaluation and management.",
+    "links": [
+      "https://www.mayoclinic.org/diseases-conditions/type-1-diabetes/symptoms-causes/syc-20353011"
+    ]
+  },
+  {
+    "role": "user",
+    "content": "Symptoms of diabetes"
+  },
+  {
+    "role": "assistant",
+    "content": "The symptoms of diabetes can differ based on the type. For type 1 diabetes, symptoms typically appear suddenly and may include:\n\n- Increased thirst and frequent urination\n- Bed-wetting in children\n- Extreme hunger and unintended weight loss\n- Fatigue and irritability\n- Blurred vision\n\nIf you or your child experience any of these symptoms, it is crucial to consult a doctor for further evaluation and management.",
+    "links": [
+      "https://www.mayoclinic.org/diseases-conditions/type-1-diabetes/symptoms-causes/syc-20353011"
+    ]
+  },
+  {
+    "role": "user",
+    "content": "What medications are used for diabetes?"
+  },
+  {
+    "role": "assistant",
+    "content": "Several medications are commonly used to manage diabetes, particularly type 2 diabetes. Here are some key options:\n\n- Metformin is often the first-line treatment due to its effectiveness in lowering blood sugar levels and its favorable safety profile. It can be combined with other medications for enhanced control.\n- Canagliflozin is another important medication that reduces blood sugar levels and can be prescribed alone or with metformin, as seen in the combination medication Vokanamet®. It also has benefits for treating kidney disease related to type 2 diabetes.\n- Thiazolidinediones, such as pioglitazone, improve insulin sensitivity, allowing the body to use insulin more effectively. This medication is frequently used alongside metformin to achieve better blood sugar management.\n\nOverall, diabetes management typically involves a combination of these medications to optimize blood sugar control and address any related health issues.",
+    "links": [
+      "https://patient.info/medicine/canagliflozin",
+      "https://patient.info/medicine/pioglitazone-tablets-for-diabetes-actos"
+    ]
+  },
+  {
+    "role": "user",
+    "content": "Symptoms of diabetes"
+  },
+  {
+    "role": "assistant",
+    "content": "The symptoms of diabetes can differ based on the type. For type 1 diabetes, you may notice the following symptoms:\n\n- Increased thirst and frequent urination\n- Bed-wetting in children\n- Extreme hunger and unintended weight loss\n- Fatigue and irritability\n- Blurred vision\n\nIf you or your child are experiencing any of these symptoms, it is important to consult a doctor for further evaluation and management.",
+    "links": [
+      "https://www.mayoclinic.org/diseases-conditions/type-1-diabetes/symptoms-causes/syc-20353011"
+    ]
+  },
+  {
+    "role": "user",
+    "content": "Symptoms of diabetes"
+  },
+  {
+    "role": "assistant",
+    "content": "The symptoms of diabetes can differ based on the type. For type 1 diabetes, you may notice the following symptoms:\n\n- Increased thirst and frequent urination\n- Bed-wetting in children\n- Extreme hunger and unintended weight loss\n- Fatigue and irritability\n- Blurred vision\n\nIf you or your child experience any of these symptoms, it is important to consult a doctor, as they may indicate the onset of diabetes.",
+    "links": [
+      "https://www.mayoclinic.org/diseases-conditions/type-1-diabetes/symptoms-causes/syc-20353011"
+    ]
+  },
+  {
+    "role": "user",
+    "content": "Hi, what are the symptoms of asthma?"
+  },
+  {
+    "role": "assistant",
+    "content": "Asthma symptoms can vary significantly from person to person, but some common signs include:\n\n- Shortness of breath, especially during physical activity or at night.\n- Chest tightness or pain, which can feel like pressure in the chest.\n- Wheezing, a whistling sound during exhalation.\n- Persistent coughing, particularly at night or early in the morning.\n\nIn children, symptoms may manifest as recurring episodes of wheezing, a dry cough, and increased difficulty breathing, often triggered by allergens or respiratory infections. It is crucial for caregivers to recognize these symptoms for timely management, as the frequency and severity can differ widely among individuals.",
+    "links": [
+      "https://www.mayoclinic.org/diseases-conditions/asthma/symptoms-causes/syc-20369653",
+      "https://www.mayoclinic.org/diseases-conditions/childhood-asthma/symptoms-causes/syc-20351507"
+    ]
+  },
+  {
+    "role": "user",
+    "content": "Symptoms of diabetes"
+  },
+  {
+    "role": "assistant",
+    "content": "The symptoms of diabetes can differ based on the type. For type 1 diabetes, symptoms typically appear suddenly and may include:\n\n- Increased thirst and frequent urination\n- Bed-wetting in children\n- Extreme hunger and unintended weight loss\n- Fatigue and irritability\n- Blurred vision\n\nIf you or your child experience any of these symptoms, it is essential to consult a doctor for further evaluation and management.",
+    "links": [
+      "https://www.mayoclinic.org/diseases-conditions/type-1-diabetes/symptoms-causes/syc-20353011"
+    ]
   }
 ]

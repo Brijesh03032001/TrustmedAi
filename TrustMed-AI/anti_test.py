@@ -42,8 +42,14 @@ from typing import Any, Dict, List, Optional, Tuple, Protocol, Iterable, Set
 
 import chromadb
 from chromadb.config import Settings  # noqa: F401  # for possible extensions
-from sentence_transformers import SentenceTransformer
+import numpy as np
+from sentence_transformers import SentenceTransformer, CrossEncoder
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
+try:
+    import faiss  # type: ignore
+except Exception:
+    faiss = None
 
 # Load local .env early so environment variables (like OPENAI_API_KEY) are available
 # to the module-level configuration below. We prefer python-dotenv when available
@@ -116,6 +122,18 @@ MAX_BUDGET_MS = int(os.environ.get("MAX_BUDGET_MS", "12000"))
 MIN_BUDGET_MS = int(os.environ.get("MIN_BUDGET_MS", "2000"))
 
 MAX_WORKERS = int(os.environ.get("MAX_WORKERS", "4"))
+
+# Optional retrieval upgrades. Disabled by default so the app still starts quickly
+# without downloading extra models.
+ENABLE_FAISS_REFINEMENT = os.environ.get("ENABLE_FAISS_REFINEMENT", "false").lower() in {"1", "true", "yes", "on"}
+FAISS_TOP_K = int(os.environ.get("FAISS_TOP_K", str(K_RECALL)))
+
+ENABLE_CROSS_ENCODER_RERANKING = os.environ.get("ENABLE_CROSS_ENCODER_RERANKING", "false").lower() in {"1", "true", "yes", "on"}
+CROSS_ENCODER_MODEL = os.environ.get("CROSS_ENCODER_MODEL", "cross-encoder/ms-marco-MiniLM-L-6-v2")
+CROSS_ENCODER_CANDIDATE_LIMIT = int(os.environ.get("CROSS_ENCODER_CANDIDATE_LIMIT", "40"))
+CROSS_ENCODER_TOP_N = int(os.environ.get("CROSS_ENCODER_TOP_N", "8"))
+
+_CROSS_ENCODER: Optional[CrossEncoder] = None
 
 
 def _score_from_collection_metadata(query: str, name: str, meta: Optional[Dict[str, Any]]) -> float:
@@ -498,6 +516,7 @@ class Doc:
     text: str
     meta: Dict[str, Any]
     s_embed: float
+    embedding: Optional[List[float]] = None
 
 @dataclass
 class AgentOutput:
@@ -528,7 +547,7 @@ def ann_search(collection, q_vec: List[float], k: int) -> List[Doc]:
         n_results=k,
         # "ids" is not accepted in some Chroma versions for the include list;
         # omitting it is safe because the client still returns an 'ids' key.
-        include=["metadatas", "documents", "distances"],
+        include=["metadatas", "documents", "distances", "embeddings"],
     )
     docs: List[Doc] = []
     if not res or not res.get("ids"):
@@ -538,6 +557,8 @@ def ann_search(collection, q_vec: List[float], k: int) -> List[Doc]:
     docs_text  = res.get("documents", [[]])[0] or []
     metas      = res.get("metadatas", [[]])[0] or []
     distances  = res.get("distances", [[]])[0] or []
+    raw_embeddings = res.get("embeddings", [[]])
+    embeddings = raw_embeddings[0] if raw_embeddings is not None and len(raw_embeddings) > 0 else []
 
     for i, _id in enumerate(ids):
         dist = distances[i] if i < len(distances) else None
@@ -545,7 +566,10 @@ def ann_search(collection, q_vec: List[float], k: int) -> List[Doc]:
         sim = float(1.0 - float(dist)) if dist is not None else 0.0
         text = docs_text[i] if i < len(docs_text) else ""
         meta = metas[i] if i < len(metas) else {}
-        docs.append(Doc(id=_id, text=text, meta=meta, s_embed=sim))
+        embedding = embeddings[i] if i < len(embeddings) else None
+        if hasattr(embedding, "tolist"):
+            embedding = embedding.tolist()
+        docs.append(Doc(id=_id, text=text, meta=meta, s_embed=sim, embedding=embedding))
 
     # sort by similarity descending (defensive)
     docs.sort(key=lambda d: d.s_embed, reverse=True)
@@ -599,6 +623,90 @@ def dedupe_docs(docs: List[Doc]) -> List[Doc]:
         unique.append(d)
     return unique
 
+
+def _normalize_matrix(matrix: np.ndarray) -> np.ndarray:
+    norms = np.linalg.norm(matrix, axis=1, keepdims=True)
+    norms[norms == 0] = 1.0
+    return matrix / norms
+
+
+def faiss_refine_candidates(query_vec: List[float], candidates: List[Doc], top_k: int = FAISS_TOP_K) -> Tuple[List[Doc], bool]:
+    """Reorder Chroma candidates with an in-memory FAISS cosine/IP search."""
+    if not ENABLE_FAISS_REFINEMENT or faiss is None or not candidates:
+        return candidates, False
+
+    docs_with_embeddings = [doc for doc in candidates if doc.embedding]
+    if not docs_with_embeddings:
+        return candidates, False
+
+    try:
+        vectors = np.asarray([doc.embedding for doc in docs_with_embeddings], dtype="float32")
+        if vectors.ndim != 2 or vectors.shape[0] == 0:
+            return candidates, False
+
+        vectors = _normalize_matrix(vectors)
+        q = np.asarray([query_vec], dtype="float32")
+        q = _normalize_matrix(q)
+
+        index = faiss.IndexFlatIP(vectors.shape[1])
+        index.add(vectors)
+        limit = min(top_k, len(docs_with_embeddings))
+        scores, indices = index.search(q, limit)
+
+        refined: List[Doc] = []
+        seen_ids: Set[str] = set()
+        for score, idx in zip(scores[0], indices[0]):
+            if idx < 0:
+                continue
+            doc = docs_with_embeddings[int(idx)]
+            doc.meta = {**doc.meta, "faiss_score": float(score)}
+            refined.append(doc)
+            seen_ids.add(doc.id)
+
+        # Preserve any Chroma candidates that lacked embeddings after FAISS-ranked docs.
+        refined.extend([doc for doc in candidates if doc.id not in seen_ids])
+        return refined, True
+    except Exception as e:
+        print(f"[FAISS] refinement skipped: {e}")
+        return candidates, False
+
+
+def get_cross_encoder() -> CrossEncoder:
+    global _CROSS_ENCODER
+    if _CROSS_ENCODER is None:
+        _CROSS_ENCODER = CrossEncoder(CROSS_ENCODER_MODEL)
+    return _CROSS_ENCODER
+
+
+def cross_encoder_rerank(query: str, docs: List[Doc]) -> Tuple[List[Doc], bool, Optional[float]]:
+    """Rerank selected evidence chunks with a query-document cross encoder."""
+    if not ENABLE_CROSS_ENCODER_RERANKING or not docs:
+        return docs, False, None
+
+    try:
+        limited_docs = docs[:CROSS_ENCODER_CANDIDATE_LIMIT]
+        pairs = [(query, doc.text[:4000]) for doc in limited_docs]
+        scores = get_cross_encoder().predict(pairs)
+
+        scored_docs: List[Tuple[float, Doc]] = []
+        for score, doc in zip(scores, limited_docs):
+            reranked_doc = Doc(
+                id=doc.id,
+                text=doc.text,
+                meta={**doc.meta, "cross_encoder_score": float(score)},
+                s_embed=doc.s_embed,
+                embedding=doc.embedding,
+            )
+            scored_docs.append((float(score), reranked_doc))
+
+        scored_docs.sort(key=lambda item: item[0], reverse=True)
+        reranked = [doc for _, doc in scored_docs[:CROSS_ENCODER_TOP_N]]
+        top_score = scored_docs[0][0] if scored_docs else None
+        return reranked, True, top_score
+    except Exception as e:
+        print(f"[CrossEncoder] reranking skipped: {e}")
+        return docs, False, None
+
 # ----------------------------
 # Agent iteration
 # ----------------------------
@@ -643,6 +751,7 @@ def run_agent_once(
 
     # full recall
     candidates = ann_search(collection, q_vec, k_recall)
+    candidates, faiss_refined = faiss_refine_candidates(q_vec, candidates)
     strong = [d for d in candidates if d.s_embed >= thr.X]
     band_raw = [d for d in candidates if (thr.Y <= d.s_embed < thr.X)]
     band_raw = band_raw[:band_max]
@@ -657,6 +766,8 @@ def run_agent_once(
             band_vetted.append(d)
 
     selected = dedupe_docs(strong + band_vetted)
+    selected, cross_encoder_reranked, cross_encoder_top_score = cross_encoder_rerank(query_text, selected)
+    strong_ids = {d.id for d in strong}
 
     # summarize
     summary, citations, conf = summarize_verbose(llm, query_text, selected)
@@ -664,9 +775,13 @@ def run_agent_once(
     metrics = {
         "count": len(selected),
         "avg_sim": mean([d.s_embed for d in selected]) if selected else 0.0,
-        "strong_share": (len([d for d in selected if d in strong]) / max(1, len(selected))) if selected else 0.0,
+        "strong_share": (len([d for d in selected if d.id in strong_ids]) / max(1, len(selected))) if selected else 0.0,
         "top_head_sim": head_top,
         "time_ms": now_ms() - t0,
+        "faiss_refined": faiss_refined,
+        "cross_encoder_reranked": cross_encoder_reranked,
+        "cross_encoder_model": CROSS_ENCODER_MODEL if cross_encoder_reranked else None,
+        "cross_encoder_top_score": cross_encoder_top_score,
     }
 
     # annotate collection in citations

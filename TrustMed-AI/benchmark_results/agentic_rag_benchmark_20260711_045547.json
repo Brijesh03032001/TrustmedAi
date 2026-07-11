@@ -1,0 +1,1189 @@
+{
+  "generated_at": "20260711_045547",
+  "dataset": "evaluation_dataset_extended.json",
+  "query_count": 15,
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "single_collection": "diseases",
+  "parallel_workers": 4,
+  "modes": {
+    "single_collection_baseline": {
+      "queries": 15,
+      "successful": 15,
+      "failed": 0,
+      "avg_latency_ms": 117.53,
+      "median_latency_ms": 53,
+      "p95_latency_ms": 288,
+      "avg_keyword_coverage": 0.12,
+      "avg_docs_used": 0.93,
+      "avg_similarity": 0.5256
+    },
+    "multi_agent_sequential": {
+      "queries": 15,
+      "successful": 15,
+      "failed": 0,
+      "avg_latency_ms": 113.4,
+      "median_latency_ms": 106,
+      "p95_latency_ms": 140,
+      "avg_keyword_coverage": 0.4467,
+      "avg_docs_used": 3.33,
+      "avg_similarity": 0.424
+    },
+    "multi_agent_parallel": {
+      "queries": 15,
+      "successful": 15,
+      "failed": 0,
+      "avg_latency_ms": 74.47,
+      "median_latency_ms": 79,
+      "p95_latency_ms": 85,
+      "avg_keyword_coverage": 0.4467,
+      "avg_docs_used": 3.33,
+      "avg_similarity": 0.424
+    }
+  },
+  "results": {
+    "single_collection_baseline": [
+      {
+        "mode": "single_collection_baseline",
+        "query": "What are the signs of diabetes?",
+        "topic": "diabetes",
+        "difficulty": "easy",
+        "latency_ms": 175,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "thirst",
+          "urination",
+          "fatigue",
+          "hunger",
+          "weight"
+        ],
+        "docs_used": 2,
+        "avg_similarity": 0.6135194897651672,
+        "collections_considered": [
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "single_collection_baseline",
+        "query": "What causes heart disease?",
+        "topic": "heart_disease",
+        "difficulty": "easy",
+        "latency_ms": 71,
+        "keyword_coverage": 0.2,
+        "found_keywords": [
+          "age"
+        ],
+        "expected_keywords": [
+          "blood pressure",
+          "cholesterol",
+          "smoking",
+          "obesity",
+          "age"
+        ],
+        "docs_used": 2,
+        "avg_similarity": 0.5650054216384888,
+        "collections_considered": [
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "single_collection_baseline",
+        "query": "What medications are used for diabetes?",
+        "topic": "diabetes",
+        "difficulty": "medium",
+        "latency_ms": 53,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "insulin",
+          "metformin",
+          "sulfonylurea",
+          "glipizide"
+        ],
+        "docs_used": 0,
+        "avg_similarity": 0.0,
+        "collections_considered": [
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "single_collection_baseline",
+        "query": "What are migraine symptoms?",
+        "topic": "migraine",
+        "difficulty": "easy",
+        "latency_ms": 53,
+        "keyword_coverage": 0.2,
+        "found_keywords": [
+          "headache"
+        ],
+        "expected_keywords": [
+          "headache",
+          "nausea",
+          "light",
+          "sound",
+          "pain"
+        ],
+        "docs_used": 1,
+        "avg_similarity": 0.7226643562316895,
+        "collections_considered": [
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "single_collection_baseline",
+        "query": "How to prevent high blood pressure?",
+        "topic": "hypertension",
+        "difficulty": "medium",
+        "latency_ms": 47,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "diet",
+          "exercise",
+          "weight",
+          "sodium",
+          "alcohol"
+        ],
+        "docs_used": 1,
+        "avg_similarity": 0.6686406135559082,
+        "collections_considered": [
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "single_collection_baseline",
+        "query": "What are the complications of untreated diabetes?",
+        "topic": "diabetes",
+        "difficulty": "medium",
+        "latency_ms": 315,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "kidney",
+          "eye",
+          "nerve",
+          "heart",
+          "foot"
+        ],
+        "docs_used": 0,
+        "avg_similarity": 0.0,
+        "collections_considered": [
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "single_collection_baseline",
+        "query": "How is type 2 diabetes diagnosed?",
+        "topic": "diabetes",
+        "difficulty": "medium",
+        "latency_ms": 40,
+        "keyword_coverage": 0.4,
+        "found_keywords": [
+          "blood",
+          "glucose"
+        ],
+        "expected_keywords": [
+          "blood",
+          "glucose",
+          "test",
+          "a1c",
+          "fasting"
+        ],
+        "docs_used": 1,
+        "avg_similarity": 0.6536731123924255,
+        "collections_considered": [
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "single_collection_baseline",
+        "query": "What are the risk factors for stroke?",
+        "topic": "stroke",
+        "difficulty": "medium",
+        "latency_ms": 267,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "blood pressure",
+          "smoking",
+          "diabetes",
+          "age",
+          "cholesterol"
+        ],
+        "docs_used": 1,
+        "avg_similarity": 0.6646624803543091,
+        "collections_considered": [
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "single_collection_baseline",
+        "query": "What is the difference between type 1 and type 2 diabetes?",
+        "topic": "diabetes",
+        "difficulty": "hard",
+        "latency_ms": 288,
+        "keyword_coverage": 0.2,
+        "found_keywords": [
+          "insulin"
+        ],
+        "expected_keywords": [
+          "insulin",
+          "autoimmune",
+          "lifestyle",
+          "age",
+          "pancreas"
+        ],
+        "docs_used": 1,
+        "avg_similarity": 0.6640452742576599,
+        "collections_considered": [
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "single_collection_baseline",
+        "query": "What are the symptoms of a heart attack?",
+        "topic": "heart_disease",
+        "difficulty": "easy",
+        "latency_ms": 268,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "chest",
+          "pain",
+          "shortness",
+          "breath",
+          "arm"
+        ],
+        "docs_used": 1,
+        "avg_similarity": 0.7271795272827148,
+        "collections_considered": [
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "single_collection_baseline",
+        "query": "How is asthma treated?",
+        "topic": "asthma",
+        "difficulty": "medium",
+        "latency_ms": 47,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "inhaler",
+          "bronchodilator",
+          "steroid",
+          "medication",
+          "rescue"
+        ],
+        "docs_used": 1,
+        "avg_similarity": 0.601976215839386,
+        "collections_considered": [
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "single_collection_baseline",
+        "query": "What causes migraine headaches?",
+        "topic": "migraine",
+        "difficulty": "medium",
+        "latency_ms": 33,
+        "keyword_coverage": 0.2,
+        "found_keywords": [
+          "trigger"
+        ],
+        "expected_keywords": [
+          "trigger",
+          "stress",
+          "hormonal",
+          "food",
+          "genetic"
+        ],
+        "docs_used": 1,
+        "avg_similarity": 0.7050485014915466,
+        "collections_considered": [
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "single_collection_baseline",
+        "query": "What are the side effects of metformin?",
+        "topic": "diabetes",
+        "difficulty": "hard",
+        "latency_ms": 36,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "nausea",
+          "diarrhea",
+          "stomach",
+          "vitamin",
+          "lactic"
+        ],
+        "docs_used": 0,
+        "avg_similarity": 0.0,
+        "collections_considered": [
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "single_collection_baseline",
+        "query": "How can I lower my cholesterol naturally?",
+        "topic": "cholesterol",
+        "difficulty": "medium",
+        "latency_ms": 36,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "diet",
+          "exercise",
+          "fiber",
+          "omega",
+          "weight"
+        ],
+        "docs_used": 1,
+        "avg_similarity": 0.6805235147476196,
+        "collections_considered": [
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "single_collection_baseline",
+        "query": "What is prediabetes?",
+        "topic": "diabetes",
+        "difficulty": "easy",
+        "latency_ms": 34,
+        "keyword_coverage": 0.6,
+        "found_keywords": [
+          "blood",
+          "sugar",
+          "diabetes"
+        ],
+        "expected_keywords": [
+          "blood",
+          "sugar",
+          "glucose",
+          "diabetes",
+          "risk"
+        ],
+        "docs_used": 1,
+        "avg_similarity": 0.616576075553894,
+        "collections_considered": [
+          "diseases"
+        ],
+        "error": null
+      }
+    ],
+    "multi_agent_sequential": [
+      {
+        "mode": "multi_agent_sequential",
+        "query": "What are the signs of diabetes?",
+        "topic": "diabetes",
+        "difficulty": "easy",
+        "latency_ms": 325,
+        "keyword_coverage": 1.0,
+        "found_keywords": [
+          "thirst",
+          "urination",
+          "fatigue",
+          "hunger",
+          "weight"
+        ],
+        "expected_keywords": [
+          "thirst",
+          "urination",
+          "fatigue",
+          "hunger",
+          "weight"
+        ],
+        "docs_used": 5,
+        "avg_similarity": 0.6306181947390238,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_sequential",
+        "query": "What causes heart disease?",
+        "topic": "heart_disease",
+        "difficulty": "easy",
+        "latency_ms": 124,
+        "keyword_coverage": 1.0,
+        "found_keywords": [
+          "blood pressure",
+          "cholesterol",
+          "smoking",
+          "obesity",
+          "age"
+        ],
+        "expected_keywords": [
+          "blood pressure",
+          "cholesterol",
+          "smoking",
+          "obesity",
+          "age"
+        ],
+        "docs_used": 7,
+        "avg_similarity": 0.4094146768252055,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_sequential",
+        "query": "What medications are used for diabetes?",
+        "topic": "diabetes",
+        "difficulty": "medium",
+        "latency_ms": 111,
+        "keyword_coverage": 0.5,
+        "found_keywords": [
+          "insulin",
+          "glipizide"
+        ],
+        "expected_keywords": [
+          "insulin",
+          "metformin",
+          "sulfonylurea",
+          "glipizide"
+        ],
+        "docs_used": 11,
+        "avg_similarity": 0.20727960088036276,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_sequential",
+        "query": "What are migraine symptoms?",
+        "topic": "migraine",
+        "difficulty": "easy",
+        "latency_ms": 63,
+        "keyword_coverage": 1.0,
+        "found_keywords": [
+          "headache",
+          "nausea",
+          "light",
+          "sound",
+          "pain"
+        ],
+        "expected_keywords": [
+          "headache",
+          "nausea",
+          "light",
+          "sound",
+          "pain"
+        ],
+        "docs_used": 2,
+        "avg_similarity": 0.6490226089954376,
+        "collections_considered": [
+          "symptoms"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_sequential",
+        "query": "How to prevent high blood pressure?",
+        "topic": "hypertension",
+        "difficulty": "medium",
+        "latency_ms": 111,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "diet",
+          "exercise",
+          "weight",
+          "sodium",
+          "alcohol"
+        ],
+        "docs_used": 4,
+        "avg_similarity": 0.5237030386924744,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_sequential",
+        "query": "What are the complications of untreated diabetes?",
+        "topic": "diabetes",
+        "difficulty": "medium",
+        "latency_ms": 92,
+        "keyword_coverage": 0.8,
+        "found_keywords": [
+          "kidney",
+          "eye",
+          "heart",
+          "foot"
+        ],
+        "expected_keywords": [
+          "kidney",
+          "eye",
+          "nerve",
+          "heart",
+          "foot"
+        ],
+        "docs_used": 3,
+        "avg_similarity": 0.21987031565772164,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_sequential",
+        "query": "How is type 2 diabetes diagnosed?",
+        "topic": "diabetes",
+        "difficulty": "medium",
+        "latency_ms": 94,
+        "keyword_coverage": 0.4,
+        "found_keywords": [
+          "blood",
+          "glucose"
+        ],
+        "expected_keywords": [
+          "blood",
+          "glucose",
+          "test",
+          "a1c",
+          "fasting"
+        ],
+        "docs_used": 3,
+        "avg_similarity": 0.4188315471013387,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_sequential",
+        "query": "What are the risk factors for stroke?",
+        "topic": "stroke",
+        "difficulty": "medium",
+        "latency_ms": 114,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "blood pressure",
+          "smoking",
+          "diabetes",
+          "age",
+          "cholesterol"
+        ],
+        "docs_used": 2,
+        "avg_similarity": 0.47741180658340454,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_sequential",
+        "query": "What is the difference between type 1 and type 2 diabetes?",
+        "topic": "diabetes",
+        "difficulty": "hard",
+        "latency_ms": 87,
+        "keyword_coverage": 0.2,
+        "found_keywords": [
+          "insulin"
+        ],
+        "expected_keywords": [
+          "insulin",
+          "autoimmune",
+          "lifestyle",
+          "age",
+          "pancreas"
+        ],
+        "docs_used": 2,
+        "avg_similarity": 0.4507244825363159,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_sequential",
+        "query": "What are the symptoms of a heart attack?",
+        "topic": "heart_disease",
+        "difficulty": "easy",
+        "latency_ms": 38,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "chest",
+          "pain",
+          "shortness",
+          "breath",
+          "arm"
+        ],
+        "docs_used": 2,
+        "avg_similarity": 0.7082800567150116,
+        "collections_considered": [
+          "symptoms"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_sequential",
+        "query": "How is asthma treated?",
+        "topic": "asthma",
+        "difficulty": "medium",
+        "latency_ms": 140,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "inhaler",
+          "bronchodilator",
+          "steroid",
+          "medication",
+          "rescue"
+        ],
+        "docs_used": 1,
+        "avg_similarity": 0.20065873861312866,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_sequential",
+        "query": "What causes migraine headaches?",
+        "topic": "migraine",
+        "difficulty": "medium",
+        "latency_ms": 120,
+        "keyword_coverage": 1.0,
+        "found_keywords": [
+          "trigger",
+          "stress",
+          "hormonal",
+          "food",
+          "genetic"
+        ],
+        "expected_keywords": [
+          "trigger",
+          "stress",
+          "hormonal",
+          "food",
+          "genetic"
+        ],
+        "docs_used": 4,
+        "avg_similarity": 0.6025397777557373,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_sequential",
+        "query": "What are the side effects of metformin?",
+        "topic": "diabetes",
+        "difficulty": "hard",
+        "latency_ms": 106,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "nausea",
+          "diarrhea",
+          "stomach",
+          "vitamin",
+          "lactic"
+        ],
+        "docs_used": 0,
+        "avg_similarity": 0.0,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_sequential",
+        "query": "How can I lower my cholesterol naturally?",
+        "topic": "cholesterol",
+        "difficulty": "medium",
+        "latency_ms": 89,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "diet",
+          "exercise",
+          "fiber",
+          "omega",
+          "weight"
+        ],
+        "docs_used": 2,
+        "avg_similarity": 0.43664856751759845,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_sequential",
+        "query": "What is prediabetes?",
+        "topic": "diabetes",
+        "difficulty": "easy",
+        "latency_ms": 87,
+        "keyword_coverage": 0.8,
+        "found_keywords": [
+          "blood",
+          "sugar",
+          "diabetes",
+          "risk"
+        ],
+        "expected_keywords": [
+          "blood",
+          "sugar",
+          "glucose",
+          "diabetes",
+          "risk"
+        ],
+        "docs_used": 2,
+        "avg_similarity": 0.4244030912717183,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      }
+    ],
+    "multi_agent_parallel": [
+      {
+        "mode": "multi_agent_parallel",
+        "query": "What are the signs of diabetes?",
+        "topic": "diabetes",
+        "difficulty": "easy",
+        "latency_ms": 115,
+        "keyword_coverage": 1.0,
+        "found_keywords": [
+          "thirst",
+          "urination",
+          "fatigue",
+          "hunger",
+          "weight"
+        ],
+        "expected_keywords": [
+          "thirst",
+          "urination",
+          "fatigue",
+          "hunger",
+          "weight"
+        ],
+        "docs_used": 5,
+        "avg_similarity": 0.6306181947390238,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_parallel",
+        "query": "What causes heart disease?",
+        "topic": "heart_disease",
+        "difficulty": "easy",
+        "latency_ms": 80,
+        "keyword_coverage": 1.0,
+        "found_keywords": [
+          "blood pressure",
+          "cholesterol",
+          "smoking",
+          "obesity",
+          "age"
+        ],
+        "expected_keywords": [
+          "blood pressure",
+          "cholesterol",
+          "smoking",
+          "obesity",
+          "age"
+        ],
+        "docs_used": 7,
+        "avg_similarity": 0.4094146768252055,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_parallel",
+        "query": "What medications are used for diabetes?",
+        "topic": "diabetes",
+        "difficulty": "medium",
+        "latency_ms": 79,
+        "keyword_coverage": 0.5,
+        "found_keywords": [
+          "insulin",
+          "glipizide"
+        ],
+        "expected_keywords": [
+          "insulin",
+          "metformin",
+          "sulfonylurea",
+          "glipizide"
+        ],
+        "docs_used": 11,
+        "avg_similarity": 0.20727960088036276,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_parallel",
+        "query": "What are migraine symptoms?",
+        "topic": "migraine",
+        "difficulty": "easy",
+        "latency_ms": 29,
+        "keyword_coverage": 1.0,
+        "found_keywords": [
+          "headache",
+          "nausea",
+          "light",
+          "sound",
+          "pain"
+        ],
+        "expected_keywords": [
+          "headache",
+          "nausea",
+          "light",
+          "sound",
+          "pain"
+        ],
+        "docs_used": 2,
+        "avg_similarity": 0.6490226089954376,
+        "collections_considered": [
+          "symptoms"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_parallel",
+        "query": "How to prevent high blood pressure?",
+        "topic": "hypertension",
+        "difficulty": "medium",
+        "latency_ms": 81,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "diet",
+          "exercise",
+          "weight",
+          "sodium",
+          "alcohol"
+        ],
+        "docs_used": 4,
+        "avg_similarity": 0.5237030386924744,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_parallel",
+        "query": "What are the complications of untreated diabetes?",
+        "topic": "diabetes",
+        "difficulty": "medium",
+        "latency_ms": 77,
+        "keyword_coverage": 0.8,
+        "found_keywords": [
+          "kidney",
+          "eye",
+          "heart",
+          "foot"
+        ],
+        "expected_keywords": [
+          "kidney",
+          "eye",
+          "nerve",
+          "heart",
+          "foot"
+        ],
+        "docs_used": 3,
+        "avg_similarity": 0.21987031565772164,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_parallel",
+        "query": "How is type 2 diabetes diagnosed?",
+        "topic": "diabetes",
+        "difficulty": "medium",
+        "latency_ms": 79,
+        "keyword_coverage": 0.4,
+        "found_keywords": [
+          "blood",
+          "glucose"
+        ],
+        "expected_keywords": [
+          "blood",
+          "glucose",
+          "test",
+          "a1c",
+          "fasting"
+        ],
+        "docs_used": 3,
+        "avg_similarity": 0.4188315471013387,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_parallel",
+        "query": "What are the risk factors for stroke?",
+        "topic": "stroke",
+        "difficulty": "medium",
+        "latency_ms": 69,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "blood pressure",
+          "smoking",
+          "diabetes",
+          "age",
+          "cholesterol"
+        ],
+        "docs_used": 2,
+        "avg_similarity": 0.47741180658340454,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_parallel",
+        "query": "What is the difference between type 1 and type 2 diabetes?",
+        "topic": "diabetes",
+        "difficulty": "hard",
+        "latency_ms": 83,
+        "keyword_coverage": 0.2,
+        "found_keywords": [
+          "insulin"
+        ],
+        "expected_keywords": [
+          "insulin",
+          "autoimmune",
+          "lifestyle",
+          "age",
+          "pancreas"
+        ],
+        "docs_used": 2,
+        "avg_similarity": 0.4507244825363159,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_parallel",
+        "query": "What are the symptoms of a heart attack?",
+        "topic": "heart_disease",
+        "difficulty": "easy",
+        "latency_ms": 28,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "chest",
+          "pain",
+          "shortness",
+          "breath",
+          "arm"
+        ],
+        "docs_used": 2,
+        "avg_similarity": 0.7082800567150116,
+        "collections_considered": [
+          "symptoms"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_parallel",
+        "query": "How is asthma treated?",
+        "topic": "asthma",
+        "difficulty": "medium",
+        "latency_ms": 79,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "inhaler",
+          "bronchodilator",
+          "steroid",
+          "medication",
+          "rescue"
+        ],
+        "docs_used": 1,
+        "avg_similarity": 0.20065873861312866,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_parallel",
+        "query": "What causes migraine headaches?",
+        "topic": "migraine",
+        "difficulty": "medium",
+        "latency_ms": 80,
+        "keyword_coverage": 1.0,
+        "found_keywords": [
+          "trigger",
+          "stress",
+          "hormonal",
+          "food",
+          "genetic"
+        ],
+        "expected_keywords": [
+          "trigger",
+          "stress",
+          "hormonal",
+          "food",
+          "genetic"
+        ],
+        "docs_used": 4,
+        "avg_similarity": 0.6025397777557373,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_parallel",
+        "query": "What are the side effects of metformin?",
+        "topic": "diabetes",
+        "difficulty": "hard",
+        "latency_ms": 70,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "nausea",
+          "diarrhea",
+          "stomach",
+          "vitamin",
+          "lactic"
+        ],
+        "docs_used": 0,
+        "avg_similarity": 0.0,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_parallel",
+        "query": "How can I lower my cholesterol naturally?",
+        "topic": "cholesterol",
+        "difficulty": "medium",
+        "latency_ms": 85,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "diet",
+          "exercise",
+          "fiber",
+          "omega",
+          "weight"
+        ],
+        "docs_used": 2,
+        "avg_similarity": 0.43664856751759845,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_parallel",
+        "query": "What is prediabetes?",
+        "topic": "diabetes",
+        "difficulty": "easy",
+        "latency_ms": 83,
+        "keyword_coverage": 0.8,
+        "found_keywords": [
+          "blood",
+          "sugar",
+          "diabetes",
+          "risk"
+        ],
+        "expected_keywords": [
+          "blood",
+          "sugar",
+          "glucose",
+          "diabetes",
+          "risk"
+        ],
+        "docs_used": 2,
+        "avg_similarity": 0.4244030912717183,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      }
+    ]
+  }
+}

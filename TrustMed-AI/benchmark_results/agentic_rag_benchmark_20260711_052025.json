@@ -1,0 +1,648 @@
+{
+  "generated_at": "20260711_052025",
+  "dataset": "evaluation_dataset_extended.json",
+  "query_count": 3,
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "single_collection": "diseases",
+  "parallel_workers": 4,
+  "modes": {
+    "single_collection_baseline": {
+      "queries": 3,
+      "successful": 3,
+      "failed": 0,
+      "avg_latency_ms": 1385.33,
+      "median_latency_ms": 223,
+      "p95_latency_ms": 3852,
+      "avg_keyword_coverage": 0.0667,
+      "avg_docs_used": 1.33,
+      "avg_similarity": 0.3928,
+      "faiss_refined_agents": 3,
+      "cross_encoder_reranked_agents": 2
+    },
+    "multi_agent_sequential": {
+      "queries": 3,
+      "successful": 3,
+      "failed": 0,
+      "avg_latency_ms": 550.67,
+      "median_latency_ms": 536,
+      "p95_latency_ms": 721,
+      "avg_keyword_coverage": 0.75,
+      "avg_docs_used": 6.67,
+      "avg_similarity": 0.4152,
+      "faiss_refined_agents": 9,
+      "cross_encoder_reranked_agents": 6
+    },
+    "multi_agent_parallel": {
+      "queries": 3,
+      "successful": 3,
+      "failed": 0,
+      "avg_latency_ms": 304,
+      "median_latency_ms": 291,
+      "p95_latency_ms": 384,
+      "avg_keyword_coverage": 0.75,
+      "avg_docs_used": 6.67,
+      "avg_similarity": 0.4152,
+      "faiss_refined_agents": 9,
+      "cross_encoder_reranked_agents": 6
+    }
+  },
+  "results": {
+    "single_collection_baseline": [
+      {
+        "mode": "single_collection_baseline",
+        "query": "What are the signs of diabetes?",
+        "topic": "diabetes",
+        "difficulty": "easy",
+        "latency_ms": 3852,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "thirst",
+          "urination",
+          "fatigue",
+          "hunger",
+          "weight"
+        ],
+        "docs_used": 2,
+        "avg_similarity": 0.6135194897651672,
+        "collections_considered": [
+          "diseases"
+        ],
+        "per_agent_metrics": [
+          {
+            "collection": "diseases",
+            "metrics": {
+              "count": 2,
+              "avg_sim": 0.6135194897651672,
+              "strong_share": 1.0,
+              "top_head_sim": 0.620406985282898,
+              "time_ms": 3397,
+              "faiss_refined": true,
+              "cross_encoder_reranked": true,
+              "cross_encoder_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+              "cross_encoder_top_score": 0.6067520380020142
+            },
+            "confidence": 0.4736223387718201,
+            "docs_used": 2
+          }
+        ],
+        "error": null
+      },
+      {
+        "mode": "single_collection_baseline",
+        "query": "What causes heart disease?",
+        "topic": "heart_disease",
+        "difficulty": "easy",
+        "latency_ms": 223,
+        "keyword_coverage": 0.2,
+        "found_keywords": [
+          "age"
+        ],
+        "expected_keywords": [
+          "blood pressure",
+          "cholesterol",
+          "smoking",
+          "obesity",
+          "age"
+        ],
+        "docs_used": 2,
+        "avg_similarity": 0.5650054216384888,
+        "collections_considered": [
+          "diseases"
+        ],
+        "per_agent_metrics": [
+          {
+            "collection": "diseases",
+            "metrics": {
+              "count": 2,
+              "avg_sim": 0.5650054216384888,
+              "strong_share": 0.0,
+              "top_head_sim": 0.6449906229972839,
+              "time_ms": 99,
+              "faiss_refined": true,
+              "cross_encoder_reranked": true,
+              "cross_encoder_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+              "cross_encoder_top_score": 0.6858630776405334
+            },
+            "confidence": 0.4678006505966187,
+            "docs_used": 2
+          }
+        ],
+        "error": null
+      },
+      {
+        "mode": "single_collection_baseline",
+        "query": "What medications are used for diabetes?",
+        "topic": "diabetes",
+        "difficulty": "medium",
+        "latency_ms": 81,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "insulin",
+          "metformin",
+          "sulfonylurea",
+          "glipizide"
+        ],
+        "docs_used": 0,
+        "avg_similarity": 0.0,
+        "collections_considered": [
+          "diseases"
+        ],
+        "per_agent_metrics": [
+          {
+            "collection": "diseases",
+            "metrics": {
+              "count": 0,
+              "avg_sim": 0.0,
+              "strong_share": 0.0,
+              "top_head_sim": 0.524754524230957,
+              "time_ms": 47,
+              "faiss_refined": true,
+              "cross_encoder_reranked": false,
+              "cross_encoder_model": null,
+              "cross_encoder_top_score": null
+            },
+            "confidence": 0.4,
+            "docs_used": 0
+          }
+        ],
+        "error": null
+      }
+    ],
+    "multi_agent_sequential": [
+      {
+        "mode": "multi_agent_sequential",
+        "query": "What are the signs of diabetes?",
+        "topic": "diabetes",
+        "difficulty": "easy",
+        "latency_ms": 721,
+        "keyword_coverage": 1.0,
+        "found_keywords": [
+          "thirst",
+          "urination",
+          "fatigue",
+          "hunger",
+          "weight"
+        ],
+        "expected_keywords": [
+          "thirst",
+          "urination",
+          "fatigue",
+          "hunger",
+          "weight"
+        ],
+        "docs_used": 5,
+        "avg_similarity": 0.6306181947390238,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "per_agent_metrics": [
+          {
+            "collection": "symptoms",
+            "metrics": {
+              "count": 2,
+              "avg_sim": 0.6668264865875244,
+              "strong_share": 1.0,
+              "top_head_sim": 0.667794406414032,
+              "time_ms": 85,
+              "faiss_refined": true,
+              "cross_encoder_reranked": true,
+              "cross_encoder_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+              "cross_encoder_top_score": 2.0798521041870117
+            },
+            "confidence": 0.48001917839050295,
+            "docs_used": 2
+          },
+          {
+            "collection": "diseases",
+            "metrics": {
+              "count": 2,
+              "avg_sim": 0.6135194897651672,
+              "strong_share": 1.0,
+              "top_head_sim": 0.620406985282898,
+              "time_ms": 128,
+              "faiss_refined": true,
+              "cross_encoder_reranked": true,
+              "cross_encoder_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+              "cross_encoder_top_score": 0.6067520380020142
+            },
+            "confidence": 0.4736223387718201,
+            "docs_used": 2
+          },
+          {
+            "collection": "medicines",
+            "metrics": {
+              "count": 1,
+              "avg_sim": 0.6115086078643799,
+              "strong_share": 1.0,
+              "top_head_sim": 0.6115086078643799,
+              "time_ms": 57,
+              "faiss_refined": true,
+              "cross_encoder_reranked": true,
+              "cross_encoder_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+              "cross_encoder_top_score": -1.3843096494674683
+            },
+            "confidence": 0.4366905164718628,
+            "docs_used": 1
+          }
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_sequential",
+        "query": "What causes heart disease?",
+        "topic": "heart_disease",
+        "difficulty": "easy",
+        "latency_ms": 536,
+        "keyword_coverage": 1.0,
+        "found_keywords": [
+          "blood pressure",
+          "cholesterol",
+          "smoking",
+          "obesity",
+          "age"
+        ],
+        "expected_keywords": [
+          "blood pressure",
+          "cholesterol",
+          "smoking",
+          "obesity",
+          "age"
+        ],
+        "docs_used": 7,
+        "avg_similarity": 0.4094146768252055,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "per_agent_metrics": [
+          {
+            "collection": "symptoms",
+            "metrics": {
+              "count": 5,
+              "avg_sim": 0.6632386088371277,
+              "strong_share": 0.6,
+              "top_head_sim": 0.6996338963508606,
+              "time_ms": 131,
+              "faiss_refined": true,
+              "cross_encoder_reranked": true,
+              "cross_encoder_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+              "cross_encoder_top_score": 2.0455784797668457
+            },
+            "confidence": 0.5989715826511384,
+            "docs_used": 5
+          },
+          {
+            "collection": "diseases",
+            "metrics": {
+              "count": 2,
+              "avg_sim": 0.5650054216384888,
+              "strong_share": 0.0,
+              "top_head_sim": 0.6449906229972839,
+              "time_ms": 65,
+              "faiss_refined": true,
+              "cross_encoder_reranked": true,
+              "cross_encoder_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+              "cross_encoder_top_score": 0.6858630776405334
+            },
+            "confidence": 0.4678006505966187,
+            "docs_used": 2
+          },
+          {
+            "collection": "medicines",
+            "metrics": {
+              "count": 0,
+              "avg_sim": 0.0,
+              "strong_share": 0.0,
+              "top_head_sim": 0.49231797456741333,
+              "time_ms": 56,
+              "faiss_refined": true,
+              "cross_encoder_reranked": false,
+              "cross_encoder_model": null,
+              "cross_encoder_top_score": null
+            },
+            "confidence": 0.4,
+            "docs_used": 0
+          }
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_sequential",
+        "query": "What medications are used for diabetes?",
+        "topic": "diabetes",
+        "difficulty": "medium",
+        "latency_ms": 395,
+        "keyword_coverage": 0.25,
+        "found_keywords": [
+          "insulin"
+        ],
+        "expected_keywords": [
+          "insulin",
+          "metformin",
+          "sulfonylurea",
+          "glipizide"
+        ],
+        "docs_used": 8,
+        "avg_similarity": 0.20548642675081888,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "per_agent_metrics": [
+          {
+            "collection": "medicines",
+            "metrics": {
+              "count": 8,
+              "avg_sim": 0.6164592802524567,
+              "strong_share": 1.0,
+              "top_head_sim": 0.6386971473693848,
+              "time_ms": 234,
+              "faiss_refined": true,
+              "cross_encoder_reranked": true,
+              "cross_encoder_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+              "cross_encoder_top_score": 3.776203155517578
+            },
+            "confidence": 0.6959004545211792,
+            "docs_used": 8
+          },
+          {
+            "collection": "symptoms",
+            "metrics": {
+              "count": 0,
+              "avg_sim": 0.0,
+              "strong_share": 0.0,
+              "top_head_sim": 0.5068244934082031,
+              "time_ms": 38,
+              "faiss_refined": true,
+              "cross_encoder_reranked": false,
+              "cross_encoder_model": null,
+              "cross_encoder_top_score": null
+            },
+            "confidence": 0.4,
+            "docs_used": 0
+          },
+          {
+            "collection": "diseases",
+            "metrics": {
+              "count": 0,
+              "avg_sim": 0.0,
+              "strong_share": 0.0,
+              "top_head_sim": 0.524754524230957,
+              "time_ms": 11,
+              "faiss_refined": true,
+              "cross_encoder_reranked": false,
+              "cross_encoder_model": null,
+              "cross_encoder_top_score": null
+            },
+            "confidence": 0.4,
+            "docs_used": 0
+          }
+        ],
+        "error": null
+      }
+    ],
+    "multi_agent_parallel": [
+      {
+        "mode": "multi_agent_parallel",
+        "query": "What are the signs of diabetes?",
+        "topic": "diabetes",
+        "difficulty": "easy",
+        "latency_ms": 237,
+        "keyword_coverage": 1.0,
+        "found_keywords": [
+          "thirst",
+          "urination",
+          "fatigue",
+          "hunger",
+          "weight"
+        ],
+        "expected_keywords": [
+          "thirst",
+          "urination",
+          "fatigue",
+          "hunger",
+          "weight"
+        ],
+        "docs_used": 5,
+        "avg_similarity": 0.6306181947390238,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "per_agent_metrics": [
+          {
+            "collection": "symptoms",
+            "metrics": {
+              "count": 2,
+              "avg_sim": 0.6668264865875244,
+              "strong_share": 1.0,
+              "top_head_sim": 0.667794406414032,
+              "time_ms": 84,
+              "faiss_refined": true,
+              "cross_encoder_reranked": true,
+              "cross_encoder_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+              "cross_encoder_top_score": 2.0798521041870117
+            },
+            "confidence": 0.48001917839050295,
+            "docs_used": 2
+          },
+          {
+            "collection": "diseases",
+            "metrics": {
+              "count": 2,
+              "avg_sim": 0.6135194897651672,
+              "strong_share": 1.0,
+              "top_head_sim": 0.620406985282898,
+              "time_ms": 106,
+              "faiss_refined": true,
+              "cross_encoder_reranked": true,
+              "cross_encoder_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+              "cross_encoder_top_score": 0.6067520380020142
+            },
+            "confidence": 0.4736223387718201,
+            "docs_used": 2
+          },
+          {
+            "collection": "medicines",
+            "metrics": {
+              "count": 1,
+              "avg_sim": 0.6115086078643799,
+              "strong_share": 1.0,
+              "top_head_sim": 0.6115086078643799,
+              "time_ms": 89,
+              "faiss_refined": true,
+              "cross_encoder_reranked": true,
+              "cross_encoder_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+              "cross_encoder_top_score": -1.3843096494674683
+            },
+            "confidence": 0.4366905164718628,
+            "docs_used": 1
+          }
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_parallel",
+        "query": "What causes heart disease?",
+        "topic": "heart_disease",
+        "difficulty": "easy",
+        "latency_ms": 384,
+        "keyword_coverage": 1.0,
+        "found_keywords": [
+          "blood pressure",
+          "cholesterol",
+          "smoking",
+          "obesity",
+          "age"
+        ],
+        "expected_keywords": [
+          "blood pressure",
+          "cholesterol",
+          "smoking",
+          "obesity",
+          "age"
+        ],
+        "docs_used": 7,
+        "avg_similarity": 0.4094146768252055,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "per_agent_metrics": [
+          {
+            "collection": "symptoms",
+            "metrics": {
+              "count": 5,
+              "avg_sim": 0.6632386088371277,
+              "strong_share": 0.6,
+              "top_head_sim": 0.6996338963508606,
+              "time_ms": 143,
+              "faiss_refined": true,
+              "cross_encoder_reranked": true,
+              "cross_encoder_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+              "cross_encoder_top_score": 2.0455784797668457
+            },
+            "confidence": 0.5989715826511384,
+            "docs_used": 5
+          },
+          {
+            "collection": "diseases",
+            "metrics": {
+              "count": 2,
+              "avg_sim": 0.5650054216384888,
+              "strong_share": 0.0,
+              "top_head_sim": 0.6449906229972839,
+              "time_ms": 144,
+              "faiss_refined": true,
+              "cross_encoder_reranked": true,
+              "cross_encoder_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+              "cross_encoder_top_score": 0.6858630776405334
+            },
+            "confidence": 0.4678006505966187,
+            "docs_used": 2
+          },
+          {
+            "collection": "medicines",
+            "metrics": {
+              "count": 0,
+              "avg_sim": 0.0,
+              "strong_share": 0.0,
+              "top_head_sim": 0.49231797456741333,
+              "time_ms": 37,
+              "faiss_refined": true,
+              "cross_encoder_reranked": false,
+              "cross_encoder_model": null,
+              "cross_encoder_top_score": null
+            },
+            "confidence": 0.4,
+            "docs_used": 0
+          }
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_parallel",
+        "query": "What medications are used for diabetes?",
+        "topic": "diabetes",
+        "difficulty": "medium",
+        "latency_ms": 291,
+        "keyword_coverage": 0.25,
+        "found_keywords": [
+          "insulin"
+        ],
+        "expected_keywords": [
+          "insulin",
+          "metformin",
+          "sulfonylurea",
+          "glipizide"
+        ],
+        "docs_used": 8,
+        "avg_similarity": 0.20548642675081888,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "per_agent_metrics": [
+          {
+            "collection": "medicines",
+            "metrics": {
+              "count": 8,
+              "avg_sim": 0.6164592802524567,
+              "strong_share": 1.0,
+              "top_head_sim": 0.6386971473693848,
+              "time_ms": 203,
+              "faiss_refined": true,
+              "cross_encoder_reranked": true,
+              "cross_encoder_model": "cross-encoder/ms-marco-MiniLM-L-6-v2",
+              "cross_encoder_top_score": 3.776203155517578
+            },
+            "confidence": 0.6959004545211792,
+            "docs_used": 8
+          },
+          {
+            "collection": "symptoms",
+            "metrics": {
+              "count": 0,
+              "avg_sim": 0.0,
+              "strong_share": 0.0,
+              "top_head_sim": 0.5068244934082031,
+              "time_ms": 38,
+              "faiss_refined": true,
+              "cross_encoder_reranked": false,
+              "cross_encoder_model": null,
+              "cross_encoder_top_score": null
+            },
+            "confidence": 0.4,
+            "docs_used": 0
+          },
+          {
+            "collection": "diseases",
+            "metrics": {
+              "count": 0,
+              "avg_sim": 0.0,
+              "strong_share": 0.0,
+              "top_head_sim": 0.524754524230957,
+              "time_ms": 38,
+              "faiss_refined": true,
+              "cross_encoder_reranked": false,
+              "cross_encoder_model": null,
+              "cross_encoder_top_score": null
+            },
+            "confidence": 0.4,
+            "docs_used": 0
+          }
+        ],
+        "error": null
+      }
+    ]
+  }
+}

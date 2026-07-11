@@ -1,0 +1,290 @@
+{
+  "generated_at": "20260711_045522",
+  "dataset": "evaluation_dataset_extended.json",
+  "query_count": 3,
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "single_collection": "diseases",
+  "parallel_workers": 4,
+  "modes": {
+    "single_collection_baseline": {
+      "queries": 3,
+      "successful": 3,
+      "failed": 0,
+      "avg_latency_ms": 299,
+      "median_latency_ms": 355,
+      "p95_latency_ms": 484,
+      "avg_keyword_coverage": 0.0667,
+      "avg_docs_used": 1.33,
+      "avg_similarity": 0.3928
+    },
+    "multi_agent_sequential": {
+      "queries": 3,
+      "successful": 3,
+      "failed": 0,
+      "avg_latency_ms": 223.67,
+      "median_latency_ms": 144,
+      "p95_latency_ms": 406,
+      "avg_keyword_coverage": 0.8333,
+      "avg_docs_used": 7.67,
+      "avg_similarity": 0.4158
+    },
+    "multi_agent_parallel": {
+      "queries": 3,
+      "successful": 3,
+      "failed": 0,
+      "avg_latency_ms": 87.33,
+      "median_latency_ms": 83,
+      "p95_latency_ms": 101,
+      "avg_keyword_coverage": 0.8333,
+      "avg_docs_used": 7.67,
+      "avg_similarity": 0.4158
+    }
+  },
+  "results": {
+    "single_collection_baseline": [
+      {
+        "mode": "single_collection_baseline",
+        "query": "What are the signs of diabetes?",
+        "topic": "diabetes",
+        "difficulty": "easy",
+        "latency_ms": 484,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "thirst",
+          "urination",
+          "fatigue",
+          "hunger",
+          "weight"
+        ],
+        "docs_used": 2,
+        "avg_similarity": 0.6135194897651672,
+        "collections_considered": [
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "single_collection_baseline",
+        "query": "What causes heart disease?",
+        "topic": "heart_disease",
+        "difficulty": "easy",
+        "latency_ms": 355,
+        "keyword_coverage": 0.2,
+        "found_keywords": [
+          "age"
+        ],
+        "expected_keywords": [
+          "blood pressure",
+          "cholesterol",
+          "smoking",
+          "obesity",
+          "age"
+        ],
+        "docs_used": 2,
+        "avg_similarity": 0.5650054216384888,
+        "collections_considered": [
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "single_collection_baseline",
+        "query": "What medications are used for diabetes?",
+        "topic": "diabetes",
+        "difficulty": "medium",
+        "latency_ms": 58,
+        "keyword_coverage": 0.0,
+        "found_keywords": [],
+        "expected_keywords": [
+          "insulin",
+          "metformin",
+          "sulfonylurea",
+          "glipizide"
+        ],
+        "docs_used": 0,
+        "avg_similarity": 0.0,
+        "collections_considered": [
+          "diseases"
+        ],
+        "error": null
+      }
+    ],
+    "multi_agent_sequential": [
+      {
+        "mode": "multi_agent_sequential",
+        "query": "What are the signs of diabetes?",
+        "topic": "diabetes",
+        "difficulty": "easy",
+        "latency_ms": 406,
+        "keyword_coverage": 1.0,
+        "found_keywords": [
+          "thirst",
+          "urination",
+          "fatigue",
+          "hunger",
+          "weight"
+        ],
+        "expected_keywords": [
+          "thirst",
+          "urination",
+          "fatigue",
+          "hunger",
+          "weight"
+        ],
+        "docs_used": 5,
+        "avg_similarity": 0.6306181947390238,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_sequential",
+        "query": "What causes heart disease?",
+        "topic": "heart_disease",
+        "difficulty": "easy",
+        "latency_ms": 144,
+        "keyword_coverage": 1.0,
+        "found_keywords": [
+          "blood pressure",
+          "cholesterol",
+          "smoking",
+          "obesity",
+          "age"
+        ],
+        "expected_keywords": [
+          "blood pressure",
+          "cholesterol",
+          "smoking",
+          "obesity",
+          "age"
+        ],
+        "docs_used": 7,
+        "avg_similarity": 0.4094146768252055,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_sequential",
+        "query": "What medications are used for diabetes?",
+        "topic": "diabetes",
+        "difficulty": "medium",
+        "latency_ms": 121,
+        "keyword_coverage": 0.5,
+        "found_keywords": [
+          "insulin",
+          "glipizide"
+        ],
+        "expected_keywords": [
+          "insulin",
+          "metformin",
+          "sulfonylurea",
+          "glipizide"
+        ],
+        "docs_used": 11,
+        "avg_similarity": 0.20727960088036276,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      }
+    ],
+    "multi_agent_parallel": [
+      {
+        "mode": "multi_agent_parallel",
+        "query": "What are the signs of diabetes?",
+        "topic": "diabetes",
+        "difficulty": "easy",
+        "latency_ms": 83,
+        "keyword_coverage": 1.0,
+        "found_keywords": [
+          "thirst",
+          "urination",
+          "fatigue",
+          "hunger",
+          "weight"
+        ],
+        "expected_keywords": [
+          "thirst",
+          "urination",
+          "fatigue",
+          "hunger",
+          "weight"
+        ],
+        "docs_used": 5,
+        "avg_similarity": 0.6306181947390238,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_parallel",
+        "query": "What causes heart disease?",
+        "topic": "heart_disease",
+        "difficulty": "easy",
+        "latency_ms": 78,
+        "keyword_coverage": 1.0,
+        "found_keywords": [
+          "blood pressure",
+          "cholesterol",
+          "smoking",
+          "obesity",
+          "age"
+        ],
+        "expected_keywords": [
+          "blood pressure",
+          "cholesterol",
+          "smoking",
+          "obesity",
+          "age"
+        ],
+        "docs_used": 7,
+        "avg_similarity": 0.4094146768252055,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      },
+      {
+        "mode": "multi_agent_parallel",
+        "query": "What medications are used for diabetes?",
+        "topic": "diabetes",
+        "difficulty": "medium",
+        "latency_ms": 101,
+        "keyword_coverage": 0.5,
+        "found_keywords": [
+          "insulin",
+          "glipizide"
+        ],
+        "expected_keywords": [
+          "insulin",
+          "metformin",
+          "sulfonylurea",
+          "glipizide"
+        ],
+        "docs_used": 11,
+        "avg_similarity": 0.20727960088036276,
+        "collections_considered": [
+          "symptoms",
+          "medicines",
+          "diseases"
+        ],
+        "error": null
+      }
+    ]
+  }
+}

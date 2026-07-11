@@ -1,3 +1,4 @@
 chromadb
+faiss-cpu
 google.generativeai
 sentence_transformers

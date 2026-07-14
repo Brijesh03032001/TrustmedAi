@@ -11,7 +11,12 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'TrustMed-AI — Intelligent Medical Assistant',
   description:
-    'AI-powered medical information platform with 10,000+ conditions, RAG technology, and clinically verified data from Mayo Clinic.',
+    'Source-grounded medical AI assistant with ChromaDB retrieval, FAISS refinement, cross-encoder reranking, voice access, and 3D medical visuals.',
+  icons: {
+    icon: '/LOGO_doctor.png',
+    shortcut: '/LOGO_doctor.png',
+    apple: '/LOGO_doctor.png',
+  },
 };
 
 export default function RootLayout({

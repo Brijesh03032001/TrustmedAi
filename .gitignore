@@ -27,6 +27,10 @@ TrustMed-AI/chroma_db/*/link_lists.bin
 *.log
 logs/
 
+# Local runtime and raw 3D authoring assets
+TrustMed-AI/public/models/doctor.glb
+3d-model/
+
 # macOS
 .DS_Store
 

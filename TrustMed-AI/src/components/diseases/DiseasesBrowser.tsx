@@ -33,7 +33,6 @@ import {
   Coronavirus as VirusIcon,
   HealthAndSafety as ShieldIcon,
   AutoAwesome as SparkleIcon,
-  Medication as MedicationIcon,
   Science as ScienceIcon,
 } from '@mui/icons-material';
 import { apiService } from '../../lib/api';
@@ -222,11 +221,12 @@ export function DiseasesBrowser() {
               width: 48,
               height: 48,
               borderRadius: '50%',
-              background: 'linear-gradient(135deg, #dc2626, #2563eb)',
-              color: '#ffffff',
+              background: 'linear-gradient(135deg, rgba(254,242,242,0.96), rgba(239,246,255,0.96))',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              p: 0.25,
+              border: '1px solid rgba(191,219,254,0.9)',
               boxShadow: '0 14px 34px rgba(220,38,38,0.18)',
               animation: 'databasePulse 3s ease-in-out infinite',
               '@keyframes databasePulse': {
@@ -235,7 +235,19 @@ export function DiseasesBrowser() {
               },
             }}
           >
-            <MedicationIcon sx={{ fontSize: 25 }} />
+            <Box
+              component="img"
+              src="/DatabaseIcon.png"
+              alt="Disease database"
+              sx={{
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                transform: 'scale(1.18)',
+                display: 'block',
+              }}
+            />
           </Box>
           <Box sx={{ flex: 1 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 850, color: '#0f172a', lineHeight: 1.2, fontSize: '1.18rem' }}>

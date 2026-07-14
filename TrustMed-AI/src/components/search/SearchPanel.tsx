@@ -394,11 +394,12 @@ export function SearchPanel() {
               width: 46,
               height: 46,
               borderRadius: '50%',
-              background: 'linear-gradient(135deg, #2563eb, #06b6d4)',
-              color: '#ffffff',
+              background: 'linear-gradient(135deg, rgba(239,246,255,0.96), rgba(236,254,255,0.96))',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              p: 0.25,
+              border: '1px solid rgba(191,219,254,0.9)',
               boxShadow: '0 12px 30px rgba(37,99,235,0.25)',
               animation: 'searchIconPulse 2.8s ease-in-out infinite',
               '@keyframes searchIconPulse': {
@@ -407,7 +408,19 @@ export function SearchPanel() {
               },
             }}
           >
-            <SearchIcon sx={{ fontSize: 24 }} />
+            <Box
+              component="img"
+              src="/searchicon.png"
+              alt="Medical search"
+              sx={{
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                transform: 'scale(1.12)',
+                display: 'block',
+              }}
+            />
           </Box>
           <Box>
             <Typography variant="subtitle1" sx={{ fontWeight: 850, color: '#0f172a', lineHeight: 1.2, fontSize: '1.18rem' }}>

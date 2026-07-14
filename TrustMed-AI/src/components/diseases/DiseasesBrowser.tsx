@@ -24,6 +24,17 @@ import {
   Chat as ChatIcon,
   Close as CloseIcon,
   WarningAmber as WarningIcon,
+  MonitorHeart as HeartIcon,
+  Biotech as BiotechIcon,
+  Vaccines as VaccinesIcon,
+  Healing as HealingIcon,
+  Psychology as BrainIcon,
+  PsychologyAlt as PsychologyIcon,
+  Coronavirus as VirusIcon,
+  HealthAndSafety as ShieldIcon,
+  AutoAwesome as SparkleIcon,
+  Medication as MedicationIcon,
+  Science as ScienceIcon,
 } from '@mui/icons-material';
 import { apiService } from '../../lib/api';
 
@@ -47,6 +58,69 @@ const categoryStyles: Record<string, { text: string; bg: string; border: string 
 
 function getCategoryStyle(category: string) {
   return categoryStyles[category] || categoryStyles.general;
+}
+
+function getCategoryIcon(category: string) {
+  const icons: Record<string, typeof HospitalIcon> = {
+    cardiovascular: HeartIcon,
+    endocrine: BiotechIcon,
+    oncology: VaccinesIcon,
+    respiratory: HealingIcon,
+    neurological: BrainIcon,
+    mental_health: PsychologyIcon,
+    infectious: VirusIcon,
+    gynecological: ShieldIcon,
+    urological: ScienceIcon,
+    dermatological: HealingIcon,
+    musculoskeletal: ShieldIcon,
+    ophthalmological: SparkleIcon,
+    general: HospitalIcon,
+  };
+  return icons[category] || HospitalIcon;
+}
+
+function DiseasesAmbientBackdrop() {
+  return (
+    <Box
+      aria-hidden
+      sx={{
+        position: 'absolute',
+        inset: 0,
+        overflow: 'hidden',
+        pointerEvents: 'none',
+        zIndex: 0,
+        bgcolor: '#f8fbff',
+        background:
+          'linear-gradient(135deg, rgba(255,247,237,0.45) 0%, rgba(239,246,255,0.94) 38%, rgba(255,255,255,0.72) 64%, rgba(236,254,255,0.68) 100%)',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          inset: '-48px',
+          backgroundImage:
+            'linear-gradient(rgba(220,38,38,0.055) 1px, transparent 1px), linear-gradient(90deg, rgba(37,99,235,0.08) 1px, transparent 1px)',
+          backgroundSize: '46px 46px',
+          animation: 'diseaseGridDrift 34s linear infinite',
+          maskImage: 'radial-gradient(circle at 50% 18%, black 0%, rgba(0,0,0,0.78) 34%, rgba(0,0,0,0.30) 78%)',
+        },
+        '&::after': {
+          content: '""',
+          position: 'absolute',
+          inset: 0,
+          background:
+            'linear-gradient(120deg, rgba(220,38,38,0.10), transparent 28%, rgba(37,99,235,0.12) 58%, transparent 84%)',
+          animation: 'diseaseLightSweep 14s ease-in-out infinite alternate',
+        },
+        '@keyframes diseaseGridDrift': {
+          '0%': { transform: 'translate3d(0, 0, 0)' },
+          '100%': { transform: 'translate3d(46px, 46px, 0)' },
+        },
+        '@keyframes diseaseLightSweep': {
+          '0%': { opacity: 0.35, transform: 'translateX(-4%)' },
+          '100%': { opacity: 0.85, transform: 'translateX(4%)' },
+        },
+      }}
+    />
+  );
 }
 
 export function DiseasesBrowser() {
@@ -112,17 +186,22 @@ export function DiseasesBrowser() {
 
   return (
     <Box
+      className="relative h-full overflow-hidden rounded-[24px]"
       sx={{
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        bgcolor: '#ffffff',
-        borderRadius: '16px',
-        border: '1px solid #e2e8f0',
+        position: 'relative',
+        bgcolor: 'rgba(255,255,255,0.74)',
+        borderRadius: '24px',
+        border: '1px solid rgba(191,219,254,0.92)',
         overflow: 'hidden',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+        boxShadow: '0 24px 70px rgba(15,23,42,0.10)',
+        backdropFilter: 'blur(18px)',
       }}
     >
+      <DiseasesAmbientBackdrop />
+
       {/* Header */}
       <Box
         sx={{
@@ -130,22 +209,39 @@ export function DiseasesBrowser() {
           px: 3,
           pt: 3,
           pb: 2.5,
-          borderBottom: '1px solid #f1f5f9',
-          bgcolor: '#ffffff',
+          borderBottom: '1px solid rgba(219,234,254,0.9)',
+          bgcolor: 'rgba(255,255,255,0.86)',
+          backdropFilter: 'blur(18px)',
+          position: 'relative',
+          zIndex: 1,
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5 }}>
           <Box
-            component="img"
-            src="/DatabaseIcon.png"
-            alt="Database"
-            sx={{ width: 34, height: 34, borderRadius: '10px', border: '1px solid #e2e8f0' }}
-          />
+            sx={{
+              width: 48,
+              height: 48,
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #dc2626, #2563eb)',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 14px 34px rgba(220,38,38,0.18)',
+              animation: 'databasePulse 3s ease-in-out infinite',
+              '@keyframes databasePulse': {
+                '0%,100%': { transform: 'scale(1)', boxShadow: '0 14px 34px rgba(220,38,38,0.18)' },
+                '50%': { transform: 'scale(1.05)', boxShadow: '0 18px 42px rgba(37,99,235,0.24)' },
+              },
+            }}
+          >
+            <MedicationIcon sx={{ fontSize: 25 }} />
+          </Box>
           <Box sx={{ flex: 1 }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#0f172a', lineHeight: 1.2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 850, color: '#0f172a', lineHeight: 1.2, fontSize: '1.18rem' }}>
               Disease Database
             </Typography>
-            <Typography variant="caption" sx={{ color: '#94a3b8', fontSize: '0.7rem' }}>
+            <Typography variant="caption" sx={{ color: '#64748b', fontSize: '0.82rem' }}>
               {isLoading ? 'Loading...' : `${allDiseases.length} conditions indexed`}
             </Typography>
           </Box>
@@ -156,9 +252,11 @@ export function DiseasesBrowser() {
               sx={{
                 height: 22,
                 fontSize: '0.7rem',
-                bgcolor: '#fef2f2',
+                bgcolor: 'rgba(254,242,242,0.9)',
                 border: '1px solid #fecaca',
                 color: '#dc2626',
+                borderRadius: '999px',
+                fontWeight: 800,
                 '& .MuiChip-label': { px: 1 },
               }}
             />
@@ -166,47 +264,66 @@ export function DiseasesBrowser() {
         </Box>
 
         {/* Search */}
-        <TextField
-          fullWidth
-          value={searchFilter}
-          onChange={(e) => { setSearchFilter(e.target.value); setCurrentPage(1); }}
-          placeholder="Search by name, description, or category..."
-          variant="outlined"
-          size="small"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon sx={{ fontSize: 16, color: '#94a3b8' }} />
-              </InputAdornment>
-            ),
-            endAdornment: searchFilter ? (
-              <InputAdornment position="end">
-                <IconButton
-                  size="small"
-                  onClick={() => { setSearchFilter(''); setCurrentPage(1); }}
-                  sx={{ color: '#94a3b8' }}
-                >
-                  <CloseIcon sx={{ fontSize: 14 }} />
-                </IconButton>
-              </InputAdornment>
-            ) : null,
-          }}
+        <Box
           sx={{
+            position: 'relative',
             mb: 2,
-            '& .MuiOutlinedInput-root': {
-              borderRadius: '10px',
-              bgcolor: '#f8fafc',
-              fontSize: '0.88rem',
-              '& fieldset': { borderColor: '#e2e8f0' },
-              '&:hover fieldset': { borderColor: '#94a3b8' },
-              '&.Mui-focused fieldset': { borderColor: '#dc2626', borderWidth: '2px' },
-            },
-            '& .MuiInputBase-input': {
-              color: '#0f172a',
-              '&::placeholder': { color: '#94a3b8' },
+            borderRadius: '20px',
+            p: '2px',
+            background:
+              'linear-gradient(90deg, rgba(220,38,38,0.92), rgba(37,99,235,0.94), rgba(6,182,212,0.90), rgba(220,38,38,0.92))',
+            backgroundSize: '260% 100%',
+            animation: 'diseaseGlowBorder 5.5s linear infinite',
+            boxShadow: '0 14px 34px rgba(37,99,235,0.14)',
+            '@keyframes diseaseGlowBorder': {
+              '0%': { backgroundPosition: '0% 50%' },
+              '100%': { backgroundPosition: '260% 50%' },
             },
           }}
-        />
+        >
+          <TextField
+            fullWidth
+            value={searchFilter}
+            onChange={(e) => { setSearchFilter(e.target.value); setCurrentPage(1); }}
+            placeholder="Search by name, description, or category..."
+            variant="outlined"
+            size="small"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ fontSize: 20, color: '#dc2626' }} />
+                </InputAdornment>
+              ),
+              endAdornment: searchFilter ? (
+                <InputAdornment position="end">
+                  <IconButton
+                    size="small"
+                    onClick={() => { setSearchFilter(''); setCurrentPage(1); }}
+                    sx={{ color: '#64748b' }}
+                  >
+                    <CloseIcon sx={{ fontSize: 16 }} />
+                  </IconButton>
+                </InputAdornment>
+              ) : null,
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '18px',
+                bgcolor: 'rgba(255,255,255,0.96)',
+                fontSize: '0.96rem',
+                minHeight: 52,
+                '& fieldset': { borderColor: 'transparent' },
+                '&:hover fieldset': { borderColor: 'transparent' },
+                '&.Mui-focused fieldset': { borderColor: 'transparent' },
+              },
+              '& .MuiInputBase-input': {
+                color: '#0f172a',
+                fontWeight: 600,
+                '&::placeholder': { color: '#94a3b8', fontWeight: 500 },
+              },
+            }}
+          />
+        </Box>
 
         {/* Category filters */}
         {categories.length > 0 && (
@@ -219,12 +336,14 @@ export function DiseasesBrowser() {
                 height: 24,
                 fontSize: '0.7rem',
                 fontWeight: !selectedCategory ? 700 : 500,
-                bgcolor: !selectedCategory ? '#0f172a' : '#f8fafc',
-                border: `1px solid ${!selectedCategory ? '#0f172a' : '#e2e8f0'}`,
+                bgcolor: !selectedCategory ? '#0f172a' : 'rgba(255,255,255,0.72)',
+                border: `1px solid ${!selectedCategory ? '#0f172a' : 'rgba(226,232,240,0.9)'}`,
                 color: !selectedCategory ? '#ffffff' : '#475569',
                 cursor: 'pointer',
+                borderRadius: '999px',
+                transition: 'all 0.15s ease',
                 '& .MuiChip-label': { px: 0.875 },
-                '&:hover': { bgcolor: !selectedCategory ? '#1e293b' : '#f1f5f9' },
+                '&:hover': { bgcolor: !selectedCategory ? '#1e293b' : '#f1f5f9', transform: 'translateY(-2px)' },
               }}
             />
             {categories.map((cat) => {
@@ -240,12 +359,20 @@ export function DiseasesBrowser() {
                     height: 24,
                     fontSize: '0.68rem',
                     fontWeight: isSelected ? 700 : 500,
-                    bgcolor: isSelected ? style.bg : '#f8fafc',
-                    border: `1px solid ${isSelected ? style.border : '#e2e8f0'}`,
+                    bgcolor: isSelected ? style.bg : 'rgba(255,255,255,0.72)',
+                    border: `1px solid ${isSelected ? style.border : 'rgba(226,232,240,0.9)'}`,
                     color: isSelected ? style.text : '#475569',
                     cursor: 'pointer',
+                    borderRadius: '999px',
+                    transition: 'all 0.15s ease',
                     '& .MuiChip-label': { px: 0.875 },
-                    '&:hover': { bgcolor: style.bg, borderColor: style.border, color: style.text },
+                    '&:hover': {
+                      bgcolor: style.bg,
+                      borderColor: style.border,
+                      color: style.text,
+                      transform: 'translateY(-2px)',
+                      boxShadow: `0 8px 18px ${style.text}18`,
+                    },
                   }}
                 />
               );
@@ -255,14 +382,30 @@ export function DiseasesBrowser() {
       </Box>
 
       {/* Content */}
-      <Box sx={{ flex: 1, overflowY: 'auto', p: 3, minHeight: 0, bgcolor: '#f8fafc' }}>
+      <Box
+        sx={{
+          flex: 1,
+          overflowY: 'auto',
+          p: 3,
+          minHeight: 0,
+          bgcolor: 'transparent',
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
         {/* Loading */}
         {isLoading && (
           <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 2 }}>
             {Array.from({ length: 12 }).map((_, i) => (
               <Box
                 key={i}
-                sx={{ p: 2.5, borderRadius: '14px', bgcolor: '#ffffff', border: '1px solid #e2e8f0' }}
+                sx={{
+                  p: 2.5,
+                  borderRadius: '18px',
+                  bgcolor: 'rgba(255,255,255,0.76)',
+                  border: '1px solid rgba(226,232,240,0.9)',
+                  backdropFilter: 'blur(12px)',
+                }}
               >
                 <Skeleton variant="text" width="75%" height={20} sx={{ mb: 1 }} />
                 <Skeleton variant="rectangular" width={80} height={18} sx={{ borderRadius: '6px', mb: 1.5 }} />
@@ -291,6 +434,7 @@ export function DiseasesBrowser() {
               >
                 {paginatedDiseases.map((disease, idx) => {
                   const style = getCategoryStyle(disease.category);
+                  const CategoryIcon = getCategoryIcon(disease.category);
                   return (
                     <Card
                       key={`${disease.name}-${idx}`}
@@ -298,30 +442,60 @@ export function DiseasesBrowser() {
                         height: '100%',
                         display: 'flex',
                         flexDirection: 'column',
-                        bgcolor: '#ffffff',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '14px',
+                        bgcolor: 'rgba(255,255,255,0.86)',
+                        border: '1px solid rgba(226,232,240,0.92)',
+                        borderRadius: '18px',
                         cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                        transition: 'all 0.22s ease',
+                        boxShadow: '0 10px 26px rgba(15,23,42,0.05)',
+                        backdropFilter: 'blur(14px)',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          inset: 0,
+                          background: `linear-gradient(135deg, ${style.bg}, transparent 44%)`,
+                          opacity: 0,
+                          transition: 'opacity 0.22s ease',
+                        },
                         '&:hover': {
                           borderColor: style.border,
-                          transform: 'translateY(-3px)',
-                          boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+                          transform: 'translateY(-5px) scale(1.01)',
+                          boxShadow: `0 20px 46px ${style.text}1f`,
+                        },
+                        '&:hover::before': {
+                          opacity: 0.86,
                         },
                       }}
                       onClick={() => handleChatAbout(disease.name)}
                     >
-                      <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: 2.25 }}>
+                      <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: 2.25, position: 'relative', zIndex: 1 }}>
                         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 1.25 }}>
-                          <HospitalIcon sx={{ fontSize: 14, color: style.text, mt: 0.3, flexShrink: 0 }} />
+                          <Box
+                            sx={{
+                              width: 34,
+                              height: 34,
+                              borderRadius: '50%',
+                              bgcolor: style.bg,
+                              border: `1px solid ${style.border}`,
+                              color: style.text,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0,
+                              boxShadow: `0 8px 18px ${style.text}20`,
+                            }}
+                          >
+                            <CategoryIcon sx={{ fontSize: 18 }} />
+                          </Box>
                           <Typography
                             variant="subtitle2"
                             sx={{
                               color: '#0f172a',
-                              fontWeight: 700,
+                              fontWeight: 800,
                               lineHeight: 1.3,
-                              fontSize: '0.86rem',
+                              fontSize: '0.94rem',
                               display: '-webkit-box',
                               WebkitLineClamp: 2,
                               WebkitBoxOrient: 'vertical',
@@ -344,6 +518,7 @@ export function DiseasesBrowser() {
                             bgcolor: style.bg,
                             border: `1px solid ${style.border}`,
                             color: style.text,
+                            borderRadius: '999px',
                             '& .MuiChip-label': { px: 0.75 },
                           }}
                         />
@@ -374,13 +549,13 @@ export function DiseasesBrowser() {
                             onClick={(e) => { e.stopPropagation(); handleChatAbout(disease.name); }}
                             sx={{
                               flex: 1,
-                              borderRadius: '8px',
+                              borderRadius: '999px',
                               border: '1px solid #e2e8f0',
                               color: '#475569',
                               fontSize: '0.68rem',
                               fontWeight: 600,
                               py: 0.5,
-                              '&:hover': { bgcolor: '#f8fafc', borderColor: '#94a3b8' },
+                              '&:hover': { bgcolor: '#f8fafc', borderColor: style.border, color: style.text },
                             }}
                           >
                             Learn
@@ -392,13 +567,13 @@ export function DiseasesBrowser() {
                             onClick={(e) => { e.stopPropagation(); handleChatAbout(disease.name); }}
                             sx={{
                               flex: 1,
-                              borderRadius: '8px',
-                              bgcolor: '#2563eb',
+                              borderRadius: '999px',
+                              bgcolor: style.text,
                               fontSize: '0.68rem',
                               fontWeight: 700,
                               py: 0.5,
                               boxShadow: 'none',
-                              '&:hover': { bgcolor: '#1d4ed8', boxShadow: '0 2px 8px rgba(37,99,235,0.25)' },
+                              '&:hover': { bgcolor: style.text, filter: 'brightness(0.92)', boxShadow: `0 8px 18px ${style.text}35` },
                             }}
                           >
                             Ask AI
@@ -421,7 +596,7 @@ export function DiseasesBrowser() {
                       '& .MuiPaginationItem-root': {
                         color: '#475569',
                         borderColor: '#e2e8f0',
-                        borderRadius: '8px',
+                        borderRadius: '999px',
                         '&:hover': { bgcolor: '#fef2f2', color: '#dc2626' },
                         '&.Mui-selected': {
                           bgcolor: '#dc2626',
@@ -442,8 +617,25 @@ export function DiseasesBrowser() {
         {/* No results */}
         {!isLoading && filteredDiseases.length === 0 && (
           <Box sx={{ textAlign: 'center', py: 8 }}>
-            <SearchIcon sx={{ fontSize: 48, color: '#e2e8f0', mb: 2 }} />
-            <Typography variant="h6" sx={{ color: '#475569', mb: 1, fontWeight: 600 }}>
+            <Box
+              sx={{
+                width: 78,
+                height: 78,
+                mx: 'auto',
+                mb: 2,
+                borderRadius: '50%',
+                bgcolor: 'rgba(254,242,242,0.85)',
+                border: '1px solid #fecaca',
+                color: '#dc2626',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 16px 36px rgba(220,38,38,0.12)',
+              }}
+            >
+              <SearchIcon sx={{ fontSize: 34 }} />
+            </Box>
+            <Typography variant="h6" sx={{ color: '#0f172a', mb: 1, fontWeight: 800 }}>
               No conditions found
             </Typography>
             {searchFilter && (
@@ -455,7 +647,7 @@ export function DiseasesBrowser() {
               size="small"
               variant="outlined"
               onClick={() => { setSearchFilter(''); setSelectedCategory(''); setCurrentPage(1); }}
-              sx={{ borderRadius: '8px', border: '1px solid #e2e8f0', color: '#475569' }}
+              sx={{ borderRadius: '999px', border: '1px solid #e2e8f0', color: '#475569', px: 2 }}
             >
               Clear filters
             </Button>
@@ -469,11 +661,14 @@ export function DiseasesBrowser() {
           px: 3,
           py: 1,
           borderTop: '1px solid #fde68a',
-          bgcolor: '#fffbeb',
+          bgcolor: 'rgba(255,251,235,0.86)',
           display: 'flex',
           alignItems: 'center',
           gap: 0.75,
           flexShrink: 0,
+          position: 'relative',
+          zIndex: 1,
+          backdropFilter: 'blur(14px)',
         }}
       >
         <WarningIcon sx={{ fontSize: 12, color: '#d97706', flexShrink: 0 }} />

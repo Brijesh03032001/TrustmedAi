@@ -13,6 +13,8 @@ User
 Next.js frontend
   - chat interface
   - disease/search views
+  - interactive Three.js doctor avatar
+  - word-by-word generated answer UI
   - microphone input
   - listen-to-answer output
   |
@@ -54,6 +56,10 @@ FastAPI backend
 - Optional cross-encoder reranking with `cross-encoder/ms-marco-MiniLM-L-6-v2`.
 - ReAct-style routing trace exposed in API responses for explainability.
 - ElevenLabs TTS and STT endpoints for accessibility.
+- Interactive Three.js doctor avatar with zoom/rotate controls on the chat welcome screen.
+- Word-by-word generated response rendering with compact markdown bullets.
+- Verified source cards and response metadata in the chat answer view.
+- Polished quick search, disease browser, and sidebar UI with medical-grid styling.
 - 100-prompt evaluation dataset across five medical domains.
 - Precision@K retrieval evaluator.
 - Faithfulness and hallucination-risk evaluator.

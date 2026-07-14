@@ -29,7 +29,6 @@ import {
   Verified as VerifiedIcon,
   OpenInNew as OpenInNewIcon,
   Bolt as BoltIcon,
-  AutoAwesome as DemoIcon,
 } from '@mui/icons-material';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiService } from '../../lib/api';
@@ -61,31 +60,6 @@ const suggestionChips = [
   { emoji: '🫁', text: 'Asthma management' },
   { emoji: '🦴', text: 'Arthritis types' },
 ];
-
-const demoAssistantSources: MedicalLink[] = [
-  {
-    title: 'Heart disease symptoms and causes',
-    url: 'https://www.mayoclinic.org/diseases-conditions/heart-disease/symptoms-causes/syc-20353118',
-    source_type: 'diseases',
-    relevance_score: 0.91,
-  },
-  {
-    title: 'High blood pressure treatment',
-    url: 'https://www.mayoclinic.org/diseases-conditions/high-blood-pressure/diagnosis-treatment/drc-20373417',
-    source_type: 'medicine',
-    relevance_score: 0.86,
-  },
-];
-
-const demoAssistantAnswer = `Heart disease risk is influenced by several clinical and lifestyle factors:
-
-- Age increases risk, especially for men after 45 and women after 55.
-- Family history can make heart disease more likely.
-- High blood pressure, high cholesterol, diabetes, and obesity are major contributors.
-- Smoking, physical inactivity, poor diet, and chronic stress can worsen cardiovascular risk.
-- Managing blood pressure and cholesterol early can reduce long-term complications.
-
-The most useful next step is to track blood pressure, review family history, and discuss personalized screening with a clinician.`;
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : 'Unknown error';
@@ -775,30 +749,6 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
     inputRef.current?.focus();
   };
 
-  const handleDemoResponse = () => {
-    setMessages([
-      {
-        id: `demo-user-${Date.now()}`,
-        type: 'user',
-        content: 'What are the key risks for heart disease?',
-        timestamp: new Date(),
-      },
-      {
-        id: `demo-ai-${Date.now()}`,
-        type: 'assistant',
-        content: demoAssistantAnswer,
-        timestamp: new Date(),
-        sources: demoAssistantSources,
-        confidence: 0.88,
-        intent: 'clinical_background',
-        responseTime: 2400,
-        sourcesCount: demoAssistantSources.length,
-      },
-    ]);
-    setInputValue('');
-    inputRef.current?.focus();
-  };
-
   const showAssistantNotice = useCallback((content: string) => {
     setMessages((prev) => [
       ...prev,
@@ -1004,33 +954,6 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
             Powered by Mayo Clinic
           </Typography>
         </Box>
-
-        <Tooltip title="Preview answer styling">
-          <Button
-            size="small"
-            startIcon={<DemoIcon sx={{ fontSize: 16 }} />}
-            onClick={handleDemoResponse}
-            sx={{
-              display: { xs: 'none', lg: 'inline-flex' },
-              borderRadius: '10px',
-              fontSize: '0.875rem',
-              fontWeight: 700,
-              color: '#0e7490',
-              border: '1px solid #a5f3fc',
-              px: 1.5,
-              py: 0.75,
-              textTransform: 'none',
-              bgcolor: 'rgba(236,254,255,0.78)',
-              '&:hover': {
-                bgcolor: '#ecfeff',
-                borderColor: '#67e8f9',
-                boxShadow: '0 10px 22px rgba(6,182,212,0.12)',
-              },
-            }}
-          >
-            Demo Response
-          </Button>
-        </Tooltip>
 
         {/* New Chat button */}
         <Tooltip title="New conversation">

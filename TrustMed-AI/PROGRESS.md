@@ -278,6 +278,47 @@ Inspection result:
 - It has no morph targets.
 - Because of this, animation is implemented procedurally with Three.js transforms, glow, pulsing, bobbing, and halo motion.
 
+### 12. Doctor Avatar and Premium Chat UI
+
+Reworked the main chat experience around a compressed doctor GLB model and a more polished medical assistant interface.
+
+Files:
+
+- `public/models/doctor-compressed.glb`
+- `src/components/chat/DoctorAvatar3D.tsx`
+- `src/components/chat/ChatInterface.tsx`
+- `src/components/ui/text-generate-effect.tsx`
+- `src/lib/utils.ts`
+
+Coverage:
+
+- Added a compressed local doctor GLB for browser-safe rendering.
+- Added a large interactive doctor avatar on the empty chat screen.
+- Enabled rotate and zoom controls for inspecting the hero doctor model.
+- Kept a smaller procedural doctor avatar above the input once chat starts.
+- Added local word-by-word generated answer rendering to mimic ChatGPT/Perplexity response flow.
+- Delayed sources and metadata until generated text finishes.
+- Improved source cards, confidence chips, copy/listen controls, and demo response preview.
+- Removed the ReAct trace from the patient-facing chat card while keeping it available in API responses.
+
+### 13. Search, Disease Browser, and Sidebar Polish
+
+Upgraded the supporting UI surfaces so the full app feels consistent with the main chat experience.
+
+Files:
+
+- `src/components/layout/AppLayout.tsx`
+- `src/components/search/SearchPanel.tsx`
+- `src/components/diseases/DiseasesBrowser.tsx`
+
+Coverage:
+
+- Added animated light medical-grid backgrounds.
+- Added glass-style panels and rounded icon treatments.
+- Added smoother hover, lift, and glow states for navigation, search results, and disease cards.
+- Replaced the older sidebar disclaimer block with a cleaner RAG assistant quality card.
+- Improved visual consistency across chat, search, and disease database routes.
+
 ## Resume Claims Currently Covered
 
 These claims now have code or report support in the repository:
@@ -292,7 +333,8 @@ These claims now have code or report support in the repository:
 - Added ReAct-style query planning and explainability trace.
 - Integrated ElevenLabs text-to-speech.
 - Integrated ElevenLabs speech-to-text.
-- Integrated a Three.js GLB robot avatar into the chatbot UI.
+- Integrated Three.js GLB avatars into the chatbot UI.
+- Added an interactive doctor model on the chat welcome screen.
 - Added procedural avatar animation for idle, thinking, speaking, and recording states.
 - Created a 100-prompt evaluation suite.
 - Added precision@K retrieval evaluation.

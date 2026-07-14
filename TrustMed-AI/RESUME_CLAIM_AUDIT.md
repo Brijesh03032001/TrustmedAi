@@ -108,6 +108,7 @@ Achieved 91% accuracy on a MedQA-style benchmark evaluation suite spanning multi
 
 Current evidence:
 - The project has a 34-query evaluation suite across topics and conversational flows.
+- The project also has `evaluation_dataset_100.json` plus precision and faithfulness evaluators.
 - The report tracks keyword match, retrieval similarity, context rewrite accuracy, latency, and edge cases.
 
 Current risk:
@@ -115,7 +116,7 @@ Current risk:
 - Existing report does not show 91% accuracy.
 
 Resume-safe wording today:
-- Built a 34-query medical QA evaluation harness spanning single-turn, conversational, and edge-case prompts across multiple clinical topics.
+- Built medical QA evaluation harnesses spanning conversational checks, retrieval precision, and faithfulness-risk tracking across multiple clinical topics.
 
 To make the original claim defensible:
 - Add a MedQA-style dataset with ground-truth answers.
@@ -127,17 +128,24 @@ Original claim:
 Integrated multimodal output combining LLM text generation, text-to-speech synthesis, and 3D avatar animation using Three.js for accessible patient communication.
 
 Current evidence:
-- The frontend has a chat UI and avatar-like visual elements/icons.
+- `voice_service.py` implements ElevenLabs text-to-speech and speech-to-text helpers.
+- `trustmed_api.py` exposes `/voice/text-to-speech` and `/voice/speech-to-text`.
+- `src/lib/api.ts` connects the frontend to both voice endpoints.
+- `src/components/chat/ChatInterface.tsx` includes microphone input and listen-to-response controls.
+- `src/components/chat/DoctorAvatar3D.tsx` renders a compressed doctor GLB with React Three Fiber and Drei.
+- The doctor avatar has procedural states for idle, thinking, speaking, and recording.
+- The landing page also includes a local Spline particle-hand visual through `public/hand2.splinecode`.
 
 Current risk:
-- No `three` dependency, Three.js scene, browser TTS, or speech synthesis flow found.
+- The doctor GLB itself is static; animation is procedural rather than rigged skeletal animation.
+- The avatar is not lip-synced to generated audio.
+- ElevenLabs features require valid local API keys.
 
 Resume-safe wording today:
-- Built a clinician-facing chat UI with source-linked medical answers and assistant/user conversation states.
+- Integrated multimodal accessibility features combining source-grounded text answers, ElevenLabs text-to-speech/speech-to-text, and a procedural Three.js doctor avatar for patient-facing interaction.
 
 To make the original claim defensible:
-- Add browser text-to-speech controls.
-- Add an actual Three.js avatar or remove Three.js from the claim.
+- Add audio-driven mouth/gesture animation or lip-sync if claiming animated patient communication beyond procedural motion.
 
 ## Claim 7: 100-Prompt Evaluation Suite
 
@@ -145,19 +153,22 @@ Original claim:
 Designed a 100-prompt evaluation suite tracking precision, faithfulness, and relevance across 5 medical domains with iterative prompt tuning.
 
 Current evidence:
-- `evaluation_dataset_extended.json` contains 15 single-turn queries, 16 conversational turns, and 3 edge cases.
-- `evaluate_system_comprehensive.py` generates JSON and text reports.
+- `evaluation_dataset_100.json` contains 100 prompts across five medical domains.
+- `evaluate_retrieval_precision.py` computes precision@K, hit rate, and MRR over expected collections/concepts.
+- `evaluate_faithfulness.py` tracks citation rate, link rate, docs used, keyword coverage, risky phrases, safety language, and grounded score.
+- Reports are saved under `benchmark_results/` in JSON and Markdown.
 
 Current risk:
-- Current suite has 34 evaluated prompts/turns, not 100.
-- Faithfulness and relevance are not separately scored.
+- Latest saved precision and faithfulness reports sampled only 3 queries, not the full 100.
+- Metrics are project benchmarks and heuristic grounding checks, not clinical validation.
+- "Iterative prompt tuning" should only be claimed if prompt iterations are documented.
 
 Resume-safe wording today:
-- Designed a 34-query evaluation suite tracking keyword coverage, retrieval similarity, context rewriting, and latency across medical QA scenarios.
+- Designed a 100-prompt medical QA evaluation dataset across five domains and added precision@K, MRR, and faithfulness/hallucination-risk benchmark scripts.
 
 To make the original claim defensible:
-- Expand the dataset to 100 prompts.
-- Add explicit faithfulness and relevance scoring.
+- Run and save the full 100-prompt evaluation reports.
+- Document before/after prompt or retrieval changes if claiming iterative tuning.
 
 ## Claim 8: FastAPI Backend Orchestration Layer
 

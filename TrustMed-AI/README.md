@@ -13,6 +13,7 @@ User
 Next.js frontend
   - chat interface
   - disease/search views
+  - Spline landing-page hero visual
   - interactive Three.js doctor avatar
   - word-by-word generated answer UI
   - microphone input
@@ -56,10 +57,12 @@ FastAPI backend
 - Optional cross-encoder reranking with `cross-encoder/ms-marco-MiniLM-L-6-v2`.
 - ReAct-style routing trace exposed in API responses for explainability.
 - ElevenLabs TTS and STT endpoints for accessibility.
+- Spline hero visual on the landing page using a local `.splinecode` asset.
 - Interactive Three.js doctor avatar with zoom/rotate controls on the chat welcome screen.
 - Word-by-word generated response rendering with compact markdown bullets.
 - Verified source cards and response metadata in the chat answer view.
 - Polished quick search, disease browser, and sidebar UI with medical-grid styling.
+- Indexed local knowledge base with 9K+ medical chunks and hundreds of condition profiles.
 - 100-prompt evaluation dataset across five medical domains.
 - Precision@K retrieval evaluator.
 - Faithfulness and hallucination-risk evaluator.
@@ -75,6 +78,7 @@ FastAPI backend
 | Reranking | SentenceTransformers CrossEncoder |
 | LLM orchestration | Local heuristic fallback, optional OpenAI-compatible LLM provider |
 | Voice | ElevenLabs text-to-speech and speech-to-text |
+| 3D/visuals | Three.js, React Three Fiber, Spline |
 | Evaluation | Custom benchmark scripts, JSON/Markdown reports |
 
 ## Repository Map
@@ -255,10 +259,11 @@ Avoid claiming clinical accuracy, production HIPAA compliance, or final deployme
 1. Start the backend with FAISS and cross-encoder flags enabled.
 2. Start the Next.js frontend.
 3. Ask: `What are the symptoms of diabetes?`
-4. Show citations, links, per-agent metrics, and the ReAct trace.
-5. Use the listen button to play the answer through ElevenLabs TTS.
-6. Use microphone input to test speech-to-text.
-7. Run a small benchmark sample:
+4. Show word-by-word answer rendering, source cards, confidence, response time, and listen/copy controls.
+5. Mention that the ReAct-style routing trace is available in the API response/backend logs for developer explainability.
+6. Use the listen button to play the answer through ElevenLabs TTS.
+7. Use microphone input to test speech-to-text.
+8. Run a small benchmark sample:
 
 ```bash
 python evaluate_retrieval_precision.py --dataset evaluation_dataset_100.json --limit 10

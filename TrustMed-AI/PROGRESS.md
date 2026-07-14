@@ -1,6 +1,6 @@
 # TrustMed-AI Progress Log
 
-Last updated: July 11, 2026
+Last updated: July 14, 2026
 
 This file summarizes the concrete project work completed so far, the files changed or added, and which resume/project claims are now supported by the codebase.
 
@@ -237,9 +237,9 @@ Coverage:
 - Suggested commit grouping.
 - Date-based planning for school/project tracking.
 
-### 11. Three.js GLB Robot Avatar
+### 11. Three.js GLB Avatar Foundation
 
-Added a 3D robot avatar to the chatbot using the user-provided GLB model.
+Added browser-rendered GLB avatar support using React Three Fiber and Drei.
 
 Files:
 
@@ -255,16 +255,13 @@ Coverage:
   - `three`
   - `@react-three/fiber`
   - `@react-three/drei`
-- Loaded the GLB robot model from `public/models/robotBlueeyes.glb`.
-- Added the robot to the chat header.
-- Added the robot to the empty chatbot welcome screen.
-- Added the robot directly inside the chat input text field.
-- Added procedural animation states:
+- Loaded local GLB models from `public/models/`.
+- Added procedural animation modes:
   - `idle`
   - `thinking`
   - `speaking`
   - `recording`
-- Connected robot animation state to chatbot behavior:
+- Connected avatar animation state to chatbot behavior:
   - backend response pending -> thinking animation
   - ElevenLabs audio playing -> speaking animation
   - microphone recording/transcribing -> recording animation
@@ -276,7 +273,7 @@ Inspection result:
 - It has no embedded animation clips.
 - It has no bones/skins.
 - It has no morph targets.
-- Because of this, animation is implemented procedurally with Three.js transforms, glow, pulsing, bobbing, and halo motion.
+- Static GLB assets are animated procedurally with Three.js transforms, glow, pulsing, bobbing, and halo motion.
 
 ### 12. Doctor Avatar and Premium Chat UI
 
@@ -298,7 +295,7 @@ Coverage:
 - Kept a smaller procedural doctor avatar above the input once chat starts.
 - Added local word-by-word generated answer rendering to mimic ChatGPT/Perplexity response flow.
 - Delayed sources and metadata until generated text finishes.
-- Improved source cards, confidence chips, copy/listen controls, and demo response preview.
+- Improved source cards, confidence chips, copy/listen controls, and compact markdown bullets.
 - Removed the ReAct trace from the patient-facing chat card while keeping it available in API responses.
 
 ### 13. Search, Disease Browser, and Sidebar Polish
@@ -319,6 +316,52 @@ Coverage:
 - Replaced the older sidebar disclaimer block with a cleaner RAG assistant quality card.
 - Improved visual consistency across chat, search, and disease database routes.
 
+### 14. Landing Page Spline Hero
+
+Reworked the landing page into a recruiter-facing split hero with a local Spline particle hand visual.
+
+Files:
+
+- `src/components/landing/LandingPage.tsx`
+- `public/hand2.splinecode`
+- `package.json`
+- `package-lock.json`
+
+Coverage:
+
+- Added `@splinetool/react-spline`.
+- Added a right-side transparent Spline hero visual.
+- Added the same animated medical-grid background language used in chat/search/database.
+- Replaced unsupported landing metrics with defensible project metrics:
+  - 9K+ indexed medical chunks
+  - 461 condition profiles
+  - 3 retrieval agents
+  - 100 evaluation prompts
+- Rewrote feature copy around source-grounded answers, hybrid retrieval, voice accessibility, and evaluation readiness.
+
+### 15. Landing Page Product Polish
+
+Refined the landing page so it reads less like a generic template and more like a cohesive TrustMed-AI product demo.
+
+Files:
+
+- `src/components/landing/LandingPage.tsx`
+- `src/app/layout.tsx`
+- `src/app/icon.png`
+
+Coverage:
+
+- Added a more attractive sticky header with brand subtitle and glass styling.
+- Replaced generic feature icons with project-specific image assets.
+- Reworked the “Why TrustMed-AI” section around concrete system proof:
+  - ChromaDB retrieval
+  - FAISS refinement
+  - cross-encoder reranking
+  - ElevenLabs voice
+- Rebuilt the final CTA with stronger project-specific copy and system capability chips.
+- Replaced the generic footer with product links, system signals, and a cleaner brand summary.
+- Added a custom app icon so the browser tab no longer uses the default Next.js icon.
+
 ## Resume Claims Currently Covered
 
 These claims now have code or report support in the repository:
@@ -336,6 +379,8 @@ These claims now have code or report support in the repository:
 - Integrated Three.js GLB avatars into the chatbot UI.
 - Added an interactive doctor model on the chat welcome screen.
 - Added procedural avatar animation for idle, thinking, speaking, and recording states.
+- Added a Spline particle-hand hero visual on the landing page.
+- Built a polished frontend experience with animated medical-grid backgrounds, source cards, word-by-word answer rendering, and voice controls.
 - Created a 100-prompt evaluation suite.
 - Added precision@K retrieval evaluation.
 - Added faithfulness and hallucination-risk evaluation.
@@ -358,8 +403,9 @@ These are partially supported, but should not be overstated:
   - Still needed: run the full 100-prompt suite and use the actual result.
 
 - "Privacy-preserving patient-data pipeline"
-  - Current support: no patient data is required for the current vector store.
-  - Better wording: "Designed the RAG index around public/curated medical content and avoided storing raw patient records."
+  - Current support: no raw patient records are required for the current vector store.
+  - Caveat: local chat history exists, so do not claim no query storage unless that behavior is changed.
+  - Better wording: "Designed the retrieval index around public/curated medical content and avoided storing raw patient records in the vector database."
 
 - "Docker + AWS deployment"
   - Current support: deployment was intentionally not worked on in this pass.

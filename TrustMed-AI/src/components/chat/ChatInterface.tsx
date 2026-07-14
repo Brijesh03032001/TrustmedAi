@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import ReactMarkdown from 'react-markdown';
 import {
   Box,
   Paper,
   TextField,
   IconButton,
   Typography,
-  Avatar,
   Chip,
   CircularProgress,
   Fade,
@@ -17,21 +17,24 @@ import {
 } from '@mui/material';
 import {
   Send as SendIcon,
-  SmartToy as AIIcon,
   Person as PersonIcon,
   ContentCopy as CopyIcon,
   Clear as ClearIcon,
-  WarningAmber as WarningIcon,
   CheckCircle as CheckIcon,
   AddComment as NewChatIcon,
   Mic as MicIcon,
   Stop as StopIcon,
   VolumeUp as VolumeIcon,
+  MedicalServices as MedicalIcon,
+  Verified as VerifiedIcon,
+  OpenInNew as OpenInNewIcon,
+  Bolt as BoltIcon,
+  AutoAwesome as DemoIcon,
 } from '@mui/icons-material';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { apiService } from '../../lib/api';
-import { MedicalLink, ReActStep, TrustMedQueryResponse } from '@/types';
-import { RobotAnimationMode, RobotAvatar3D } from './RobotAvatar3D';
+import { MedicalLink, TrustMedQueryResponse } from '@/types';
+import { DoctorAnimationMode, DoctorAvatar3D } from './DoctorAvatar3D';
 
 interface Message {
   id: string;
@@ -44,7 +47,6 @@ interface Message {
   intent?: string;
   responseTime?: number;
   sourcesCount?: number;
-  reactTrace?: ReActStep[];
 }
 
 interface ChatInterfaceProps {
@@ -59,6 +61,31 @@ const suggestionChips = [
   { emoji: '🫁', text: 'Asthma management' },
   { emoji: '🦴', text: 'Arthritis types' },
 ];
+
+const demoAssistantSources: MedicalLink[] = [
+  {
+    title: 'Heart disease symptoms and causes',
+    url: 'https://www.mayoclinic.org/diseases-conditions/heart-disease/symptoms-causes/syc-20353118',
+    source_type: 'diseases',
+    relevance_score: 0.91,
+  },
+  {
+    title: 'High blood pressure treatment',
+    url: 'https://www.mayoclinic.org/diseases-conditions/high-blood-pressure/diagnosis-treatment/drc-20373417',
+    source_type: 'medicine',
+    relevance_score: 0.86,
+  },
+];
+
+const demoAssistantAnswer = `Heart disease risk is influenced by several clinical and lifestyle factors:
+
+- Age increases risk, especially for men after 45 and women after 55.
+- Family history can make heart disease more likely.
+- High blood pressure, high cholesterol, diabetes, and obesity are major contributors.
+- Smoking, physical inactivity, poor diet, and chronic stress can worsen cardiovascular risk.
+- Managing blood pressure and cholesterol early can reduce long-term complications.
+
+The most useful next step is to track blood pressure, review family history, and discuss personalized screening with a clinician.`;
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : 'Unknown error';
@@ -94,16 +121,157 @@ function TypingDots() {
   );
 }
 
-function formatMarkdown(text: string): string {
-  return text
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/###\s(.*?)$/gm, '<h4 style="margin:14px 0 6px;color:#1d4ed8;font-size:1rem;font-weight:700">$1</h4>')
-    .replace(/##\s(.*?)$/gm, '<h3 style="margin:16px 0 8px;color:#1d4ed8;font-weight:700;font-size:1.05rem">$1</h3>')
-    .replace(/^-\s(.+)$/gm, '<li style="margin:4px 0;padding-left:4px;color:#334155">$1</li>')
-    .replace(/(<li.*<\/li>\n?)+/g, '<ul style="margin:10px 0;padding-left:22px">$&</ul>')
-    .replace(/\n\n/g, '<br/><br/>')
-    .replace(/\n/g, '<br/>');
+function ChatAmbientBackdrop() {
+  return (
+    <Box
+      aria-hidden
+      sx={{
+        position: 'absolute',
+        inset: 0,
+        overflow: 'hidden',
+        pointerEvents: 'none',
+        zIndex: 0,
+        bgcolor: '#f8fbff',
+        background:
+          'linear-gradient(135deg, rgba(239,246,255,0.92) 0%, rgba(255,255,255,0.72) 45%, rgba(236,254,255,0.62) 100%)',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          inset: '-40px',
+          backgroundImage:
+            'linear-gradient(rgba(37,99,235,0.085) 1px, transparent 1px), linear-gradient(90deg, rgba(37,99,235,0.085) 1px, transparent 1px)',
+          backgroundSize: '44px 44px',
+          maskImage: 'linear-gradient(to bottom, rgba(0,0,0,0.82), rgba(0,0,0,0.28), rgba(0,0,0,0.72))',
+          animation: 'trustmedGridDrift 30s linear infinite',
+        },
+        '&::after': {
+          content: '""',
+          position: 'absolute',
+          inset: 0,
+          background:
+            'linear-gradient(115deg, rgba(37,99,235,0.10), transparent 30%, rgba(6,182,212,0.12) 58%, transparent 82%)',
+          animation: 'trustmedLightSweep 12s ease-in-out infinite alternate',
+        },
+        '@keyframes trustmedGridDrift': {
+          '0%': { transform: 'translate3d(0, 0, 0)' },
+          '100%': { transform: 'translate3d(44px, 44px, 0)' },
+        },
+        '@keyframes trustmedLightSweep': {
+          '0%': { opacity: 0.35, transform: 'translateX(-4%)' },
+          '100%': { opacity: 0.85, transform: 'translateX(4%)' },
+        },
+      }}
+    />
+  );
+}
+
+function getSourcePalette(sourceType?: string) {
+  if (sourceType === 'medicine') {
+    return { color: '#d97706', bg: '#fffbeb', border: '#fde68a', label: 'Medicine' };
+  }
+  if (sourceType === 'diseases') {
+    return { color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0', label: 'Disease' };
+  }
+  if (sourceType === 'symptoms') {
+    return { color: '#dc2626', bg: '#fef2f2', border: '#fecaca', label: 'Symptom' };
+  }
+  return { color: '#2563eb', bg: '#eff6ff', border: '#bfdbfe', label: 'Clinical' };
+}
+
+function getGenerationDelay(token: string) {
+  if (/[.!?]\s*$/.test(token)) return 135;
+  if (/[,;:]\s*$/.test(token)) return 75;
+  if (/\n/.test(token)) return 90;
+  return 34;
+}
+
+function useGeneratedText(content: string, enabled: boolean) {
+  const [displayedContent, setDisplayedContent] = useState(enabled ? '' : content);
+  const [isComplete, setIsComplete] = useState(!enabled);
+
+  useEffect(() => {
+    if (!enabled || !content) {
+      setDisplayedContent(content);
+      setIsComplete(true);
+      return;
+    }
+
+    const tokens = content.match(/\S+\s*/g) || [];
+    let index = 0;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+    setDisplayedContent('');
+    setIsComplete(false);
+
+    const revealNextToken = () => {
+      index += 1;
+      setDisplayedContent(tokens.slice(0, index).join(''));
+
+      if (index >= tokens.length) {
+        setIsComplete(true);
+        return;
+      }
+
+      timeoutId = setTimeout(revealNextToken, getGenerationDelay(tokens[index - 1]));
+    };
+
+    timeoutId = setTimeout(revealNextToken, 160);
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [content, enabled]);
+
+  return { displayedContent, isComplete };
+}
+
+function AnimatedMarkdownResponse({ content, isGenerating }: { content: string; isGenerating: boolean }) {
+  return (
+    <>
+      <ReactMarkdown
+        components={{
+          p: ({ children }) => <p style={{ margin: '0 0 0.42rem 0' }}>{children}</p>,
+          ul: ({ children }) => <ul style={{ margin: '0.08rem 0 0.42rem 0', padding: 0 }}>{children}</ul>,
+          li: ({ children }) => <li style={{ margin: '0 0 0.16rem 0' }}>{children}</li>,
+          strong: ({ children }) => <strong>{children}</strong>,
+          em: ({ children }) => <em>{children}</em>,
+          h2: ({ children }) => (
+            <h2 style={{ margin: '0.7rem 0 0.3rem', fontSize: '1.05rem', fontWeight: 800, lineHeight: 1.28 }}>
+              {children}
+            </h2>
+          ),
+          h3: ({ children }) => (
+            <h3 style={{ margin: '0.65rem 0 0.28rem', fontSize: '1rem', fontWeight: 750, lineHeight: 1.28 }}>
+              {children}
+            </h3>
+          ),
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+      {isGenerating && (
+        <Box
+          component="span"
+          sx={{
+            display: 'inline-block',
+            width: 7,
+            height: 18,
+            ml: 0.25,
+            mb: -0.3,
+            borderRadius: '999px',
+            bgcolor: '#2563eb',
+            animation: 'generatedCursorBlink 0.9s ease-in-out infinite',
+            '@keyframes generatedCursorBlink': {
+              '0%,100%': { opacity: 0.15 },
+              '50%': { opacity: 1 },
+            },
+          }}
+        />
+      )}
+    </>
+  );
 }
 
 function MessageBubble({
@@ -117,6 +285,8 @@ function MessageBubble({
 }) {
   const isUser = message.type === 'user';
   const [copied, setCopied] = useState(false);
+  const shouldGenerateText = !isUser && !message.isTyping && Boolean(message.content);
+  const { displayedContent, isComplete: isGenerationComplete } = useGeneratedText(message.content, shouldGenerateText);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(message.content);
@@ -137,31 +307,67 @@ function MessageBubble({
         }}
       >
         {!isUser && (
-          <Avatar
+          <Box
             sx={{
-              width: 40,
-              height: 40,
+              width: 48,
+              height: 48,
               mt: 0.25,
               flexShrink: 0,
-              bgcolor: '#2563eb',
-              boxShadow: '0 2px 10px rgba(37,99,235,0.3)',
+              borderRadius: '18px',
+              background: 'linear-gradient(145deg, #2563eb 0%, #06b6d4 100%)',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 16px 32px rgba(37,99,235,0.24)',
+              border: '1px solid rgba(255,255,255,0.72)',
+              position: 'relative',
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                inset: -5,
+                borderRadius: '22px',
+                border: '1px solid rgba(37,99,235,0.18)',
+                animation: 'assistantIconPulse 2.4s ease-in-out infinite',
+              },
+              '@keyframes assistantIconPulse': {
+                '0%,100%': { opacity: 0.45, transform: 'scale(0.98)' },
+                '50%': { opacity: 0.95, transform: 'scale(1.08)' },
+              },
             }}
           >
-            <AIIcon sx={{ fontSize: 20 }} />
-          </Avatar>
+            <MedicalIcon sx={{ fontSize: 24 }} />
+          </Box>
         )}
 
-        <Box sx={{ maxWidth: '76%', minWidth: 0 }}>
+        <Box sx={{ maxWidth: { xs: '86%', md: isUser ? '72%' : '82%' }, minWidth: 0 }}>
           <Paper
             elevation={0}
             sx={{
-              p: isUser ? 2 : 2.5,
-              bgcolor: isUser ? '#2563eb' : '#ffffff',
-              borderRadius: isUser ? '20px 20px 6px 20px' : '20px 20px 20px 6px',
-              border: isUser ? 'none' : '1px solid #e2e8f0',
+              p: isUser ? 2 : { xs: 2.25, md: 3 },
+              bgcolor: isUser ? '#2563eb' : 'rgba(255,255,255,0.94)',
+              background: isUser
+                ? 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)'
+                : 'linear-gradient(145deg, rgba(255,255,255,0.98) 0%, rgba(248,250,252,0.92) 100%)',
+              borderRadius: isUser ? '20px 20px 6px 20px' : '24px 24px 24px 8px',
+              border: isUser ? 'none' : '1px solid rgba(191,219,254,0.9)',
+              backdropFilter: isUser ? 'none' : 'blur(16px)',
               boxShadow: isUser
                 ? '0 4px 16px rgba(37,99,235,0.28)'
-                : '0 2px 8px rgba(0,0,0,0.06)',
+                : '0 18px 48px rgba(37,99,235,0.12)',
+              position: 'relative',
+              overflow: 'hidden',
+              '&::before': !isUser
+                ? {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 3,
+                    background: 'linear-gradient(90deg, #2563eb, #06b6d4, #22c55e)',
+                  }
+                : undefined,
             }}
           >
             {message.isTyping ? (
@@ -172,108 +378,158 @@ function MessageBubble({
                   component="div"
                   sx={{
                     color: isUser ? '#ffffff' : '#1e293b',
-                    lineHeight: 1.7,
-                    fontSize: '1rem',
+                    lineHeight: 1.58,
+                    fontSize: isUser ? '1rem' : '1.02rem',
                     wordBreak: 'break-word',
+                    letterSpacing: 0,
                     '& strong': { fontWeight: 700 },
-                    '& h3, & h4': { fontWeight: 700 },
-                    '& ul': { listStyle: 'disc' },
+                    '& p:last-child': { mb: 0 },
+                    '& ul:last-child': { mb: 0 },
+                    '& ul': {
+                      listStyle: 'none',
+                    },
+                    '& li': {
+                      position: 'relative',
+                      pl: '1.35rem',
+                    },
+                    '& li:last-child': {
+                      mb: 0,
+                    },
+                    '& li::before': {
+                      content: '""',
+                      position: 'absolute',
+                      left: 2,
+                      top: '0.68em',
+                      width: 7,
+                      height: 7,
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #2563eb, #06b6d4)',
+                      boxShadow: '0 0 0 3px rgba(37,99,235,0.10)',
+                    },
                   }}
-                  dangerouslySetInnerHTML={{ __html: formatMarkdown(message.content) }}
-                />
+                >
+                  {isUser ? message.content : (
+                    <AnimatedMarkdownResponse
+                      content={displayedContent}
+                      isGenerating={shouldGenerateText && !isGenerationComplete}
+                    />
+                  )}
+                </Typography>
 
                 {/* Sources */}
-                {message.sources && message.sources.length > 0 && (
-                  <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid #f1f5f9' }}>
-                    <Typography
-                      sx={{
-                        color: '#94a3b8',
-                        fontSize: '0.75rem',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.06em',
-                        mb: 1,
-                        display: 'block',
-                      }}
-                    >
-                      Sources
-                    </Typography>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
-                      {message.sources.map((link, idx) => (
-                        <Link
-                          key={idx}
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          sx={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: 0.75,
-                            px: 1.25,
-                            py: 0.5,
-                            borderRadius: '20px',
-                            textDecoration: 'none',
-                            fontSize: '0.875rem',
-                            fontWeight: 600,
-                            bgcolor: '#f8fafc',
-                            border: '1px solid #e2e8f0',
-                            color: '#475569',
-                            transition: 'all 0.15s',
-                            '&:hover': { bgcolor: '#eff6ff', borderColor: '#bfdbfe', color: '#2563eb' },
-                          }}
-                        >
-                          <Box
+                {isGenerationComplete && message.sources && message.sources.length > 0 && (
+                  <Box sx={{ mt: 2.75, pt: 2.25, borderTop: '1px solid rgba(226,232,240,0.9)' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.25 }}>
+                      <Box
+                        sx={{
+                          width: 28,
+                          height: 28,
+                          borderRadius: '10px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: 'linear-gradient(135deg, #eff6ff, #ecfeff)',
+                          border: '1px solid #bfdbfe',
+                        }}
+                      >
+                        <VerifiedIcon sx={{ fontSize: 16, color: '#2563eb' }} />
+                      </Box>
+                      <Box>
+                        <Typography sx={{ color: '#0f172a', fontSize: '0.84rem', fontWeight: 850, letterSpacing: 0 }}>
+                          Verified Sources
+                        </Typography>
+                        <Typography sx={{ color: '#94a3b8', fontSize: '0.74rem', lineHeight: 1.2 }}>
+                          Retrieval-backed references used for this answer
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', xl: 'repeat(2, minmax(0, 1fr))' }, gap: 1 }}>
+                      {message.sources.map((link, idx) => {
+                        const palette = getSourcePalette(link.source_type);
+                        const title = link.title || link.source_type || 'Medical Resource';
+
+                        return (
+                          <Link
+                            key={idx}
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             sx={{
-                              width: 8,
-                              height: 8,
-                              borderRadius: '50%',
-                              bgcolor:
-                                link.source_type === 'medicine' ? '#d97706'
-                                : link.source_type === 'diseases' ? '#16a34a'
-                                : link.source_type === 'symptoms' ? '#dc2626'
-                                : '#2563eb',
-                              flexShrink: 0,
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 1.25,
+                              minWidth: 0,
+                              p: 1.25,
+                              borderRadius: '16px',
+                              textDecoration: 'none',
+                              bgcolor: 'rgba(248,250,252,0.82)',
+                              border: '1px solid #e2e8f0',
+                              color: '#334155',
+                              transition: 'all 0.2s ease',
+                              '&:hover': {
+                                bgcolor: palette.bg,
+                                borderColor: palette.border,
+                                transform: 'translateY(-2px)',
+                                boxShadow: `0 14px 28px ${palette.color}1f`,
+                              },
                             }}
-                          />
-                          [{idx + 1}] {link.title?.slice(0, 30) || link.source_type}
-                        </Link>
-                      ))}
+                          >
+                            <Box
+                              sx={{
+                                width: 36,
+                                height: 36,
+                                borderRadius: '50%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexShrink: 0,
+                                color: palette.color,
+                                bgcolor: palette.bg,
+                                border: `1px solid ${palette.border}`,
+                                fontWeight: 850,
+                                fontSize: '0.82rem',
+                              }}
+                            >
+                              {idx + 1}
+                            </Box>
+                            <Box sx={{ minWidth: 0, flex: 1 }}>
+                              <Typography
+                                sx={{
+                                  color: '#1e293b',
+                                  fontSize: '0.9rem',
+                                  fontWeight: 750,
+                                  lineHeight: 1.25,
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                }}
+                              >
+                                {title}
+                              </Typography>
+                              <Typography sx={{ color: palette.color, fontSize: '0.72rem', fontWeight: 750, mt: 0.25 }}>
+                                {palette.label} reference
+                              </Typography>
+                            </Box>
+                            <OpenInNewIcon sx={{ fontSize: 16, color: '#94a3b8', flexShrink: 0 }} />
+                          </Link>
+                        );
+                      })}
                     </Box>
                   </Box>
                 )}
 
                 {/* Metadata chips */}
-                {!isUser && (
+                {!isUser && isGenerationComplete && (
                   <Box sx={{ mt: 1.75, display: 'flex', flexWrap: 'wrap', gap: 0.75, alignItems: 'center' }}>
-                    {message.reactTrace && message.reactTrace.length > 0 && (
-                      <Tooltip
-                        title={message.reactTrace.map((step) => `${step.thought} ${step.observation}`).join(' ')}
-                        placement="top"
-                      >
-                        <Chip
-                          label={`ReAct ${message.reactTrace.map((step) => step.action).join(' -> ')}`}
-                          size="small"
-                          sx={{
-                            height: 28,
-                            maxWidth: 280,
-                            fontSize: '0.8125rem',
-                            fontWeight: 600,
-                            bgcolor: '#ecfeff',
-                            color: '#0e7490',
-                            border: '1px solid #a5f3fc',
-                            '& .MuiChip-label': { px: 1, overflow: 'hidden', textOverflow: 'ellipsis' },
-                          }}
-                        />
-                      </Tooltip>
-                    )}
                     {message.confidence !== undefined && (
                       <Chip
+                        icon={<BoltIcon sx={{ fontSize: '15px !important', color: 'inherit !important' }} />}
                         label={`${(message.confidence * 100).toFixed(0)}% confidence`}
                         size="small"
                         sx={{
-                          height: 28,
+                          height: 30,
                           fontSize: '0.8125rem',
-                          fontWeight: 600,
+                          fontWeight: 750,
                           bgcolor: message.confidence > 0.7 ? '#f0fdf4' : message.confidence > 0.4 ? '#fffbeb' : '#fef2f2',
                           color: message.confidence > 0.7 ? '#16a34a' : message.confidence > 0.4 ? '#d97706' : '#dc2626',
                           border: `1px solid ${message.confidence > 0.7 ? '#bbf7d0' : message.confidence > 0.4 ? '#fde68a' : '#fecaca'}`,
@@ -381,7 +637,7 @@ function MessageBubble({
         </Box>
 
         {isUser && (
-          <Avatar
+          <Box
             sx={{
               width: 40,
               height: 40,
@@ -389,10 +645,14 @@ function MessageBubble({
               flexShrink: 0,
               bgcolor: '#475569',
               color: '#ffffff',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
             <PersonIcon sx={{ fontSize: 20 }} />
-          </Avatar>
+          </Box>
         )}
       </Box>
     </Fade>
@@ -451,7 +711,6 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
                 intent: response.query_intent,
                 responseTime: response.response_time_ms,
                 sourcesCount: response.sources_count,
-                reactTrace: response.react_trace,
                 isTyping: false,
               }
             : msg
@@ -512,6 +771,30 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
 
   const handleNewChat = () => {
     setMessages([]);
+    setInputValue('');
+    inputRef.current?.focus();
+  };
+
+  const handleDemoResponse = () => {
+    setMessages([
+      {
+        id: `demo-user-${Date.now()}`,
+        type: 'user',
+        content: 'What are the key risks for heart disease?',
+        timestamp: new Date(),
+      },
+      {
+        id: `demo-ai-${Date.now()}`,
+        type: 'assistant',
+        content: demoAssistantAnswer,
+        timestamp: new Date(),
+        sources: demoAssistantSources,
+        confidence: 0.88,
+        intent: 'clinical_background',
+        responseTime: 2400,
+        sourcesCount: demoAssistantSources.length,
+      },
+    ]);
     setInputValue('');
     inputRef.current?.focus();
   };
@@ -618,7 +901,7 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
   }, [showAssistantNotice]);
 
   const isOnline = !healthError && healthStatus?.status === 'healthy';
-  const robotMode: RobotAnimationMode = speakingMessageId
+  const doctorMode: DoctorAnimationMode = speakingMessageId
     ? 'speaking'
     : isRecording || isTranscribing
       ? 'recording'
@@ -628,17 +911,22 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
 
   return (
     <Box
+      className="relative h-full overflow-hidden rounded-[24px]"
       sx={{
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        bgcolor: '#ffffff',
-        borderRadius: '20px',
-        border: '1px solid #e2e8f0',
+        position: 'relative',
+        bgcolor: 'rgba(255,255,255,0.72)',
+        borderRadius: '24px',
+        border: '1px solid rgba(191,219,254,0.92)',
         overflow: 'hidden',
-        boxShadow: '0 4px 24px rgba(0,0,0,0.07)',
+        boxShadow: '0 24px 70px rgba(15,23,42,0.10)',
+        backdropFilter: 'blur(18px)',
       }}
     >
+      <ChatAmbientBackdrop />
+
       {/* Header */}
       <Box
         sx={{
@@ -647,14 +935,28 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
           display: 'flex',
           alignItems: 'center',
           gap: 2,
-          borderBottom: '1px solid #f1f5f9',
-          bgcolor: '#ffffff',
+          borderBottom: '1px solid rgba(219,234,254,0.85)',
+          bgcolor: 'rgba(255,255,255,0.86)',
+          backdropFilter: 'blur(18px)',
           flexShrink: 0,
           minHeight: 72,
+          position: 'relative',
+          zIndex: 1,
         }}
       >
         <Box sx={{ position: 'relative' }}>
-          <RobotAvatar3D size={48} compact mode={robotMode} />
+          <Box
+            component="img"
+            src="/ChatBotIcon.png"
+            alt="TrustMed-AI"
+            sx={{
+              width: 48,
+              height: 48,
+              borderRadius: '50%',
+              border: '2px solid #dbeafe',
+              boxShadow: '0 2px 10px rgba(37,99,235,0.18)',
+            }}
+          />
           <Box
             sx={{
               position: 'absolute',
@@ -670,11 +972,11 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
         </Box>
 
         <Box sx={{ flex: 1 }}>
-          <Typography sx={{ fontWeight: 700, color: '#0f172a', lineHeight: 1.2, fontSize: '1.1rem' }}>
+          <Typography sx={{ fontWeight: 800, color: '#0f172a', lineHeight: 1.2, fontSize: '1.18rem', letterSpacing: 0 }}>
             TrustMed-AI Assistant
           </Typography>
           <Typography sx={{ color: '#94a3b8', fontSize: '0.875rem', mt: 0.25 }}>
-            {isOnline ? 'RAG-powered medical AI · Online' : 'Offline · Check backend connection'}
+            {isOnline ? 'Clinical RAG assistant · Voice enabled · Online' : 'Offline · Check backend connection'}
           </Typography>
         </Box>
 
@@ -687,8 +989,9 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
             px: 1.5,
             py: 0.625,
             borderRadius: '20px',
-            bgcolor: '#fef2f2',
+            bgcolor: 'rgba(254,242,242,0.88)',
             border: '1px solid #fecaca',
+            boxShadow: '0 8px 24px rgba(220,38,38,0.08)',
           }}
         >
           <Box
@@ -702,6 +1005,33 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
           </Typography>
         </Box>
 
+        <Tooltip title="Preview answer styling">
+          <Button
+            size="small"
+            startIcon={<DemoIcon sx={{ fontSize: 16 }} />}
+            onClick={handleDemoResponse}
+            sx={{
+              display: { xs: 'none', lg: 'inline-flex' },
+              borderRadius: '10px',
+              fontSize: '0.875rem',
+              fontWeight: 700,
+              color: '#0e7490',
+              border: '1px solid #a5f3fc',
+              px: 1.5,
+              py: 0.75,
+              textTransform: 'none',
+              bgcolor: 'rgba(236,254,255,0.78)',
+              '&:hover': {
+                bgcolor: '#ecfeff',
+                borderColor: '#67e8f9',
+                boxShadow: '0 10px 22px rgba(6,182,212,0.12)',
+              },
+            }}
+          >
+            Demo Response
+          </Button>
+        </Tooltip>
+
         {/* New Chat button */}
         <Tooltip title="New conversation">
           <Button
@@ -713,11 +1043,12 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
               fontSize: '0.875rem',
               fontWeight: 600,
               color: '#475569',
-              border: '1px solid #e2e8f0',
+              border: '1px solid #cbd5e1',
               px: 1.5,
               py: 0.75,
               textTransform: 'none',
-              '&:hover': { bgcolor: '#f8fafc', borderColor: '#cbd5e1' },
+              bgcolor: 'rgba(255,255,255,0.76)',
+              '&:hover': { bgcolor: '#eff6ff', borderColor: '#93c5fd', color: '#2563eb' },
             }}
           >
             New Chat
@@ -738,56 +1069,93 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
       </Box>
 
       {/* Messages area */}
-      <Box sx={{ flex: 1, overflowY: 'auto', py: 3, minHeight: 0, bgcolor: '#f8fafc' }}>
+      <Box
+        className="relative"
+        sx={{
+          flex: 1,
+          overflowY: 'auto',
+          py: 3,
+          minHeight: 0,
+          bgcolor: 'transparent',
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
         {messages.length === 0 ? (
           <Box
             sx={{
               height: '100%',
               display: 'flex',
-              flexDirection: 'column',
+              flexDirection: { xs: 'column', lg: 'row' },
               alignItems: 'center',
               justifyContent: 'center',
-              px: 3,
+              px: { xs: 3, md: 5, lg: 7 },
               py: 4,
-              textAlign: 'center',
+              textAlign: { xs: 'center', lg: 'left' },
+              position: 'relative',
+              gap: { xs: 3, lg: 6 },
             }}
           >
             <Box
               sx={{
-                mb: 3,
-                animation: 'float 3s ease-in-out infinite',
-                '@keyframes float': {
-                  '0%,100%': { transform: 'translateY(0)' },
-                  '50%': { transform: 'translateY(-10px)' },
-                },
+                width: { xs: '100%', lg: '52%' },
+                maxWidth: 620,
+                order: { xs: 2, lg: 1 },
               }}
             >
-              <RobotAvatar3D size={112} mode={robotMode} />
-            </Box>
+              <Chip
+                label={isOnline ? 'Doctor mode online' : 'Doctor mode offline'}
+                size="small"
+                sx={{
+                  mb: 1.5,
+                  bgcolor: isOnline ? 'rgba(240,253,244,0.92)' : 'rgba(254,242,242,0.92)',
+                  color: isOnline ? '#15803d' : '#b91c1c',
+                  border: `1px solid ${isOnline ? '#bbf7d0' : '#fecaca'}`,
+                  fontWeight: 800,
+                }}
+              />
 
-            <Typography variant="h4" sx={{ color: '#0f172a', fontWeight: 700, mb: 1.25, fontSize: '1.5rem' }}>
-              How can I help you today?
-            </Typography>
+              <Typography
+                variant="h4"
+                sx={{
+                  color: '#0f172a',
+                  fontWeight: 850,
+                  mb: 1.25,
+                  fontSize: { xs: '1.8rem', md: '2.25rem' },
+                  letterSpacing: 0,
+                  maxWidth: 560,
+                  mx: { xs: 'auto', lg: 0 },
+                }}
+              >
+                Talk to your AI medical guide
+              </Typography>
 
-            <Typography
-              variant="body1"
-              sx={{ color: '#64748b', mb: 4, maxWidth: 420, lineHeight: 1.7, fontSize: '1rem' }}
-            >
-              Ask me about symptoms, conditions, or treatments. I&apos;ll provide AI-powered answers
-              with verified sources from Mayo Clinic.
-            </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: '#64748b',
+                  mb: 4,
+                  maxWidth: 540,
+                  mx: { xs: 'auto', lg: 0 },
+                  lineHeight: 1.75,
+                  fontSize: '1.02rem',
+                }}
+              >
+                Ask symptoms, conditions, medicines, or follow-up questions. I&apos;ll answer with retrieval-backed
+                sources, voice support, and a clear next-step summary.
+              </Typography>
 
-            {/* 2-column suggestion grid */}
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
-                gap: 1.25,
-                width: '100%',
-                maxWidth: 560,
-              }}
-            >
-              {suggestionChips.map((chip) => (
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
+                  gap: 1.25,
+                  width: '100%',
+                  maxWidth: 560,
+                  mx: { xs: 'auto', lg: 0 },
+                }}
+              >
+                {suggestionChips.map((chip) => (
                 <Box
                   key={chip.text}
                   onClick={() => sendMessage(chip.text)}
@@ -797,17 +1165,19 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
                     gap: 1.25,
                     px: 2.5,
                     py: 1.5,
-                    borderRadius: '14px',
-                    bgcolor: '#ffffff',
-                    border: '1.5px solid #e2e8f0',
+                    borderRadius: '16px',
+                    bgcolor: 'rgba(255,255,255,0.78)',
+                    border: '1.5px solid rgba(191,219,254,0.82)',
+                    backdropFilter: 'blur(14px)',
                     cursor: 'pointer',
                     transition: 'all 0.18s ease',
                     textAlign: 'left',
+                    boxShadow: '0 10px 24px rgba(37,99,235,0.06)',
                     '&:hover': {
-                      bgcolor: '#eff6ff',
-                      borderColor: '#bfdbfe',
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 4px 12px rgba(37,99,235,0.12)',
+                      bgcolor: 'rgba(239,246,255,0.95)',
+                      borderColor: '#93c5fd',
+                      transform: 'translateY(-3px)',
+                      boxShadow: '0 16px 36px rgba(37,99,235,0.14)',
                     },
                   }}
                 >
@@ -818,7 +1188,38 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
                     {chip.text}
                   </Typography>
                 </Box>
-              ))}
+                ))}
+              </Box>
+            </Box>
+
+            <Box
+              sx={{
+                width: { xs: '100%', lg: '48%' },
+                minHeight: { xs: 320, md: 440, lg: 650 },
+                order: { xs: 1, lg: 2 },
+                position: 'relative',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                pointerEvents: 'auto',
+                '&::before': {
+                  content: '""',
+                  position: 'absolute',
+                  width: { xs: 280, md: 430, lg: 560 },
+                  height: { xs: 280, md: 430, lg: 560 },
+                  borderRadius: '50%',
+                  background: 'radial-gradient(circle, rgba(191,219,254,0.72), rgba(219,234,254,0.18) 58%, transparent 70%)',
+                  filter: 'blur(2px)',
+                  animation: 'doctorHeroAura 4.8s ease-in-out infinite',
+                  pointerEvents: 'none',
+                },
+                '@keyframes doctorHeroAura': {
+                  '0%,100%': { transform: 'scale(0.96)', opacity: 0.7 },
+                  '50%': { transform: 'scale(1.06)', opacity: 1 },
+                },
+              }}
+            >
+              <DoctorAvatar3D size="min(52vw, 720px)" mode="idle" framed={false} interactive />
             </Box>
           </Box>
         ) : (
@@ -836,27 +1237,53 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
         )}
       </Box>
 
-      {/* Disclaimer bar */}
+      {/* Input area */}
       <Box
         sx={{
-          px: 3,
-          py: 1,
-          bgcolor: '#fffbeb',
-          borderTop: '1px solid #fde68a',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1,
+          px: 2.5,
+          pt: messages.length > 0 ? 4.25 : 2,
+          pb: 2,
+          borderTop: '1px solid rgba(219,234,254,0.9)',
+          bgcolor: 'rgba(255,255,255,0.9)',
           flexShrink: 0,
+          position: 'relative',
+          zIndex: 1,
+          backdropFilter: 'blur(18px)',
         }}
       >
-        <WarningIcon sx={{ fontSize: 14, color: '#d97706', flexShrink: 0 }} />
-        <Typography sx={{ color: '#92400e', fontSize: '0.8125rem', lineHeight: 1.4 }}>
-          For informational purposes only. Not a substitute for professional medical advice. In emergencies, call 911.
-        </Typography>
-      </Box>
-
-      {/* Input area */}
-      <Box sx={{ px: 2.5, py: 2, borderTop: '1px solid #f1f5f9', bgcolor: '#ffffff', flexShrink: 0 }}>
+        {messages.length > 0 && (
+          <Box
+            sx={{
+              position: 'absolute',
+              left: { xs: 18, sm: 28 },
+              top: -36,
+              width: 86,
+              height: 86,
+              zIndex: 3,
+              pointerEvents: 'none',
+              filter: 'drop-shadow(0 16px 24px rgba(37,99,235,0.18))',
+              animation: 'smallDoctorStand 2.8s ease-in-out infinite',
+              '@keyframes smallDoctorStand': {
+                '0%,100%': { transform: 'translateY(0) rotate(-1deg)' },
+                '50%': { transform: 'translateY(-8px) rotate(1deg)' },
+              },
+              '&::after': {
+                content: '""',
+                position: 'absolute',
+                left: 15,
+                right: 15,
+                bottom: 7,
+                height: 8,
+                borderRadius: '50%',
+                bgcolor: 'rgba(37,99,235,0.14)',
+                filter: 'blur(5px)',
+                zIndex: -1,
+              },
+            }}
+          >
+            <DoctorAvatar3D size={86} compact mode={doctorMode} framed={false} />
+          </Box>
+        )}
         <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'flex-end' }}>
           <Box
             sx={{
@@ -865,17 +1292,6 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
               minWidth: 0,
             }}
           >
-            <Box
-              sx={{
-                position: 'absolute',
-                left: 10,
-                bottom: 8,
-                zIndex: 2,
-                pointerEvents: 'none',
-              }}
-            >
-              <RobotAvatar3D size={38} compact mode={robotMode} />
-            </Box>
             <TextField
               inputRef={inputRef}
               fullWidth
@@ -888,15 +1304,19 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
               variant="outlined"
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  borderRadius: '16px',
-                  bgcolor: '#f8fafc',
+                  borderRadius: '18px',
+                  bgcolor: 'rgba(248,250,252,0.96)',
                   fontSize: '1rem',
                   py: 0.5,
-                  pl: '56px',
+                  pl: 1,
                   minHeight: 48,
                   alignItems: 'center',
                   '& fieldset': { borderColor: '#e2e8f0' },
                   '&:hover fieldset': { borderColor: '#94a3b8' },
+                  '&.Mui-focused': {
+                    bgcolor: '#ffffff',
+                    boxShadow: '0 0 0 5px rgba(37,99,235,0.08)',
+                  },
                   '&.Mui-focused fieldset': { borderColor: '#2563eb', borderWidth: '2px' },
                 },
                 '& .MuiInputBase-input': {
@@ -922,8 +1342,9 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
                 bgcolor: isRecording ? '#dc2626' : '#f8fafc',
                 color: isRecording ? '#ffffff' : '#475569',
                 border: '1px solid #e2e8f0',
-                borderRadius: '14px',
+                borderRadius: '16px',
                 transition: 'all 0.15s ease',
+                boxShadow: isRecording ? '0 12px 26px rgba(220,38,38,0.22)' : '0 8px 18px rgba(15,23,42,0.05)',
                 '&:hover': {
                   bgcolor: isRecording ? '#b91c1c' : '#eff6ff',
                   color: isRecording ? '#ffffff' : '#2563eb',
@@ -950,8 +1371,9 @@ export function ChatInterface({ initialMessage }: ChatInterfaceProps) {
               flexShrink: 0,
               bgcolor: inputValue.trim() && !chatMutation.isPending ? '#2563eb' : '#f1f5f9',
               color: inputValue.trim() && !chatMutation.isPending ? '#ffffff' : '#cbd5e1',
-              borderRadius: '14px',
+              borderRadius: '16px',
               transition: 'all 0.15s ease',
+              boxShadow: inputValue.trim() && !chatMutation.isPending ? '0 14px 28px rgba(37,99,235,0.24)' : 'none',
               '&:hover': {
                 bgcolor: inputValue.trim() ? '#1d4ed8' : '#f1f5f9',
                 transform: inputValue.trim() ? 'scale(1.05)' : 'none',

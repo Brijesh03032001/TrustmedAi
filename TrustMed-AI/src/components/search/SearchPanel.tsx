@@ -24,20 +24,31 @@ import {
   Close as CloseIcon,
   TrendingUp as TrendingIcon,
   WarningAmber as WarningIcon,
+  MonitorHeart as HeartIcon,
+  Medication as MedicationIcon,
+  Psychology as BrainIcon,
+  PsychologyAlt as PsychologyIcon,
+  Vaccines as VaccinesIcon,
+  Biotech as BiotechIcon,
+  HealthAndSafety as ShieldIcon,
+  Coronavirus as VirusIcon,
+  Healing as HealingIcon,
+  AutoAwesome as SparkleIcon,
+  LocalPharmacy as PharmacyIcon,
 } from '@mui/icons-material';
 import { apiService } from '../../lib/api';
 
 const RESULTS_PER_PAGE = 9;
 
 const quickSearchTerms = [
-  { term: 'Diabetes', icon: '🩸' },
-  { term: 'Hypertension', icon: '❤️' },
-  { term: 'Asthma', icon: '🫁' },
-  { term: 'Migraine', icon: '🧠' },
-  { term: 'Arthritis', icon: '🦴' },
-  { term: 'Depression', icon: '💭' },
-  { term: 'Cancer', icon: '🎗️' },
-  { term: 'Anxiety', icon: '🌀' },
+  { term: 'Diabetes', Icon: BiotechIcon, color: '#2563eb' },
+  { term: 'Hypertension', Icon: HeartIcon, color: '#dc2626' },
+  { term: 'Asthma', Icon: HealingIcon, color: '#0891b2' },
+  { term: 'Migraine', Icon: BrainIcon, color: '#d97706' },
+  { term: 'Arthritis', Icon: ShieldIcon, color: '#be123c' },
+  { term: 'Depression', Icon: PsychologyIcon, color: '#16a34a' },
+  { term: 'Cancer', Icon: VaccinesIcon, color: '#7c3aed' },
+  { term: 'Anxiety', Icon: SparkleIcon, color: '#0e7490' },
 ];
 
 const categoryColors: Record<string, { text: string; bg: string; border: string }> = {
@@ -60,6 +71,69 @@ function getCategoryStyle(category: string) {
   return categoryColors[category] || categoryColors.general;
 }
 
+function getCategoryIcon(category: string) {
+  const icons: Record<string, typeof HospitalIcon> = {
+    cardiovascular: HeartIcon,
+    endocrine: BiotechIcon,
+    oncology: VaccinesIcon,
+    respiratory: HealingIcon,
+    neurological: BrainIcon,
+    mental_health: PsychologyIcon,
+    infectious: VirusIcon,
+    gynecological: ShieldIcon,
+    urological: BiotechIcon,
+    dermatological: HealingIcon,
+    musculoskeletal: ShieldIcon,
+    ophthalmological: SparkleIcon,
+    general: HospitalIcon,
+  };
+  return icons[category] || HospitalIcon;
+}
+
+function SearchAmbientBackdrop() {
+  return (
+    <Box
+      aria-hidden
+      sx={{
+        position: 'absolute',
+        inset: 0,
+        overflow: 'hidden',
+        pointerEvents: 'none',
+        zIndex: 0,
+        bgcolor: '#f8fbff',
+        background:
+          'linear-gradient(135deg, rgba(239,246,255,0.96) 0%, rgba(255,255,255,0.72) 48%, rgba(236,254,255,0.68) 100%)',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          inset: '-48px',
+          backgroundImage:
+            'linear-gradient(rgba(37,99,235,0.095) 1px, transparent 1px), linear-gradient(90deg, rgba(37,99,235,0.095) 1px, transparent 1px)',
+          backgroundSize: '42px 42px',
+          animation: 'searchGridDrift 32s linear infinite',
+          maskImage: 'radial-gradient(circle at 50% 20%, black 0%, rgba(0,0,0,0.72) 36%, rgba(0,0,0,0.28) 76%)',
+        },
+        '&::after': {
+          content: '""',
+          position: 'absolute',
+          inset: 0,
+          background:
+            'linear-gradient(115deg, rgba(37,99,235,0.12), transparent 30%, rgba(6,182,212,0.15) 58%, transparent 82%)',
+          animation: 'searchLightSweep 13s ease-in-out infinite alternate',
+        },
+        '@keyframes searchGridDrift': {
+          '0%': { transform: 'translate3d(0, 0, 0)' },
+          '100%': { transform: 'translate3d(42px, 42px, 0)' },
+        },
+        '@keyframes searchLightSweep': {
+          '0%': { opacity: 0.35, transform: 'translateX(-4%)' },
+          '100%': { opacity: 0.85, transform: 'translateX(4%)' },
+        },
+      }}
+    />
+  );
+}
+
 function DiseaseCard({
   disease,
   index,
@@ -72,6 +146,7 @@ function DiseaseCard({
   onChat: (name: string) => void;
 }) {
   const style = getCategoryStyle(disease.category);
+  const CategoryIcon = getCategoryIcon(disease.category);
 
   return (
     <Card
@@ -79,30 +154,60 @@ function DiseaseCard({
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        bgcolor: '#ffffff',
-        border: '1px solid #e2e8f0',
-        borderRadius: '14px',
-        transition: 'all 0.2s ease',
+        bgcolor: 'rgba(255,255,255,0.86)',
+        border: '1px solid rgba(226,232,240,0.92)',
+        borderRadius: '18px',
+        transition: 'all 0.22s ease',
         cursor: 'pointer',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+        boxShadow: '0 10px 26px rgba(15,23,42,0.05)',
+        backdropFilter: 'blur(14px)',
+        position: 'relative',
+        overflow: 'hidden',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          inset: 0,
+          background: `linear-gradient(135deg, ${style.bg}, transparent 42%)`,
+          opacity: 0,
+          transition: 'opacity 0.22s ease',
+        },
         '&:hover': {
           borderColor: style.border,
-          transform: 'translateY(-3px)',
-          boxShadow: `0 8px 24px rgba(0,0,0,0.08)`,
+          transform: 'translateY(-5px) scale(1.01)',
+          boxShadow: `0 20px 46px ${style.text}1f`,
+        },
+        '&:hover::before': {
+          opacity: 0.85,
         },
       }}
       onClick={() => onView(disease.id || index)}
     >
-      <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: 2.25 }}>
+      <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', p: 2.25, position: 'relative', zIndex: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mb: 1.25 }}>
-          <HospitalIcon sx={{ fontSize: 15, color: style.text, mt: 0.3, flexShrink: 0 }} />
+          <Box
+            sx={{
+              width: 34,
+              height: 34,
+              borderRadius: '50%',
+              bgcolor: style.bg,
+              border: `1px solid ${style.border}`,
+              color: style.text,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              boxShadow: `0 8px 18px ${style.text}20`,
+            }}
+          >
+            <CategoryIcon sx={{ fontSize: 18 }} />
+          </Box>
           <Typography
             variant="subtitle2"
             sx={{
               color: '#0f172a',
-              fontWeight: 700,
+              fontWeight: 800,
               lineHeight: 1.3,
-              fontSize: '0.88rem',
+              fontSize: '0.94rem',
               display: '-webkit-box',
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
@@ -125,6 +230,7 @@ function DiseaseCard({
             bgcolor: style.bg,
             border: `1px solid ${style.border}`,
             color: style.text,
+            borderRadius: '999px',
             '& .MuiChip-label': { px: 0.75 },
           }}
         />
@@ -153,13 +259,13 @@ function DiseaseCard({
             onClick={(e) => { e.stopPropagation(); onView(disease.id || index); }}
             sx={{
               flex: 1,
-              borderRadius: '8px',
+              borderRadius: '999px',
               border: '1px solid #e2e8f0',
               color: '#475569',
               fontSize: '0.7rem',
               fontWeight: 600,
               py: 0.6,
-              '&:hover': { bgcolor: '#f8fafc', borderColor: '#94a3b8' },
+              '&:hover': { bgcolor: '#f8fafc', borderColor: style.border, color: style.text },
             }}
           >
             Details
@@ -171,13 +277,13 @@ function DiseaseCard({
             onClick={(e) => { e.stopPropagation(); onChat(disease.name); }}
             sx={{
               flex: 1,
-              borderRadius: '8px',
-              bgcolor: '#2563eb',
+              borderRadius: '999px',
+              bgcolor: style.text,
               fontSize: '0.7rem',
               fontWeight: 700,
               py: 0.6,
               boxShadow: 'none',
-              '&:hover': { bgcolor: '#1d4ed8', boxShadow: '0 2px 8px rgba(37,99,235,0.3)' },
+              '&:hover': { bgcolor: style.text, filter: 'brightness(0.92)', boxShadow: `0 8px 18px ${style.text}35` },
             }}
           >
             Ask AI
@@ -252,17 +358,22 @@ export function SearchPanel() {
 
   return (
     <Box
+      className="relative h-full overflow-hidden rounded-[24px]"
       sx={{
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        bgcolor: '#ffffff',
-        borderRadius: '16px',
-        border: '1px solid #e2e8f0',
+        position: 'relative',
+        bgcolor: 'rgba(255,255,255,0.74)',
+        borderRadius: '24px',
+        border: '1px solid rgba(191,219,254,0.92)',
         overflow: 'hidden',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+        boxShadow: '0 24px 70px rgba(15,23,42,0.10)',
+        backdropFilter: 'blur(18px)',
       }}
     >
+      <SearchAmbientBackdrop />
+
       {/* Header */}
       <Box
         sx={{
@@ -270,68 +381,104 @@ export function SearchPanel() {
           px: 3,
           pt: 3,
           pb: 2.5,
-          borderBottom: '1px solid #f1f5f9',
-          bgcolor: '#ffffff',
+          borderBottom: '1px solid rgba(219,234,254,0.9)',
+          bgcolor: 'rgba(255,255,255,0.86)',
+          backdropFilter: 'blur(18px)',
+          position: 'relative',
+          zIndex: 1,
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2.5 }}>
           <Box
-            component="img"
-            src="/searchicon.png"
-            alt="Search"
-            sx={{ width: 34, height: 34, borderRadius: '10px', border: '1px solid #e2e8f0' }}
-          />
+            sx={{
+              width: 46,
+              height: 46,
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #2563eb, #06b6d4)',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 12px 30px rgba(37,99,235,0.25)',
+              animation: 'searchIconPulse 2.8s ease-in-out infinite',
+              '@keyframes searchIconPulse': {
+                '0%,100%': { transform: 'scale(1)', boxShadow: '0 12px 30px rgba(37,99,235,0.22)' },
+                '50%': { transform: 'scale(1.05)', boxShadow: '0 16px 38px rgba(6,182,212,0.30)' },
+              },
+            }}
+          >
+            <SearchIcon sx={{ fontSize: 24 }} />
+          </Box>
           <Box>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#0f172a', lineHeight: 1.2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 850, color: '#0f172a', lineHeight: 1.2, fontSize: '1.18rem' }}>
               Medical Search
             </Typography>
-            <Typography variant="caption" sx={{ color: '#94a3b8', fontSize: '0.7rem' }}>
-              Search across 10,000+ conditions
+            <Typography variant="caption" sx={{ color: '#64748b', fontSize: '0.82rem' }}>
+              Search conditions, symptoms, and clinical topics
             </Typography>
           </Box>
         </Box>
 
-        <TextField
-          fullWidth
-          value={searchQuery}
-          onChange={(e) => handleSearch(e.target.value)}
-          placeholder="Search conditions, symptoms, diseases..."
-          variant="outlined"
-          size="small"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                {searchMutation.isPending ? (
-                  <CircularProgress size={15} sx={{ color: '#7c3aed' }} />
-                ) : (
-                  <SearchIcon sx={{ fontSize: 17, color: '#94a3b8' }} />
-                )}
-              </InputAdornment>
-            ),
-            endAdornment: searchQuery ? (
-              <InputAdornment position="end">
-                <IconButton size="small" onClick={clearSearch} sx={{ color: '#94a3b8' }}>
-                  <CloseIcon sx={{ fontSize: 15 }} />
-                </IconButton>
-              </InputAdornment>
-            ) : null,
-          }}
+        <Box
           sx={{
+            position: 'relative',
             mb: 2,
-            '& .MuiOutlinedInput-root': {
-              borderRadius: '10px',
-              bgcolor: '#f8fafc',
-              fontSize: '0.88rem',
-              '& fieldset': { borderColor: '#e2e8f0' },
-              '&:hover fieldset': { borderColor: '#94a3b8' },
-              '&.Mui-focused fieldset': { borderColor: '#7c3aed', borderWidth: '2px' },
-            },
-            '& .MuiInputBase-input': {
-              color: '#0f172a',
-              '&::placeholder': { color: '#94a3b8' },
+            borderRadius: '20px',
+            p: '2px',
+            background:
+              'linear-gradient(90deg, rgba(37,99,235,0.95), rgba(6,182,212,0.95), rgba(124,58,237,0.95), rgba(37,99,235,0.95))',
+            backgroundSize: '260% 100%',
+            animation: 'searchGlowBorder 5s linear infinite',
+            boxShadow: '0 14px 34px rgba(37,99,235,0.16)',
+            '@keyframes searchGlowBorder': {
+              '0%': { backgroundPosition: '0% 50%' },
+              '100%': { backgroundPosition: '260% 50%' },
             },
           }}
-        />
+        >
+          <TextField
+            fullWidth
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            placeholder="Search conditions, symptoms, diseases..."
+            variant="outlined"
+            size="small"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  {searchMutation.isPending ? (
+                    <CircularProgress size={18} sx={{ color: '#2563eb' }} />
+                  ) : (
+                    <SearchIcon sx={{ fontSize: 20, color: '#2563eb' }} />
+                  )}
+                </InputAdornment>
+              ),
+              endAdornment: searchQuery ? (
+                <InputAdornment position="end">
+                  <IconButton size="small" onClick={clearSearch} sx={{ color: '#64748b' }}>
+                    <CloseIcon sx={{ fontSize: 16 }} />
+                  </IconButton>
+                </InputAdornment>
+              ) : null,
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '18px',
+                bgcolor: 'rgba(255,255,255,0.96)',
+                fontSize: '0.96rem',
+                minHeight: 52,
+                '& fieldset': { borderColor: 'transparent' },
+                '&:hover fieldset': { borderColor: 'transparent' },
+                '&.Mui-focused fieldset': { borderColor: 'transparent' },
+              },
+              '& .MuiInputBase-input': {
+                color: '#0f172a',
+                fontWeight: 600,
+                '&::placeholder': { color: '#94a3b8', fontWeight: 500 },
+              },
+            }}
+          />
+        </Box>
 
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, alignItems: 'center' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mr: 0.25 }}>
@@ -340,22 +487,47 @@ export function SearchPanel() {
               Popular:
             </Typography>
           </Box>
-          {quickSearchTerms.map(({ term, icon }) => (
+          {quickSearchTerms.map(({ term, Icon, color }) => (
             <Chip
               key={term}
-              label={`${icon} ${term}`}
+              icon={
+                <Box
+                  sx={{
+                    width: 20,
+                    height: 20,
+                    borderRadius: '50%',
+                    bgcolor: `${color}18`,
+                    color,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    ml: '4px !important',
+                  }}
+                >
+                  <Icon sx={{ fontSize: 13 }} />
+                </Box>
+              }
+              label={term}
               size="small"
               onClick={() => handleQuickSearch(term)}
               sx={{
-                height: 24,
-                fontSize: '0.7rem',
-                bgcolor: searchQuery === term ? '#f5f3ff' : '#f8fafc',
-                border: `1px solid ${searchQuery === term ? '#ddd6fe' : '#e2e8f0'}`,
-                color: searchQuery === term ? '#7c3aed' : '#475569',
+                height: 30,
+                fontSize: '0.76rem',
+                bgcolor: searchQuery === term ? `${color}12` : 'rgba(255,255,255,0.72)',
+                border: `1px solid ${searchQuery === term ? `${color}55` : 'rgba(226,232,240,0.9)'}`,
+                color: searchQuery === term ? color : '#475569',
                 cursor: 'pointer',
                 transition: 'all 0.15s',
-                '& .MuiChip-label': { px: 0.875 },
-                '&:hover': { bgcolor: '#f5f3ff', borderColor: '#ddd6fe', color: '#7c3aed' },
+                borderRadius: '999px',
+                backdropFilter: 'blur(10px)',
+                '& .MuiChip-label': { px: 1, fontWeight: 700 },
+                '&:hover': {
+                  bgcolor: `${color}12`,
+                  borderColor: `${color}55`,
+                  color,
+                  transform: 'translateY(-2px)',
+                  boxShadow: `0 8px 18px ${color}20`,
+                },
               }}
             />
           ))}
@@ -363,14 +535,36 @@ export function SearchPanel() {
       </Box>
 
       {/* Results */}
-      <Box sx={{ flex: 1, overflowY: 'auto', p: 3, minHeight: 0, bgcolor: '#f8fafc' }}>
+      <Box
+        sx={{
+          flex: 1,
+          overflowY: 'auto',
+          p: 3,
+          minHeight: 0,
+          bgcolor: 'transparent',
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
         {/* Stats */}
         {searchStats && results.length > 0 && (
           <Fade in>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                mb: 2,
+                px: 1.5,
+                py: 1,
+                borderRadius: '14px',
+                bgcolor: 'rgba(255,255,255,0.72)',
+                border: '1px solid rgba(219,234,254,0.85)',
+                backdropFilter: 'blur(12px)',
+              }}
+            >
               <Typography variant="body2" sx={{ color: '#64748b', fontSize: '0.82rem' }}>
                 Found{' '}
-                <Box component="span" sx={{ color: '#7c3aed', fontWeight: 700 }}>
+                <Box component="span" sx={{ color: '#2563eb', fontWeight: 800 }}>
                   {results.length}
                 </Box>{' '}
                 results
@@ -482,7 +676,24 @@ export function SearchPanel() {
         {searchMutation.isSuccess && results.length === 0 && searchQuery && (
           <Fade in>
             <Box sx={{ textAlign: 'center', py: 8 }}>
-              <SearchIcon sx={{ fontSize: 48, color: '#e2e8f0', mb: 2 }} />
+              <Box
+                sx={{
+                  width: 76,
+                  height: 76,
+                  mx: 'auto',
+                  mb: 2,
+                  borderRadius: '50%',
+                  bgcolor: 'rgba(254,242,242,0.85)',
+                  border: '1px solid #fecaca',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#dc2626',
+                  boxShadow: '0 16px 36px rgba(220,38,38,0.12)',
+                }}
+              >
+                <SearchIcon sx={{ fontSize: 34 }} />
+              </Box>
               <Typography variant="h6" sx={{ color: '#475569', mb: 1, fontWeight: 600 }}>
                 No results found
               </Typography>
@@ -505,23 +716,28 @@ export function SearchPanel() {
         {!searchMutation.isPending && !searchMutation.isSuccess && !searchMutation.isError && (
           <Box sx={{ textAlign: 'center', py: 6 }}>
             <Box
-              component="img"
-              src="/searchicon.png"
-              alt="Search"
               sx={{
-                width: 56,
-                height: 56,
+                width: 76,
+                height: 76,
                 mx: 'auto',
                 mb: 2,
-                opacity: 0.25,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #2563eb, #06b6d4)',
+                color: '#ffffff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 18px 44px rgba(37,99,235,0.22)',
                 animation: 'float 3s ease-in-out infinite',
                 '@keyframes float': {
                   '0%,100%': { transform: 'translateY(0)' },
                   '50%': { transform: 'translateY(-8px)' },
                 },
               }}
-            />
-            <Typography variant="h6" sx={{ color: '#475569', mb: 1, fontWeight: 600, fontSize: '1rem' }}>
+            >
+              <BiotechIcon sx={{ fontSize: 34 }} />
+            </Box>
+            <Typography variant="h6" sx={{ color: '#0f172a', mb: 1, fontWeight: 800, fontSize: '1.12rem' }}>
               Search Medical Conditions
             </Typography>
             <Typography variant="body2" sx={{ color: '#94a3b8', maxWidth: 360, mx: 'auto', lineHeight: 1.6, fontSize: '0.83rem' }}>
@@ -539,22 +755,44 @@ export function SearchPanel() {
               }}
             >
               {[
-                { icon: '🔍', title: 'Instant Search', desc: 'Real-time results as you type' },
-                { icon: '🏥', title: '10K+ Conditions', desc: 'Comprehensive medical database' },
-                { icon: '🤖', title: 'AI-Powered', desc: 'Ask follow-up questions via chat' },
+                { Icon: SearchIcon, title: 'Instant Search', desc: 'Real-time results as you type', color: '#2563eb' },
+                { Icon: HospitalIcon, title: '10K+ Conditions', desc: 'Comprehensive medical database', color: '#0891b2' },
+                { Icon: PharmacyIcon, title: 'AI Follow-Up', desc: 'Ask follow-up questions via chat', color: '#7c3aed' },
               ].map((f) => (
                 <Box
                   key={f.title}
                   sx={{
                     p: 2,
-                    borderRadius: '12px',
-                    bgcolor: '#ffffff',
-                    border: '1px solid #e2e8f0',
+                    borderRadius: '16px',
+                    bgcolor: 'rgba(255,255,255,0.76)',
+                    border: '1px solid rgba(219,234,254,0.85)',
                     textAlign: 'center',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                    boxShadow: '0 10px 24px rgba(37,99,235,0.06)',
+                    backdropFilter: 'blur(12px)',
+                    transition: 'all 0.18s ease',
+                    '&:hover': {
+                      transform: 'translateY(-3px)',
+                      boxShadow: `0 16px 36px ${f.color}18`,
+                      borderColor: `${f.color}45`,
+                    },
                   }}
                 >
-                  <Typography sx={{ fontSize: '1.4rem', mb: 0.5 }}>{f.icon}</Typography>
+                  <Box
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      mx: 'auto',
+                      mb: 1,
+                      borderRadius: '50%',
+                      bgcolor: `${f.color}12`,
+                      color: f.color,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <f.Icon sx={{ fontSize: 22 }} />
+                  </Box>
                   <Typography variant="caption" sx={{ color: '#334155', fontWeight: 700, display: 'block', mb: 0.25 }}>
                     {f.title}
                   </Typography>
@@ -574,11 +812,14 @@ export function SearchPanel() {
           px: 3,
           py: 1,
           borderTop: '1px solid #fde68a',
-          bgcolor: '#fffbeb',
+          bgcolor: 'rgba(255,251,235,0.86)',
           display: 'flex',
           alignItems: 'center',
           gap: 0.75,
           flexShrink: 0,
+          position: 'relative',
+          zIndex: 1,
+          backdropFilter: 'blur(14px)',
         }}
       >
         <WarningIcon sx={{ fontSize: 12, color: '#d97706', flexShrink: 0 }} />

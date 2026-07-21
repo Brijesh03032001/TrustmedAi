@@ -4,6 +4,14 @@
   <img src="public/banner.png" alt="TrustMed-AI banner showing the medical assistant interface, retrieval pipeline, and tech stack" width="100%" />
 </p>
 
+<p align="center">
+  <a href="#architecture">Architecture</a> •
+  <a href="#current-capabilities">Capabilities</a> •
+  <a href="#local-setup">Local Setup</a> •
+  <a href="#main-api-endpoints">API</a> •
+  <a href="#evaluation">Evaluation</a>
+</p>
+
 TrustMed-AI is a full-stack, source-grounded medical question-answering assistant built around an agentic RAG pipeline. It pairs a polished Next.js experience with a FastAPI orchestration backend, ChromaDB retrieval, optional FAISS refinement, optional cross-encoder reranking, ReAct-style routing traces, and ElevenLabs voice input/output.
 
 I built this as a portfolio-grade AI engineering project: the focus is not just generating answers, but showing the retrieval path, citations, confidence signals, evaluation reports, and user-facing interaction details that make an AI product easier to trust.

@@ -17,6 +17,14 @@
   <img src="https://img.shields.io/badge/Voice-ElevenLabs-111111?style=for-the-badge" alt="ElevenLabs" />
 </p>
 
+<p align="center">
+  <a href="#architecture">Architecture</a> •
+  <a href="#current-capabilities">Capabilities</a> •
+  <a href="#local-setup">Local Setup</a> •
+  <a href="#evaluation">Evaluation</a> •
+  <a href="TrustMed-AI/">Explore the Project</a>
+</p>
+
 TrustMed-AI is a full-stack, source-grounded medical question-answering assistant built around an agentic RAG pipeline. It pairs a polished Next.js experience with a FastAPI orchestration backend, ChromaDB retrieval, optional FAISS refinement, optional cross-encoder reranking, ReAct-style routing traces, and ElevenLabs voice input/output.
 
 I built this as a portfolio-grade AI engineering project: the focus is not just generating answers, but showing the retrieval path, citations, confidence signals, evaluation reports, and user-facing interaction details that make an AI product easier to trust.

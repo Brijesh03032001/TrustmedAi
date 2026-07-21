@@ -1,50 +1,108 @@
 # TrustMed-AI
 
-TrustMed-AI is a full-stack medical question-answering assistant built around an agentic RAG pipeline. The application combines a Next.js clinician/patient chat interface, a FastAPI orchestration backend, ChromaDB vector search, optional FAISS refinement, optional cross-encoder reranking, ReAct-style routing traces, and ElevenLabs voice input/output.
+<p align="center">
+  <img src="public/banner.png" alt="TrustMed-AI banner showing the medical assistant interface, retrieval pipeline, and tech stack" width="100%" />
+</p>
 
-This project is designed for educational and portfolio use. It is not a medical device and should not be used as a substitute for a licensed clinician.
+TrustMed-AI is a full-stack, source-grounded medical question-answering assistant built around an agentic RAG pipeline. It pairs a polished Next.js experience with a FastAPI orchestration backend, ChromaDB retrieval, optional FAISS refinement, optional cross-encoder reranking, ReAct-style routing traces, and ElevenLabs voice input/output.
+
+I built this as a portfolio-grade AI engineering project: the focus is not just generating answers, but showing the retrieval path, citations, confidence signals, evaluation reports, and user-facing interaction details that make an AI product easier to trust.
+
+> Educational project only: TrustMed-AI is not a medical device and should not be used as a substitute for a licensed clinician.
+
+## Recruiter-Friendly Snapshot
+
+| Area | What this project demonstrates |
+|---|---|
+| Full-stack product engineering | Next.js, React, TypeScript frontend connected to a FastAPI backend |
+| Applied AI/RAG | Agentic retrieval across symptoms, diseases, and medicines collections |
+| Search and ranking | ChromaDB vector search, optional FAISS refinement, and cross-encoder reranking |
+| Explainability | ReAct-style Thought -> Action -> Observation routing traces and cited responses |
+| Evaluation mindset | Precision@K, MRR, keyword coverage, grounding-risk checks, and saved benchmark reports |
+| UX polish | 3D doctor avatar, word-by-word answer rendering, source cards, voice input, and TTS playback |
+
+## Product Highlights
+
+- Ask medical questions and receive source-grounded answers with citations.
+- Browse disease and condition information through a dedicated frontend view.
+- Route queries across specialized retrieval agents for symptoms, diseases, and medicines.
+- Inspect confidence, response time, retrieved sources, and metadata in the chat UI.
+- Use accessibility-focused voice features with speech-to-text and text-to-speech.
+- Run repeatable retrieval and faithfulness evaluations from local benchmark scripts.
 
 ## Architecture
 
-```text
-User
-  |
-  v
-Next.js frontend
-  - chat interface
-  - disease/search views
-  - Spline landing-page hero visual
-  - interactive Three.js doctor avatar
-  - word-by-word generated answer UI
-  - microphone input
-  - listen-to-answer output
-  |
-  v
-FastAPI backend
-  |
-  +--> ReAct-style query planner
-  |      Thought -> Action -> Observation trace
-  |
-  +--> Agentic RAG orchestrator
-  |      - symptoms agent
-  |      - diseases agent
-  |      - medicines agent
-  |      - parallel execution with ThreadPoolExecutor
-  |
-  +--> Retrieval stack
-  |      - ChromaDB persistent vector collections
-  |      - sentence-transformers/all-MiniLM-L6-v2 embeddings
-  |      - optional FAISS candidate refinement
-  |      - optional cross-encoder reranking
-  |
-  +--> Answer generation
-  |      - cited response aggregation
-  |      - source links
-  |      - confidence and per-agent metrics
-  |
-  +--> ElevenLabs voice service
-         - text-to-speech
-         - speech-to-text
+```mermaid
+flowchart TB
+    USER(["User"])
+
+    subgraph EXPERIENCE["01 — User Experience"]
+        direction LR
+        WEB["Next.js Web App"]
+        CHAT["Medical Chat"]
+        SEARCH["Condition Search"]
+        ACCESS["Voice & 3D Experience"]
+        WEB --> CHAT
+        WEB --> SEARCH
+        WEB --> ACCESS
+    end
+
+    subgraph INTELLIGENCE["02 — Agentic Intelligence"]
+        direction TB
+        API["FastAPI Gateway"]
+        PLAN["ReAct Query Planner"]
+        ORCH["RAG Orchestrator"]
+        API --> PLAN --> ORCH
+    end
+
+    subgraph RETRIEVAL["03 — Parallel Retrieval & Ranking"]
+        direction LR
+        SYM["Symptoms Agent"]
+        DIS["Diseases Agent"]
+        MED["Medicines Agent"]
+        DB[("ChromaDB<br/>Vector Collections")]
+        FAISS["FAISS Refinement"]
+        RERANK["Cross-Encoder<br/>Reranking"]
+
+        SYM --> DB
+        DIS --> DB
+        MED --> DB
+        DB -. optional .-> FAISS
+        FAISS -. optional .-> RERANK
+    end
+
+    subgraph RESPONSE["04 — Grounded Response"]
+        direction LR
+        GENERATE["Answer Generation"]
+        EVIDENCE["Citations & Sources"]
+        SIGNALS["Confidence & Metrics"]
+        GENERATE --> EVIDENCE --> SIGNALS
+    end
+
+    USER --> WEB
+    CHAT --> API
+    SEARCH --> API
+    ORCH --> SYM
+    ORCH --> DIS
+    ORCH --> MED
+    DB --> GENERATE
+    RERANK --> GENERATE
+    SIGNALS --> CHAT
+
+    API -. speech .-> VOICE["ElevenLabs<br/>STT & TTS"]
+    VOICE -. audio .-> ACCESS
+
+    classDef entry fill:#0F172A,stroke:#2563EB,color:#FFFFFF,stroke-width:2px
+    classDef product fill:#DBEAFE,stroke:#2563EB,color:#172554,stroke-width:2px
+    classDef agent fill:#EDE9FE,stroke:#7C3AED,color:#3B0764,stroke-width:2px
+    classDef data fill:#FFF7ED,stroke:#EA580C,color:#7C2D12,stroke-width:2px
+    classDef result fill:#DCFCE7,stroke:#16A34A,color:#14532D,stroke-width:2px
+
+    class USER entry
+    class WEB,CHAT,SEARCH,ACCESS product
+    class API,PLAN,ORCH,SYM,DIS,MED,VOICE agent
+    class DB,FAISS,RERANK data
+    class GENERATE,EVIDENCE,SIGNALS result
 ```
 
 ## Current Capabilities
